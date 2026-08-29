@@ -244,6 +244,20 @@ export interface Repository {
    */
   acceptInvitation(tenantId: string): Promise<AcceptInvitationResult>
   /**
+   * CORRECTIVE TASK (unit-02, task-corrective-01) — Site creation's own
+   * named door, matching `createAreaUnderSite`'s shape one tier up: a
+   * declared `AccessRequest` (`CREATE_SITE_REQUEST`, this file's own
+   * const), `evaluateAccess` run before any row is read, then delegation
+   * to the same internal `createRow` the generic door uses. Before this
+   * fix, a Site was created through the bare generic `create('sites', ...)`
+   * door, which has no dedicated `AccessRequest` for `sites` and fell back
+   * to `defaultWriteRoles('hub')` (`TENANT_OPERATIONAL_WRITERS`) — the
+   * source (`L27118`) restricts creating a Site, Area or Location to the
+   * Tenant Admin alone, and `LocationConfigurationScreen.tsx` now calls
+   * this door instead.
+   */
+  createSite(site: RowOf<'sites'>, ctx: AccessContext): Promise<WriteResult<RowOf<'sites'>>>
+  /**
    * Task 1 (unit-02) — a new Area's `siteId` must name a real, active,
    * same-tenant Site, a rule the generic `create()` door does not run (it
    * validates the row's own shape against `schemas/org.ts#Area`, never
@@ -1152,17 +1166,68 @@ const ASSIGN_TENANT_ROLE_REQUEST: AccessRequest = {
  * `createAreaUnderSite` itself, which knows the actual `area.siteId` this
  * constant cannot.
  */
+/**
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — `allowedRoles` narrowed
+ * to `['TENANT_ADMIN']`, correcting the paragraph above. This constant's
+ * own `sourceRefs` already named `L27118` — the frozen source's Location
+ * Configuration roles-and-permissions table, "Create a Site, Area or
+ * Location": `Allowed with conditions` for Tenant Admin only, `Explicitly
+ * prohibited` for Supervisor, Quality Manager, Read-only Auditor and
+ * Worker alike. The `['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER']`
+ * this constant shipped with (see the paragraph above) contradicted the
+ * very line it cited — measured live: a Supervisor or Quality Manager
+ * could create an Area this table explicitly prohibits them from
+ * creating. The same table's "blocked in soft, hard and compliance
+ * suspension" condition on the Tenant Admin's OWN write is not a gap this
+ * fix adds logic for: `evaluateAccess`'s shared FEATURE_AND_SUSPENSION
+ * stage already denies every TENANT-domain request (this door included)
+ * whenever `ctx.identity.tenant` names a suspended tenant, with no
+ * per-door opt-in required, so nothing further is needed here.
+ */
 const CREATE_AREA_UNDER_SITE_REQUEST: AccessRequest = {
   action: 'create-area-under-site',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27118', 'L26919', 'repository.ts'],
 }
 
-/** `CREATE_AREA_UNDER_SITE_REQUEST`'s own sibling for `createLocationUnderArea`. Same reasoning, `checkAreaReference`/`requiredAreas`/`areaScope` in place of `checkSiteReference`/`requiredSites`/`siteScope`. */
+/**
+ * `CREATE_AREA_UNDER_SITE_REQUEST`'s own sibling for `createLocationUnderArea`.
+ * Same reasoning, `checkAreaReference`/`requiredAreas`/`areaScope` in place
+ * of `checkSiteReference`/`requiredSites`/`siteScope`.
+ *
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — same correction, same
+ * reasoning as `CREATE_AREA_UNDER_SITE_REQUEST` above: `L27118` prohibits
+ * every role but Tenant Admin from creating a Location, and this
+ * constant's prior `allowedRoles` contradicted that.
+ */
 const CREATE_LOCATION_UNDER_AREA_REQUEST: AccessRequest = {
   action: 'create-location-under-area',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27118', 'L26919', 'repository.ts'],
+}
+
+/**
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — Site creation's own
+ * named door. Before this fix, a new Site was created through the bare
+ * generic `create('sites', ...)` door, which has no dedicated
+ * `AccessRequest` for `sites` and falls back to `defaultWriteRoles('hub')`
+ * (`TENANT_OPERATIONAL_WRITERS`) — the same too-wide floor
+ * `CREATE_AREA_UNDER_SITE_REQUEST` shipped with, for the same reason:
+ * nobody had given Site creation its own narrower door. `L27118` (this
+ * constant's own citation, the Location Configuration roles-and-
+ * permissions table's "Create a Site, Area or Location" row) draws no
+ * distinction between the three tiers — Tenant Admin only, for all three
+ * — so this door's floor matches `CREATE_AREA_UNDER_SITE_REQUEST`'s
+ * exactly. Same shape as that door: a static `AccessRequest`, `resourceTenant`
+ * added dynamically at the call site (see `createSite` below) since a Site
+ * has no PARENT reference for `checkSiteReference` to validate the way an
+ * Area or Location has — the Site row IS the resource, so its own
+ * `tenantId` is what the tenant-isolation stage must check.
+ */
+const CREATE_SITE_REQUEST: AccessRequest = {
+  action: 'create-site',
+  allowedRoles: ['TENANT_ADMIN'],
+  sourceRefs: ['L27118', 'repository.ts'],
 }
 
 /**
@@ -1250,16 +1315,39 @@ function shiftOverlapConflict(
  * constant's own comment for the fix-round-2 finding this shape exists to
  * avoid repeating).
  */
+/**
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — `allowedRoles` narrowed
+ * to `['TENANT_ADMIN']`, correcting the paragraph above. This constant's
+ * own `sourceRefs` already named `L27291` — the frozen source's Shift
+ * Management roles-and-permissions table, "Create a Shift":
+ * `Allowed with conditions` for Tenant Admin only, `Explicitly prohibited`
+ * for Supervisor, Quality Manager, Read-only Auditor and Worker alike (the
+ * same table's own "Security" field states it plainly: "Tenant Admin only
+ * for writes; all other roles read within scope"). The
+ * `['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER']` this constant
+ * shipped with contradicted the very line it cited. The same table's
+ * "blocked in every suspension state" condition on the Tenant Admin's OWN
+ * write needs no new logic here — `evaluateAccess`'s shared
+ * FEATURE_AND_SUSPENSION stage already denies every TENANT-domain request
+ * (this door included) against a suspended tenant, generically.
+ */
 const CREATE_SHIFT_REQUEST: AccessRequest = {
   action: 'create-shift',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27291', 'repository.ts'],
 }
 
-/** `CREATE_SHIFT_REQUEST`'s own sibling for `updateShift`. Same shape. */
+/**
+ * `CREATE_SHIFT_REQUEST`'s own sibling for `updateShift`. Same shape.
+ *
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — same correction, same
+ * reasoning as `CREATE_SHIFT_REQUEST` above: `L27292` ("Edit a Shift")
+ * prohibits every role but Tenant Admin, and this constant's prior
+ * `allowedRoles` contradicted that.
+ */
 const UPDATE_SHIFT_REQUEST: AccessRequest = {
   action: 'update-shift',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27292', 'repository.ts'],
 }
 
@@ -1276,10 +1364,24 @@ const UPDATE_SHIFT_REQUEST: AccessRequest = {
  * which never reaches `update()` at all). This is that up-front check,
  * declared once rather than duplicating `authorizeWrite`'s own role
  * floor.
+ *
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — `allowedRoles` narrowed
+ * to `['TENANT_ADMIN']`. This constant's own `sourceRefs` already named
+ * `L27122` — the frozen source's Location Configuration roles-and-
+ * permissions table, "Archive a Site or Area": `Allowed with conditions`
+ * for Tenant Admin only, `Explicitly prohibited` for Supervisor, Quality
+ * Manager, Read-only Auditor and Worker alike. The
+ * `['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER']` this constant
+ * shipped with contradicted the very line it cited — measured live: a
+ * Supervisor or Quality Manager could archive a Site or Area this table
+ * explicitly prohibits them from archiving. No new suspension logic is
+ * added here for the same reason `CREATE_AREA_UNDER_SITE_REQUEST`'s own
+ * corrective note gives: `evaluateAccess`'s shared FEATURE_AND_SUSPENSION
+ * stage already covers it generically.
  */
 const ARCHIVE_LOCATION_TIER_ENTITY_REQUEST: AccessRequest = {
   action: 'archive-location-tier-entity',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27122', 'L112908', 'WF-DOH-02-CASCADE', 'repository.ts'],
 }
 
@@ -2820,6 +2922,33 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       )
       if (!result.ok) return result
       return { ok: true, user: result.row }
+    },
+
+    /**
+     * CORRECTIVE TASK (unit-02, task-corrective-01) — see the `Repository`
+     * interface's own comment and `CREATE_SITE_REQUEST`'s own comment.
+     * Unlike `createAreaUnderSite`/`createLocationUnderArea`, a Site has no
+     * PARENT reference to re-derive a tenant fact from (`checkSiteReference`
+     * has nothing to check a Site's own `siteId` against — a Site IS the
+     * top of the hierarchy) — so `resourceTenant` is added to the
+     * `AccessRequest` directly, from the row's own `tenantId`, the one
+     * fact this door actually has to check. This is exactly what
+     * `authorizeWrite`'s own dynamic `AccessRequest` construction would
+     * have supplied (`repository.ts`, `authorizeWrite`, `resourceTenant:
+     * brandTenantId(rowTenant)`) had this gone through the generic door;
+     * declaring it here, once, keeps the tenant-isolation stage real for
+     * this door too, without re-deriving it through `resolveTenantId`
+     * (which `checkSiteReference`-style helpers exist to avoid
+     * duplicating — see `CREATE_AREA_UNDER_SITE_REQUEST`'s own comment).
+     */
+    async createSite(site, ctx) {
+      const authority = truthStoreFor('sites')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('sites', authority)
+
+      const decision = evaluateAccess({ ...CREATE_SITE_REQUEST, resourceTenant: brandTenantId(site.tenantId) }, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      return createRow('sites', site, ctx, authority)
     },
 
     /**

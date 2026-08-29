@@ -173,17 +173,36 @@ const VIEW_REQUEST: AccessRequest = {
 }
 
 /**
- * Create/edit/archive's real floor: `repository.ts`'s `'hub'`-authority
- * write door (`TENANT_OPERATIONAL_WRITERS`) governs every Shift write
- * uniformly — same shape, same disclosed deviation from the outgoing
- * fixture's narrower reading, as `LocationConfigurationScreen.tsx`'s own
- * `WRITE_REQUEST`.
+ * Create/edit/archive's real floor: `repository.ts`'s named `createShift`/
+ * `updateShift` doors and the generic `update()` door (for archive) govern
+ * every Shift write uniformly.
+ *
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — `allowedRoles` narrowed
+ * to `['TENANT_ADMIN']`. An earlier pass of this task read the repository's
+ * own `'hub'`-authority floor (`TENANT_OPERATIONAL_WRITERS`) as wider than
+ * the outgoing fixture's reading and "disclosed" that as a deliberate
+ * deviation; `L27291`/`L27292`/`L27293` (this constant's own citations —
+ * the Shift Management roles-and-permissions table's Create/Edit/Archive
+ * rows) and that table's own "Security" field ("Tenant Admin only for
+ * writes; all other roles read within scope") say otherwise. The screen
+ * gate now matches the doors it sits in front of
+ * (`CREATE_SHIFT_REQUEST`/`UPDATE_SHIFT_REQUEST` in `repository.ts`,
+ * narrowed by the same corrective task), rather than disagreeing with them.
  */
 const WRITE_REQUEST: AccessRequest = {
   action: 'configure-shifts',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27291', 'L27292', 'L27293', 'repository.ts'],
 }
+
+/**
+ * The plain-language reason a disabled Create/Edit/Archive control on this
+ * screen shows a Supervisor or Quality Manager — specific rather than the
+ * generic `ROLE_NOT_GRANTED` text, and citing the named source class
+ * (never a bare line locator, §8.6.2) `WRITE_REQUEST` above cites.
+ */
+const WRITE_DENIED_REASON =
+  "Only the Tenant Admin may create, edit or archive a Shift — the Shift Management module's own roles-and-permissions table prohibits every other role."
 
 /**
  * §8.6.1 fixture adequacy on the primary table: `pageSize={10}` against
@@ -402,19 +421,22 @@ function ShiftManagementBody({
       },
     },
     {
+      // CORRECTIVE TASK (unit-02, task-corrective-01) — this cell no longer
+      // doubles as the "open edit" trigger (view and write used to share
+      // one control, which meant a Supervisor/Quality Manager either lost
+      // the click entirely or reached a writable form the door would only
+      // refuse). It is now plain, view-only text — every field it showed is
+      // still visible, unchanged, for every role that reaches this screen —
+      // and the `edit` column below is the one real write trigger, gated on
+      // `canWrite` the same way `ArchiveControl` already was.
       key: 'name',
       header: 'Shift',
       sortValue: (s) => s.name,
       render: (s) => (
-        <button
-          type="button"
-          data-control-id={`shift-management-open-${s.id}`}
-          onClick={() => openEdit(s)}
-          className={`flex flex-col text-left underline-offset-2 hover:underline ${textColor('ink')}`}
-        >
-          <span className="font-medium">{s.name}</span>
+        <span className="flex flex-col" data-control-id={`shift-management-row-${s.id}`}>
+          <span className={`font-medium ${textColor('ink')}`}>{s.name}</span>
           <span className={`text-xs ${textColor('ink-subtle')}`}>{s.id}</span>
-        </button>
+        </span>
       ),
     },
     {
@@ -446,6 +468,11 @@ function ShiftManagementBody({
       ),
     },
     {
+      key: 'edit',
+      header: 'Edit',
+      render: (s) => <EditControl shift={s} canWrite={canWrite} onOpen={() => openEdit(s)} />,
+    },
+    {
       key: 'archive',
       header: 'Archive',
       render: (s) => (
@@ -464,7 +491,7 @@ function ShiftManagementBody({
       session={session}
       title={MODULE.name}
       breadcrumbs={[{ label: MODULE.name }]}
-      actions={<CreateAction canWrite={canWrite} writeGate={writeGate} onOpen={openCreate} />}
+      actions={<CreateAction canWrite={canWrite} onOpen={openCreate} />}
     >
       <section aria-labelledby="shift-management-heading" className="mt-6 flex flex-col gap-4">
         <h2 id="shift-management-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
@@ -491,7 +518,7 @@ function ShiftManagementBody({
           pageSize={SHIFTS_PAGE_SIZE}
           emptyState={{
             title: 'There are no Shifts yet.',
-            whatCreatesIt: 'A Tenant Admin, Supervisor or Quality Manager creates the first one from Create shift.',
+            whatCreatesIt: 'A Tenant Admin creates the first one from Create shift.',
           }}
         />
       </section>
@@ -597,11 +624,9 @@ function ShiftManagementBody({
 
 function CreateAction({
   canWrite,
-  writeGate,
   onOpen,
 }: {
   readonly canWrite: boolean
-  readonly writeGate: ReturnType<typeof evaluateAccess>
   readonly onOpen: () => void
 }) {
   const controlId = 'shift-management-create'
@@ -629,9 +654,57 @@ function CreateAction({
         Create shift
       </button>
       <p id={`${controlId}-reason`} className={`text-right text-xs ${textColor('ink-muted')}`}>
-        {writeGate.explanation}
+        {WRITE_DENIED_REASON}
       </p>
     </div>
+  )
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * The Edit control — CORRECTIVE TASK (unit-02, task-corrective-01). Same
+ * shape as `ArchiveControl` below: a live, enabled control for
+ * `canWrite`, a disabled one with a visible, `aria-describedby`-linked
+ * reason otherwise. Replaces the row name itself doubling as the "open
+ * edit" trigger (see the `name` column's own comment above).
+ * ────────────────────────────────────────────────────────────────────── */
+
+function EditControl({
+  shift,
+  canWrite,
+  onOpen,
+}: {
+  readonly shift: ShiftRow
+  readonly canWrite: boolean
+  readonly onOpen: () => void
+}) {
+  const controlId = `shift-management-edit-${shift.id}`
+  if (!canWrite) {
+    return (
+      <div className="flex flex-col gap-0.5">
+        <button
+          type="button"
+          disabled
+          aria-describedby={`${controlId}-reason`}
+          data-control-id={controlId}
+          className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
+        >
+          Edit
+        </button>
+        <p id={`${controlId}-reason`} className={`text-xs ${textColor('ink-muted')}`}>
+          Only the Tenant Admin may edit this.
+        </p>
+      </div>
+    )
+  }
+  return (
+    <button
+      type="button"
+      data-control-id={controlId}
+      onClick={onOpen}
+      className={`${radiusClass('md')} border ${borderColor('border-strong')} ${bg('surface')} px-2 py-1 text-xs font-medium ${textColor('ink')}`}
+    >
+      Edit
+    </button>
   )
 }
 
@@ -659,14 +732,20 @@ function ArchiveControl({
   }
   if (!canWrite) {
     return (
-      <button
-        type="button"
-        disabled
-        data-control-id={controlId}
-        className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
-      >
-        Archive
-      </button>
+      <div className="flex flex-col gap-0.5">
+        <button
+          type="button"
+          disabled
+          aria-describedby={`${controlId}-reason`}
+          data-control-id={controlId}
+          className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
+        >
+          Archive
+        </button>
+        <p id={`${controlId}-reason`} className={`text-xs ${textColor('ink-muted')}`}>
+          Only the Tenant Admin may archive this.
+        </p>
+      </div>
     )
   }
   return (

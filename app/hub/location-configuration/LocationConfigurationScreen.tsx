@@ -97,13 +97,16 @@ import { dohModuleById } from '@/surfaces/doh/modules'
  *    exactly that reason, rather than relying on the nav rail alone to
  *    keep a Worker out of a direct URL.
  *  - CTL-02 ("Create a Site, an Area or a Location", L27118, L26919) → the
- *    Create actions below. `authorizeWrite`'s real `'hub'`-authority floor
- *    (`repository.ts`, `TENANT_OPERATIONAL_WRITERS`) is WIDER than
- *    `./fixtures.ts`'s own reading of L27118 (Tenant Admin only,
- *    Supervisor/Quality Manager/Auditor/Worker all `explicitly-prohibited`)
- *    — see the disclosure beside the Create control below for why this
- *    build follows the repository's own uniform floor rather than the
- *    narrower per-module reading, and the ledger below for both citations.
+ *    Create actions below, now gated Tenant-Admin-only (CORRECTIVE TASK,
+ *    unit-02 task-corrective-01) — `createSite`/`createAreaUnderSite`/
+ *    `createLocationUnderArea` (`repository.ts`) match `./fixtures.ts`'s
+ *    own reading of L27118 exactly (Tenant Admin only; Supervisor, Quality
+ *    Manager, Read-only Auditor and Worker all `explicitly-prohibited`).
+ *    An earlier pass of this task read `authorizeWrite`'s real
+ *    `'hub'`-authority floor (`TENANT_OPERATIONAL_WRITERS`) as wider and
+ *    "disclosed" that as a deliberate deviation; that reading contradicted
+ *    the very line it cited, and the corrective task fixed the doors
+ *    rather than the disclosure.
  *  - CTL-03 ("Edit a name, an address or a contact", L27119) → NOT BUILT.
  *    The task brief's own Step 4 enumerates create, archive and the
  *    timezone field as this task's deliverables; it does not name an edit
@@ -116,8 +119,8 @@ import { dohModuleById } from '@/surfaces/doh/modules'
  *    never built by any reading (`explicitly-prohibited` for every role at
  *    V1), so only CTL-04 is a real, disclosed gap here.
  *  - CTL-06 ("Archive a Site or an Area", L27122, L112908) →
- *    `archiveLocationTierEntity` and the per-row Archive control. Same
- *    role-floor deviation as CTL-02 (see above and the disclosure below).
+ *    `archiveLocationTierEntity` and the per-row Archive control, also
+ *    Tenant-Admin-only as of the same corrective task (see CTL-02 above).
  *    The "cascade must complete reassignment first" reading (L27122) is
  *    realised as this build's OWN alternate path — refuse-and-name rather
  *    than hold-and-cascade — per `WF-DOH-02-CASCADE`.
@@ -219,22 +222,36 @@ const VIEW_REQUEST: AccessRequest = {
 }
 
 /**
- * CTL-02/CTL-06's real floor: `repository.ts`'s `'hub'`-authority write
- * door (`TENANT_OPERATIONAL_WRITERS`) governs every Site/Area/Location
- * write uniformly — Create and Archive share this SAME request, matching
- * what the repository itself actually enforces (see this file's header,
- * "LOCATOR RELOCATION", CTL-02/CTL-06). WIDER than `./fixtures.ts`'s own
- * per-module reading of L27118/L27122 (Tenant Admin only); this build
- * follows the repository's uniform floor, disclosed via `ControlDisclosure`
- * beside the Create control below, rather than adding a second, narrower,
- * screen-local gate that would just disagree with the door it sits in
- * front of.
+ * CTL-02/CTL-06's real floor: `repository.ts`'s named `createSite`/
+ * `createAreaUnderSite`/`createLocationUnderArea`/
+ * `archiveLocationTierEntity` doors govern every Site/Area/Location write
+ * uniformly — Create and Archive share this SAME screen-level request,
+ * matching what those doors themselves now enforce.
+ *
+ * CORRECTIVE TASK (unit-02, task-corrective-01) — `allowedRoles` narrowed
+ * to `['TENANT_ADMIN']`. This screen gate previously matched the
+ * repository's own too-wide floor (`TENANT_OPERATIONAL_WRITERS`), which
+ * this same fix has narrowed at the door — see `CREATE_AREA_UNDER_SITE_
+ * REQUEST`/`ARCHIVE_LOCATION_TIER_ENTITY_REQUEST`'s own corrective notes
+ * in `repository.ts`. `L27118`/`L27122` (this constant's own citations)
+ * name Tenant Admin as the only role either action is available to; the
+ * screen gate now matches the door it sits in front of, rather than
+ * disagreeing with it.
  */
 const WRITE_REQUEST: AccessRequest = {
   action: 'configure-location-hierarchy',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27118', 'L27122', 'L26919', 'repository.ts', 'WF-DOH-02-CASCADE'],
 }
+
+/**
+ * The plain-language reason a disabled Create/Archive control on this
+ * screen shows a Supervisor or Quality Manager — specific rather than the
+ * generic `ROLE_NOT_GRANTED` text, and citing the named source class
+ * (never a bare line locator, §8.6.2) `WRITE_REQUEST` above cites.
+ */
+const WRITE_DENIED_REASON =
+  "Only the Tenant Admin may create or archive a Site, Area or Location — the Location Configuration module's own roles-and-permissions table prohibits every other role."
 
 function toneFor(status: 'active' | 'archived'): StatusToken {
   return STATUS_TONE[status]
@@ -428,12 +445,7 @@ function LocationConfigurationBody({
       title={MODULE.name}
       breadcrumbs={[{ label: MODULE.name }, { label: breadcrumbLabel }]}
       actions={
-        <CreateAction
-          tier={tier}
-          canWrite={canWrite}
-          writeGate={writeGate}
-          onOpen={() => openCreate(tier)}
-        />
+        <CreateAction tier={tier} canWrite={canWrite} onOpen={() => openCreate(tier)} />
       }
     >
       {tier === 'sites' ? (
@@ -511,12 +523,10 @@ const TIER_NOUN: Readonly<Record<Tier, string>> = { sites: 'site', areas: 'area'
 function CreateAction({
   tier,
   canWrite,
-  writeGate,
   onOpen,
 }: {
   readonly tier: Tier
   readonly canWrite: boolean
-  readonly writeGate: ReturnType<typeof evaluateAccess>
   readonly onOpen: () => void
 }) {
   const noun = TIER_NOUN[tier]
@@ -545,7 +555,7 @@ function CreateAction({
         {`Create ${noun}`}
       </button>
       <p id={`${controlId}-reason`} className={`text-right text-xs ${textColor('ink-muted')}`}>
-        {writeGate.explanation}
+        {WRITE_DENIED_REASON}
       </p>
     </div>
   )
@@ -669,7 +679,7 @@ function SitesTier({
         pageSize={SITES_PAGE_SIZE}
         emptyState={{
           title: 'There are no Sites yet.',
-          whatCreatesIt: 'A Tenant Admin, Supervisor or Quality Manager creates the first one from Create site.',
+          whatCreatesIt: 'A Tenant Admin creates the first one from Create site.',
         }}
       />
     </section>
@@ -707,14 +717,20 @@ function ArchiveControl({
   }
   if (!canWrite) {
     return (
-      <button
-        type="button"
-        disabled
-        data-control-id={controlId}
-        className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
-      >
-        Archive
-      </button>
+      <div className="flex flex-col gap-0.5">
+        <button
+          type="button"
+          disabled
+          aria-describedby={`${controlId}-reason`}
+          data-control-id={controlId}
+          className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
+        >
+          Archive
+        </button>
+        <p id={`${controlId}-reason`} className={`text-xs ${textColor('ink-muted')}`}>
+          Only the Tenant Admin may archive this.
+        </p>
+      </div>
     )
   }
   if (activeChildren.length > 0) {
@@ -864,7 +880,7 @@ function AreasTier({
         }}
         emptyState={{
           title: 'There is no Area under this Site yet.',
-          whatCreatesIt: 'A Tenant Admin, Supervisor or Quality Manager creates the first one from Create area.',
+          whatCreatesIt: 'A Tenant Admin creates the first one from Create area.',
         }}
       />
     </section>
@@ -987,7 +1003,7 @@ function LocationsTier({
         }}
         emptyState={{
           title: 'There is no Location under this Area yet.',
-          whatCreatesIt: 'A Tenant Admin, Supervisor or Quality Manager creates the first one from Create location.',
+          whatCreatesIt: 'A Tenant Admin creates the first one from Create location.',
         }}
       />
     </section>
@@ -1028,7 +1044,12 @@ function CreateDrawer({
   const title = tier === 'sites' ? 'Create site' : tier === 'areas' ? 'Create area' : tier === 'locations' ? 'Create location' : ''
 
   async function onSiteSubmit(value: RowOf<'sites'>): Promise<WriteResult<unknown>> {
-    const result = await repository.create('sites', value, ctx)
+    // CORRECTIVE TASK (unit-02, task-corrective-01) — `createSite`, not the
+    // generic `create('sites', ...)` door: the generic door has no
+    // dedicated `AccessRequest` for `sites` and fell back to
+    // `defaultWriteRoles('hub')` (`TENANT_OPERATIONAL_WRITERS`), wider than
+    // the source's own Tenant-Admin-only floor for creating a Site.
+    const result = await repository.createSite(value, ctx)
     if (result.ok) onCreated(`${result.row.name} was created.`)
     return result
   }
