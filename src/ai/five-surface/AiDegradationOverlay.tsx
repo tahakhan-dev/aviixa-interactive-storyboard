@@ -168,7 +168,13 @@ function Row({ row, headings }: { readonly row: OverlayRow; readonly headings: r
             <p className="mt-1 text-[var(--color-ink-muted)]">
               <span className="font-medium">Also reads:</span> {reading.alsoReads}
             </p>
-            <p className="mt-1 text-[var(--color-ink-subtle)]">Read from {reading.sourceRef}.</p>
+            {/* NO SEPARATE CITATION HERE. `reading.sourceRef` is always the
+                row's own `sourceRef` — this cell's alternate reading is read
+                from the row it sits in, already cited on this row via the
+                `[${row.sourceRef}]`/`derived from` badge above. A second
+                "Read from L#####." sentence restated the same locator as a
+                bare blueprint line number, a §8.6.2 violation the badge does
+                not also commit. */}
           </td>
         </tr>
       ))}
@@ -187,8 +193,14 @@ function Row({ row, headings }: { readonly row: OverlayRow; readonly headings: r
               <span lang="es">{draft.es}</span>
             </p>
             <p className="mt-1 text-[var(--color-ink-subtle)]">
-              Spine item {DRAFT_STRING_RULE.item} at {DRAFT_STRING_RULE.locator}.
+              Spine item {DRAFT_STRING_RULE.item} — {DRAFT_STRING_RULE.name}.
             </p>
+            {/* `DRAFT_STRING_RULE.locator` (the frozen-source line this spine
+                item is read from) is not rendered — a bare `L#####` in prose
+                is the §8.6.2 defect this file was audited for. The spine
+                item's own number and name are the informative, non-locator
+                citation; `spine.ts`'s `RESPONSE_SPINE` is the traceability
+                record for the line itself. */}
           </td>
         </tr>
       )}
@@ -207,11 +219,17 @@ function Table({
     <section className="space-y-3" data-overlay-table={table.kind}>
       <h3 className="text-sm font-semibold text-[var(--color-ink)]">{table.caption}</h3>
 
-      {/* THE DERIVATION STATEMENT COMES BEFORE THE TABLE, UNCONDITIONALLY. */}
+      {/* THE DERIVATION STATEMENT COMES BEFORE THE TABLE, UNCONDITIONALLY.
+          `table.headerRef`/`table.captionRef` (the frozen-source lines the
+          header row and caption are read from) are NOT spelled out here —
+          "Header at L#####, caption at L#####." was a bare blueprint line
+          locator rendered as page content, and both facts they cite are
+          already on screen: the caption is the `h3` above and the headings
+          are the table's own `th` cells below. `OverlayTable` still carries
+          both fields for the covering tests and any future registry use. */}
       {table.whyDerived === null ? (
         <p className="text-xs text-[var(--color-ink-subtle)]">
-          Transcribed from the frozen source. Header at {table.headerRef}, caption at{' '}
-          {table.captionRef}. Every cell is the source&apos;s own wording.
+          Transcribed from the frozen source. Every cell is the source&apos;s own wording.
         </p>
       ) : (
         <div
@@ -297,7 +315,11 @@ function Note({ note }: { readonly note: SourceNote }) {
         </p>
       )}
 
-      <p className="mt-1 text-[var(--color-ink-subtle)]">Read from {note.sourceRef}.</p>
+      {/* NO "Read from L#####." SENTENCE HERE. `note.sourceRef` was a bare
+          blueprint line locator rendered as page content — §8.6.2. It is
+          preserved for traceability in `data-source-note` above (and, where
+          `note.readings` is non-empty, restated per-reading via the
+          `[{reading.sourceRef}]` badges just above), not deleted. */}
     </li>
   )
 }
@@ -406,7 +428,9 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
             >
               <p className="font-medium text-[var(--color-ink)]">{absence.what}</p>
               <p className="mt-1 text-[var(--color-ink-muted)]">{absence.reason}</p>
-              <p className="mt-1 text-[var(--color-ink-subtle)]">Read from {absence.sourceRef}.</p>
+              {/* NO "Read from L#####." SENTENCE HERE — a bare blueprint line
+                  locator rendered as page content, §8.6.2. `absence.sourceRef`
+                  is preserved for traceability in `data-stated-absence` above. */}
             </li>
           ))}
         </ul>

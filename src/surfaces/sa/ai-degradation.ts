@@ -227,8 +227,13 @@ export const SA_AI_OVERLAY: SurfaceAiOverlay = {
     },
     {
       heading: `The authority matrix is filed under no module, and \`${SA_MATRIX_ATTRIBUTION.theIdentifierABuildWouldReachFor}\` is the reach this build did not take.`,
+      // NO ", at L#####." SUFFIX ON THE CAPTION SENTENCE — a bare blueprint
+      // line locator rendered as page content via `AiDegradationOverlay`'s
+      // `{note.body}`, §8.6.2. `SA_MATRIX_CAPTION_REF` is kept as `sourceRef`
+      // below (the overlay's `data-source-note` traceability attribute), not
+      // deleted — only the "at Lxxxxx" prose is.
       body: [
-        `Caption: ${SA_MATRIX_ATTRIBUTION.caption}, at ${SA_MATRIX_CAPTION_REF}.`,
+        `Caption: ${SA_MATRIX_ATTRIBUTION.caption}.`,
         `What the source assigns: ${SA_MATRIX_ATTRIBUTION.whatTheSourceAssigns}`,
         SA_MATRIX_ATTRIBUTION.whyThatReachIsNotTheSource,
         SA_MATRIX_ATTRIBUTION.howThisBuildRendersIt,
