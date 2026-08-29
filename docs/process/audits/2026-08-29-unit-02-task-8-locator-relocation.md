@@ -31,7 +31,7 @@ pointer back to the exact section for the full reading.
 | CTL-04 "Re-parent a Location..." (L27149, L27185) | NOT BUILT — disclosed gap |
 | CTL-05 "Split, merge or re-parent an Area..." (L27121) | NOT BUILT — `explicitly-prohibited` for every role at V1 by every reading; no deviation |
 | CTL-06 "Archive a Site or an Area" (L27122, L112908) | `archiveLocationTierEntity` + per-row Archive control, Tenant-Admin-only |
-| CTL-07 "Reassign a paused Job during the cascade" (L27123) | NOT BUILT — no paused-Job state exists to reassign (see D21). **Was falsely credited `demonstrated-in-storyboard` in the committed census** by a stray `control:` label still sitting in the orphaned, unimported `fixtures.ts`'s dead `CONTROL_MATRIX` array — investigated for removal (see "Over-claiming investigated" below); left in place because the array is load-bearing for `scripts/build-doh-module-reach.mjs`, and the census defect is disclosed here and in the report instead |
+| CTL-07 "Reassign a paused Job during the cascade" (L27123) | NOT BUILT — no paused-Job state exists to reassign (see D21). **Was falsely credited `demonstrated-in-storyboard` in the committed census** by this one object literal in the orphaned, unimported `fixtures.ts`'s `CONTROL_MATRIX` array. **Fixed** (post-review addendum, below): the `CTL-07` object literal alone was removed from the array; the other ten rows and `build-doh-module-reach.mjs`'s `MOD-DOH-02` reach computation are unaffected. |
 | CTL-08 "Set the Site timezone" (L27124, `AC-SCOPE-034` L2612) | Site create form's Timezone field + read-only "Inherited from Site" line |
 | CTL-09 "Set a Location's required certification" (L27125, L27215) | Location create form's free-text field |
 | CTL-10 "View a map of locations" (L27126) | NOT BUILT — deferred beyond V1, no deviation |
@@ -125,16 +125,27 @@ exit 0 afterward; `scripts/build-doh-module-reach.mjs` confirmed unaffected (`de
 of `DOH_MODULES` — see Step 2 above — so no module-reach computation ever read this file).
 
 **`app/hub/location-configuration/fixtures.ts`'s own `CONTROL_MATRIX` array** (also fully dead code —
-nothing imports it, confirmed) causes the same class of defect for exactly one row (`CTL-07`,
-"Reassign a paused Job during the cascade" — see the relocation table above). **Investigated, not
-removed**: `scripts/build-doh-module-reach.mjs` reads this exact array by static/AST inspection
-(independent of the ES module import graph) to derive `MOD-DOH-02`'s real per-role `rolesReaching`
-map, which `src/surfaces/doh/modules.ts` — and, through it, the live nav rail — depends on at
-runtime. Deleting the array (attempted, then reverted this task after `pnpm build:registries` failed
-with `app/hub/location-configuration/fixtures.ts exports 0 non-empty *MATRIX arrays whose rows carry
-the surface classification`) would have broken real, shipped navigation behaviour to fix one census
-row. Left in place; the resulting single false-positive is disclosed here, in the relocation table,
-and in the Task 8 report rather than silently left unmentioned.
+nothing imports it, confirmed) caused the same class of defect for exactly one row (`CTL-07`,
+"Reassign a paused Job during the cascade" — see the relocation table above). First attempt: deleting
+the WHOLE array, reverted this task after `pnpm build:registries` failed with
+`app/hub/location-configuration/fixtures.ts exports 0 non-empty *MATRIX arrays whose rows carry the
+surface classification` — `scripts/build-doh-module-reach.mjs` reads this array by static/AST
+inspection (independent of the ES module import graph) to derive `MOD-DOH-02`'s real per-role
+`rolesReaching` map, which `src/surfaces/doh/modules.ts` — and, through it, the live nav rail —
+depends on at runtime, and a fully empty array gives that script nothing to read.
+
+**Post-review addendum, fixed.** Review traced the false credit to one specific object literal
+(`fixtures.ts`'s `CTL-07` entry, whose `control:`/`id`/`sourceRef` keys are exactly what
+`build-registries.mjs`'s scan picks up) and pointed out `build-doh-module-reach.mjs` only refuses on
+a fully EMPTY array — removing one row of eleven, not all eleven, was never tried. Retried narrower:
+removed only the `CTL-07` object literal, left the other ten rows (including `CTL-01`, which alone
+already grants `TENANT_ADMIN`/`SUPERVISOR` reach on `MOD-DOH-02`) untouched. `pnpm
+typecheck`/`pnpm lint`/`node scripts/build-doh-module-reach.mjs`/`node
+scripts/validate-collections.mjs`/`pnpm build`/`pnpm ledger:reconcile` all re-verified exit 0;
+`registries/generated/doh/module-reach.json` came out **byte-identical** (`git diff` empty) —
+`MOD-DOH-02`'s reach was never affected, confirming the reviewer's read exactly.
+`actionable-controls:Reassign a paused Job during the cascade` now correctly reads
+`not-represented`. This was the last disclosed census false-positive from this task; none remain.
 
 ## Step 3 — census statuses
 
@@ -207,13 +218,15 @@ naming a path no registry contains) 0, exit code contribution zero either way.
 | State | demonstrated-in-storyboard | not-represented | not-applicable | mounted-in-another-screen | total |
 |---|---|---|---|---|---|
 | Committed before this task | 278 | 4,705 | 22 | 10 | 5,015 |
-| After this task (orphaned `devices/fixtures.ts` deleted) | 276 | 4,707 | 22 | 10 | 5,015 |
+| After orphaned `devices/fixtures.ts` deleted | 276 | 4,707 | 22 | 10 | 5,015 |
+| After the post-review `CTL-07` fix | 275 | 4,708 | 22 | 10 | 5,015 |
 
-Net: −2 demonstrated-in-storyboard, both over-claiming corrections (`actionable-controls:Enrol a
-device`, `ai-storyboards:SB-SEC-005`), detailed in the relocation table and the "Over-claiming found"
+Net: −3 demonstrated-in-storyboard across three over-claiming corrections
+(`actionable-controls:Enrol a device`, `ai-storyboards:SB-SEC-005`, `actionable-controls:Reassign a
+paused Job during the cascade`), detailed in the relocation table and the "Over-claiming found"
 section above. `MOD-DOH-02`/`03`/`04`/`09` unaffected — all four already read
 `demonstrated-in-storyboard` and still do. No row's `id` was added or removed; total row count
-unchanged at 5,015.
+unchanged at 5,015. No census false-positive remains disclosed as open.
 
 Exact command run for both counts:
 ```
