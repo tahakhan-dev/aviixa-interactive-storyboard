@@ -13,6 +13,7 @@ import {
   textColor,
   useProductSession,
   useRepositoryQuery,
+  useStore,
   type ProductSession,
 } from '@/ui/product'
 import type { AccessContext, Repository, RowOf } from '@/data/repository'
@@ -32,16 +33,32 @@ import type { AccessContext, Repository, RowOf } from '@/data/repository'
  * WHY THERE IS NO WRITE CONTROL ANYWHERE ON THIS SCREEN, BY OMISSION RATHER
  * THAN BY A DISABLED BUTTON: `WF-ROLE-022`'s own Denied path is unconditional
  * — "Any write refused" — and AC-SA-15-01 (frozen source) states the session
- * is "Read-only without exception, for every account including the root."
- * `openSupportSession`'s own row always carries `readOnly: true`, and no
- * tenant-domain write door this build has ever exists a PLATFORM-domain
- * identity could reach anyway (`evaluateAccess`'s own PLATFORM branch keeps
- * `identity.tenant` null for the whole life of this session — see
- * `session.ts#actingContextFor`). A rendered-but-disabled write control would
- * imply an enabled state exists somewhere for this identity; for a support
- * session it categorically does not, so none is drawn — the same "absence,
- * not a disabled control" discipline `SupportAccessScreen.tsx`'s own
- * `ProhibitionNotice` uses.
+ * is read-only without exception. `openSupportSession`'s own row always
+ * carries `readOnly: true`, and no tenant-domain write door this build has
+ * ever exists a PLATFORM-domain identity could reach anyway (`evaluateAccess`'s
+ * own PLATFORM branch keeps `identity.tenant` null for the whole life of this
+ * session — see `session.ts#actingContextFor`). A rendered-but-disabled write
+ * control would imply an enabled state exists somewhere for this identity;
+ * for a support session it categorically does not, so none is drawn — the
+ * same "absence, not a disabled control" discipline `SupportAccessScreen.tsx`'s
+ * own `ProhibitionNotice` uses.
+ *
+ * Fix round 1 (coordinator review, Critical 2 / Important 9) — the on-screen
+ * banner below used to render "(AC-SA-15-01)" as page text and point the
+ * reader at "this file's own header comment", both defects: a bare
+ * requirement identifier is never product copy (the citation belongs here,
+ * in the comment, not on screen), and a sentence written to whoever reads
+ * the SOURCE is not a sentence for whoever is USING the product. It also
+ * claimed "for every account including the root", which overclaims — Root
+ * and Admin retain their ordinary `'platform'`-authority write capability
+ * (`users`/`role-grants`/`tenants`, `PLATFORM_WRITERS`) for the whole life of
+ * this session; that capability is pre-existing and outside this task's
+ * reach to remove, not something a support session grants or revokes. The
+ * true, narrower claim this screen can actually stand behind: this session
+ * grants no additional write authority into the TARGET TENANT'S OWN
+ * operational data — which is the fact `readOnly: true` and the PLATFORM
+ * branch's `identity.tenant === null` invariant (both cited above) actually
+ * establish.
  *
  * WHICH TENANT THIS SCREEN RENDERS: never `session.tenant` (always `null`
  * for a signed-in PLATFORM identity, and it must stay that way — see
@@ -61,11 +78,30 @@ interface SupportSessionView {
   readonly sites: readonly RowOf<'sites'>[]
 }
 
+/**
+ * Fix round 1 (coordinator review, Important 7) — two guards added, both a
+ * single line: `platformUserId === ctx.actorOfRecord` (this session belongs
+ * to the identity looking at it — nothing today can hand `accessSessionId` a
+ * foreign or forged id, since it only ever lands from this identity's own
+ * successful `openSupportSession` call, but this is the one place a forged
+ * or wrong id would actually be caught, and a session record is exactly the
+ * kind of row where "trust the id, it can only ever be ours" is the wrong
+ * default) and `readOnly === true` (this screen exists to render a
+ * READ-ONLY session; a row that somehow was not one is not this screen's to
+ * render as though it were).
+ */
 function selectSupportSessionView(repository: Repository, ctx: AccessContext): SupportSessionView | null {
   const accessSessionId = ctx.identity.accessSessionId
   if (accessSessionId === null) return null
   const accessSession = repository.get('access-sessions', accessSessionId, ctx)
-  if (accessSession === undefined || accessSession.closedAt !== null) return null
+  if (
+    accessSession === undefined ||
+    accessSession.closedAt !== null ||
+    accessSession.platformUserId !== ctx.actorOfRecord ||
+    !accessSession.readOnly
+  ) {
+    return null
+  }
   const tenant = repository.get('tenants', accessSession.tenantId, ctx)
   const sites = repository.list('sites', ctx).where((s) => s.tenantId === accessSession.tenantId).all()
   return { accessSession, tenant, sites }
@@ -86,10 +122,23 @@ export function SupportSessionScreen() {
 
 function SupportSessionConsole({ session }: { readonly session: ProductSession }) {
   const router = useRouter()
+  const store = useStore()
   const { closeSupportSession } = useProductSession()
-  const view = useRepositoryQuery(selectSupportSessionView)
+  const rawView = useRepositoryQuery(selectSupportSessionView)
   const [closing, setClosing] = useState(false)
   const [closeError, setCloseError] = useState<string | null>(null)
+
+  // Fix round 1 (coordinator review, Important 3) — the two-hour time box
+  // was written (`expiresAt`) but never read: this screen kept rendering
+  // tenant data, and the "Ends by …" banner kept reading as a still-live
+  // promise, forever past expiry. Matches `OverviewScreen.tsx`'s own
+  // established contract for `useRepositoryQuery`: the simulated-clock
+  // comparison happens HERE, in plain render code, after the pure
+  // `(repository, ctx)` selector returns — never inside the selector itself,
+  // so `store.clock.now()` is never a hidden input the query cache could
+  // serve stale.
+  const nowMs = store.clock.now()
+  const view = rawView !== null && Date.parse(rawView.accessSession.expiresAt) > nowMs ? rawView : null
 
   async function handleClose() {
     setCloseError(null)
@@ -140,9 +189,9 @@ function SupportSessionConsole({ session }: { readonly session: ProductSession }
           {expiresAt}.
         </p>
         <p className={`mt-1 text-xs ${textColor('ink-subtle')}`}>
-          Read-only without exception, for every account including the root (AC-SA-15-01). No write
-          control is drawn anywhere on this screen — see this file's own header comment for why that is
-          an absence, not a disabled button.
+          This session grants no write authority into this tenant&apos;s own operational data. No
+          create, edit or archive control is offered anywhere on this screen — not a disabled one,
+          because none exists for a support session to enable.
         </p>
       </div>
 
