@@ -261,17 +261,20 @@ The `verification` block was **replaced outright**, not carried forward: see §1
 6,280 unit, 3,054 component, 1,000 release and 548 end-to-end passing tests in a repository that
 contains no test file at all.
 
-`git_commit` on the current seal names **`8688ff571aeed7f0a9a27f96bcdb53849fe04e53`**, and
-`git rev-parse 8688ff57^{tree}` = `d47ef92f6ee986de3944931834767f5a151ae549`, which is the manifest's
+`git_commit` on the current seal names **`3a6c59a6cb8807e01bc7f5467209517b4480703d`**, and
+`git rev-parse 3a6c59a6^{tree}` = `2995892496d2aa5a838d367e8ff8b3853ec0905b`, which is the manifest's
 `git_tree` exactly. `worktree_clean` reads `false`, with the seal's own honest sentence that these
 bytes are not attributed to any commit until one is made — the seal ran on the fix wave's
 uncommitted working tree, so `git_commit` records only where HEAD stood, never what was hashed.
 
-**The line that used to stand here named `ece524f0...`, and that was wrong when it was written.**
-The artifact had already said `d1988008...`; commit `8688ff5` moved the manifest field and left this
-prose behind, so the commit titled "five small false statements in the record that closes the unit"
-shipped a sixth. It is corrected against the artifact as it stands after the reseal above, and it
-was checked last, after sealing, rather than predicted before it.
+**This line has now been wrong twice, and the reason is worth keeping.** It first named
+`ece524f0...` when the artifact already said `d1988008...`, so the commit titled "five small false
+statements in the record that closes the unit" shipped a sixth. The fix wave then corrected it to
+`8688ff57...`, which was true at that moment and went stale the instant the controller's own
+.gitignore correction forced another reseal. The lesson is not "check harder": it is that a
+hand-copied hash in prose goes stale on every reseal, and this one is written LAST, after sealing,
+verified by `git rev-parse` against the artifact rather than predicted from the commit about to be
+made. A reader who finds it disagreeing with the manifest should believe the manifest.
 
 Not committed by this task — the controller commits.
 

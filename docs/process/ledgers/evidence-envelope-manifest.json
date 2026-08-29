@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-7f2376432de13963",
-  "candidate_id": "SLICE11-fc32499cd3bdb809",
+  "envelope_id": "ENV11-e4892d1df5149d74",
+  "candidate_id": "SLICE11-c5c9c4a7053ae3d5",
   "slice": "11",
-  "payload_sha256": "7f2376432de1396356d403548e82b1bb1f9a1cae7c6bab924e37787ce4c6ad88",
+  "payload_sha256": "e4892d1df5149d74491f50ae9de5abb9d30831426df5b35406ccc79f209a9bb6",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -23,8 +23,8 @@
     "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
   },
   "payload_excludes_self": true,
-  "payload_count": 102,
-  "supersedes": "ENV11-6dd9dde47f8e6b17",
+  "payload_count": 103,
+  "supersedes": "ENV11-7f2376432de13963",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -40,6 +40,11 @@
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-modules.md",
       "bytes": 25494,
       "sha256": "a5a013054db9db51820d7fda79c0fa2f341e8737a25aae5597c8da44f059c883"
+    },
+    {
+      "path": "artifacts/evidence/unit-01-task-12-verify/pnpm-verify-controller-gitignore.txt",
+      "bytes": 171335,
+      "sha256": "23d6359dfaa501b9b7ecd9bf7f969b54384fb1d86ad3e1ed12a788c92951eee9"
     },
     {
       "path": "artifacts/evidence/unit-01-task-12-verify/pnpm-verify-fixround1.txt",
@@ -118,8 +123,8 @@
     },
     {
       "path": "docs/process/2026-08-29-unit-01-verification.md",
-      "bytes": 24061,
-      "sha256": "6034c1b74b41131e9aeda8342aac92de26e0e3a7ad34b5906cc3c5dd0834a267"
+      "bytes": 33970,
+      "sha256": "7de11b021de178b1815f46079e33f21efb444307c950c7a59ff7581bd20bd54d"
     },
     {
       "path": "docs/process/RESUME.md",
