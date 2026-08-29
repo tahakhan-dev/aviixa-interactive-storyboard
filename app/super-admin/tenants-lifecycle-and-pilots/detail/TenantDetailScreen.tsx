@@ -477,7 +477,7 @@ function TenantDetailBody({
       {writeFeedback ? (
         <LiveRegion>
           <p
-            data-control-id="tenant-detail-write-feedback"
+            data-control-id={`tenant-detail-write-feedback-${writeFeedback.tone}`}
             className={`mb-4 ${radiusClass('md')} border ${borderColor('border')} p-3 text-sm`}
             style={{ color: statusVar(writeFeedback.tone) }}
           >

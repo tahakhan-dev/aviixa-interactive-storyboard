@@ -590,7 +590,7 @@ function ConsoleUsersSection({
           {resultMessage !== null ? (
             <LiveRegion>
               <p
-                data-control-id="console-users-invite-result"
+                data-control-id={`console-users-invite-result-${resultMessage.tone}`}
                 className={`${radiusClass('md')} border ${borderColor('border')} p-3 text-sm`}
                 style={{ color: statusVar(resultMessage.tone) }}
               >

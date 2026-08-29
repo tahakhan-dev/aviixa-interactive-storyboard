@@ -443,11 +443,41 @@ async function performAdvanceClock(toStamp: string, speed: number): Promise<Acti
   return { ok: true }
 }
 
-function performAssertState(check: string): ActionOutcome {
+/**
+ * Fix round 2 (unit-01, Task 10 review, IMPORTANT 1) — moved here from
+ * `./runner`, which used to poll only `expectRoute`/`expectVisible`.
+ * `performAssertState` is dispatched from INSIDE `performAction`, before
+ * `runStep` (`./runner`) ever gets to its own post-action poll — a bare,
+ * single, synchronous `resolveControl` here raced the identical async
+ * work (a 350ms sign-in timer, a real write, a route push) that motivated
+ * round 1's fix in the first place, just wearing a different action kind.
+ * `TOUR-APPROVAL-SOD-001`/`TOUR-APPROVAL-SECOND-ROOT-001`'s own
+ * `stepup-shown` step — an `assertState` immediately after a bare `click`
+ * with no `expectRoute` of its own — is exactly this shape, caught at 2x.
+ *
+ * Lives here, not in `./runner`, because `./runner` imports FROM this
+ * file (`performAction`, `resolveControl`) — a shared poll helper has to
+ * live at or below the lower of the two, or the import would cycle.
+ * `./runner`'s own `pollFor` import comes from here now; there is exactly
+ * one definition, not two that could drift.
+ */
+const CHECK_POLL_INTERVAL_MS = 40
+const CHECK_MAX_ATTEMPTS = 50
+
+export async function pollFor(predicate: () => boolean): Promise<boolean> {
+  for (let attempt = 0; attempt < CHECK_MAX_ATTEMPTS; attempt += 1) {
+    if (predicate()) return true
+    await sleep(CHECK_POLL_INTERVAL_MS)
+  }
+  return predicate()
+}
+
+async function performAssertState(check: string): Promise<ActionOutcome> {
   // `check` is a controlId, resolved exactly like `expectVisible` — the
   // same live-DOM presence question, exposed as its own step action so a
   // tour can assert mid-flow state without necessarily clicking anything.
-  return resolveControl(check) ? { ok: true } : { ok: false, reason: `No element carries data-control-id="${check}".` }
+  const met = await pollFor(() => resolveControl(check) !== null)
+  return met ? { ok: true } : { ok: false, reason: `No element carries data-control-id="${check}".` }
 }
 
 /* ────────────────────────────────────────────────────────────────────── *
@@ -473,6 +503,6 @@ export async function performAction(action: TourAction, host: TourHost, speed: n
     case 'injectFailure':
       return performInjectFailure(action.failureId, speed)
     case 'assertState':
-      return performAssertState(action.check)
+      return await performAssertState(action.check)
   }
 }

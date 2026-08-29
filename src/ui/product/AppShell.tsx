@@ -51,24 +51,40 @@ function NotRealDisclosure() {
  * requires every role journey to run login-to-logout; this unit shipped
  * nine screens and a real sign-in with no way to end a session. This is
  * that door: real product chrome, not a reviewer/tour convenience, present
- * on every screen this shell hosts. Reads the CURRENT real session through
- * `useProductSession()` directly (never the `session` prop `AppShell`
- * itself was handed) so the handful of static reviewer/dashboard callers
- * that construct a synthetic `ProductSession` for display only
- * (`app/coverage/**`, `app/workflows/**` — see `ProductSession.identityId`'s
- * own comment) render nothing here rather than a Sign out button wired to
- * a real session that may not even be the one on screen. `signOut()` only
- * clears `ProductSessionContext`'s own state — it never touches the
- * repository (`ProductRuntime.tsx#signOut`), the same real-but-inert-on-
- * business-data shape `RoleSimulator`'s own header claims for a persona
- * switch.
+ * on every screen this shell hosts. `signOut()` only clears
+ * `ProductSessionContext`'s own state — it never touches the repository
+ * (`ProductRuntime.tsx#signOut`), the same real-but-inert-on-business-data
+ * shape `RoleSimulator`'s own header claims for a persona switch.
+ *
+ * FIX ROUND 2 (unit-01, Task 10 re-review, IMPORTANT 2) — round 1's own
+ * comment CLAIMED the static reviewer/dashboard callers
+ * (`app/coverage/**`, `app/workflows/**`, which pass `session={{ ...,
+ * identityId: null }}` — see `ProductSession.identityId`'s own comment for
+ * why) would render nothing here. That was false: reading the LIVE
+ * session through `useProductSession()` alone means a genuinely signed-in
+ * reviewer (which any tour or a reviewer's own click leaves them)
+ * visiting one of those routes saw "Signed in as <real identity>" drawn
+ * over a nav/chrome built by `chromeFor` from the PASSED-IN synthetic
+ * `role: 'ADMIN'` — two identities on one shell, worse than none, and
+ * clicking Sign out there cleared the real session without changing
+ * anything else on a page that never read it. Fixed by trusting the
+ * PASSED PROP over the live context for the one question it alone can
+ * answer honestly — "does this AppShell instance represent a real,
+ * signed-in account at all" — the exact same `identityId !== null` signal
+ * `useRepository.ts#useAccessContext`'s own `identityFor` already treats
+ * as "no session" for a null `identityId`. A real, `RequireSession`-gated
+ * screen's own prop always carries the live session's real `identityId`
+ * (`session.ts#sessionFor` sets it from the signed-in `users` row, never
+ * null), so this changes nothing for any of the nine real screens — it
+ * only suppresses the three synthetic-session dashboards, which is
+ * exactly the set that needed suppressing.
  */
-function SessionStatus() {
-  const { session, signOut } = useProductSession()
-  if (session === null) return null
+function SessionStatus({ session: passedSession }: { readonly session: ProductSession }) {
+  const { session: liveSession, signOut } = useProductSession()
+  if (passedSession.identityId === null || liveSession === null) return null
   return (
     <div className={`flex items-center justify-end gap-2 pb-2 text-xs ${textColor('ink-muted')}`}>
-      <span>Signed in as {session.identity}</span>
+      <span>Signed in as {liveSession.identity}</span>
       <button
         type="button"
         data-control-id="app-shell-sign-out"
@@ -349,7 +365,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
     return (
       <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
         <main id="main" className={`flex-1 px-4 py-4 pb-24 ${textColor('ink')}`}>
-          <SessionStatus />
+          <SessionStatus session={session} />
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
           <NotRealDisclosure />
           <div className="mt-4">{children}</div>
@@ -364,7 +380,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
       <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
         <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
         <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
-          <SessionStatus />
+          <SessionStatus session={session} />
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
           <NotRealDisclosure />
           <div className="mt-4">{children}</div>
@@ -385,7 +401,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
     <div className={`flex min-h-dvh flex-col md:flex-row ${bg('sunken')}`} data-surface={surface}>
       <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
       <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
-        <SessionStatus />
+        <SessionStatus session={session} />
         <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
         <NotRealDisclosure />
         <div className="mt-4">{children}</div>

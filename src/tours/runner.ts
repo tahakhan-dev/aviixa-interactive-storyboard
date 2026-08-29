@@ -49,7 +49,7 @@
  * reproduces the identical stale-panel failure `restart()` alone did not
  * cover.
  */
-import { closeOpenReviewerPanels, performAction, resolveControl } from './actions'
+import { closeOpenReviewerPanels, performAction, pollFor, resolveControl } from './actions'
 import type { PlaybackSpeed, TourDefinition, TourHost, TourRunner, TourRunnerState, TourStep } from './types'
 
 const STEP_GAP_MS = 650
@@ -74,28 +74,13 @@ function sleep(ms: number): Promise<void> {
  * raced identically.
  *
  * Fixed in the engine, not by padding individual tours: both checks now
- * POLL — check immediately, then retry every `CHECK_POLL_INTERVAL_MS` up
- * to `CHECK_MAX_ATTEMPTS` times — rather than sleep-then-assert-once. This
- * is a bounded, counted retry loop, not a wall-clock deadline: this file
- * lives under the master prompt's simulated-clock ban on `src/tours` (no
- * `Date.now()`/argument-less `new Date()`), so "how long have we waited"
- * is tracked by attempt count, not by reading real time. The ceiling
- * (`CHECK_POLL_INTERVAL_MS * CHECK_MAX_ATTEMPTS` ≈ 2 seconds) is a real
- * wall-clock budget for genuine async work and is deliberately NOT scaled
- * by `speed` — the work it waits for does not get faster because a
- * reviewer picked a faster narration pace, so the ceiling stays fixed at
- * every speed instead of racing at exactly the speed the picker offers.
+ * POLL via `pollFor` (`./actions` — fix round 2 moved it there, see that
+ * file's own comment on why: `performAssertState` needed the identical
+ * poll and lives in `actions.ts`, one level below this file, so the
+ * shared helper has to live where both can reach it without a cycle) —
+ * check immediately, then retry every `CHECK_POLL_INTERVAL_MS` up to
+ * `CHECK_MAX_ATTEMPTS` times — rather than sleep-then-assert-once.
  */
-const CHECK_POLL_INTERVAL_MS = 40
-const CHECK_MAX_ATTEMPTS = 50
-
-async function pollFor(predicate: () => boolean): Promise<boolean> {
-  for (let attempt = 0; attempt < CHECK_MAX_ATTEMPTS; attempt += 1) {
-    if (predicate()) return true
-    await sleep(CHECK_POLL_INTERVAL_MS)
-  }
-  return predicate()
-}
 
 /** Runs one step's action, then its `expectRoute`/`expectVisible` checks. Never throws — every failure becomes a typed outcome. */
 async function runStep(

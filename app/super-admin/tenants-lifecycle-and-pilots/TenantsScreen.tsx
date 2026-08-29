@@ -295,7 +295,18 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
     {
       key: 'lifecycle',
       header: 'Lifecycle',
-      render: (t) => <StatusPill tone={LIFECYCLE_TONE[t.lifecycle]} label={LIFECYCLE_LABEL[t.lifecycle]} />,
+      // Fix round 2 (unit-01, Task 10 re-review, IMPORTANT 3) — `StatusPill`
+      // is a readout by design and deliberately carries no `data-control-id`
+      // of its own (see that file's header). Wrapping it here, composed from
+      // this row's own real tenant id and its real lifecycle value, gives a
+      // tour an outcome-specific target (`dt-tenants-lifecycle-<id>-active`)
+      // without adding a control id to a shared primitive every other
+      // consumer would inherit too.
+      render: (t) => (
+        <span data-control-id={`dt-tenants-lifecycle-${t.id}-${t.lifecycle}`}>
+          <StatusPill tone={LIFECYCLE_TONE[t.lifecycle]} label={LIFECYCLE_LABEL[t.lifecycle]} />
+        </span>
+      ),
     },
     {
       key: 'tier',

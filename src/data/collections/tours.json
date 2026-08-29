@@ -405,7 +405,8 @@
         "action": {
           "kind": "navigate",
           "route": "/super-admin/sign-in/"
-        }
+        },
+        "expectRoute": "/super-admin/sign-in/"
       },
       {
         "id": "type-reset-email",
@@ -530,7 +531,7 @@
           "kind": "click",
           "controlId": "tenant-detail-lifecycle-confirm-confirm"
         },
-        "expectVisible": "tenant-detail-write-feedback"
+        "expectVisible": "tenant-detail-write-feedback-ok"
       },
       {
         "id": "nav-list",
@@ -549,7 +550,7 @@
           "controlId": "dt-tenants-search",
           "value": "Ironclad"
         },
-        "expectVisible": "dt-tenants-row-TEN-IRONCLAD"
+        "expectVisible": "dt-tenants-lifecycle-TEN-IRONCLAD-active"
       }
     ]
   },
@@ -953,7 +954,7 @@
           "kind": "click",
           "controlId": "console-users-invite-submit"
         },
-        "expectVisible": "console-users-invite-result"
+        "expectVisible": "console-users-invite-result-danger"
       }
     ]
   },
@@ -1057,7 +1058,8 @@
         "action": {
           "kind": "navigate",
           "route": "/super-admin/sign-in/"
-        }
+        },
+        "expectRoute": "/super-admin/sign-in/"
       },
       {
         "id": "type-reset-email",
@@ -1123,7 +1125,8 @@
         "action": {
           "kind": "navigate",
           "route": "/super-admin/sign-in/"
-        }
+        },
+        "expectRoute": "/super-admin/sign-in/"
       },
       {
         "id": "type-reset-email",
