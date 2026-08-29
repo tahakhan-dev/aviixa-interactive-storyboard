@@ -2063,6 +2063,19 @@ const EVENTS_STORE = 'events' satisfies (typeof STORES)[number]
  */
 const SNAPSHOT_KEY = 'repository-snapshot'
 
+/**
+ * Task 5 (closure sweep) — the out-of-line key `Store.nextSequence()`'s
+ * current value is committed under, in the SAME transaction and SAME
+ * `SNAPSHOT_STORE` as `SNAPSHOT_KEY` above. Without this, a rehydrated
+ * session would restart the counter at 0 and risk minting a generated id
+ * (`RG-INVITE-1` etc.) that collides with one already present in the
+ * restored data. A second key on the same store, not a second store: one
+ * commit transaction already writes `SNAPSHOT_STORE`, and the sequence
+ * number is exactly as much "the live snapshot's own state" as the
+ * collection rows are.
+ */
+const SEQUENCE_KEY = 'repository-sequence'
+
 type CommitOutcome = { readonly ok: true } | { readonly ok: false; readonly reason: string }
 
 /**
@@ -2083,6 +2096,7 @@ async function commitToPersistence(
   snapshot: CollectionData,
   audit: AuditEvent,
   event: DomainEvent,
+  sequence: number,
 ): Promise<CommitOutcome> {
   if (!factory) return { ok: false, reason: 'No IndexedDB implementation is available in this environment.' }
 
@@ -2123,6 +2137,7 @@ async function commitToPersistence(
 
     try {
       tx.objectStore(SNAPSHOT_STORE).put(snapshot, SNAPSHOT_KEY)
+      tx.objectStore(SNAPSHOT_STORE).put(sequence, SEQUENCE_KEY)
       tx.objectStore(AUDIT_STORE).put(audit)
       tx.objectStore(EVENTS_STORE).put(event)
     } catch (err) {
@@ -2133,6 +2148,68 @@ async function commitToPersistence(
         // Already finishing/aborted; onabort/onerror above still resolves.
       }
     }
+  })
+}
+
+/**
+ * Task 5 (closure sweep) — the read half of `commitToPersistence` above:
+ * `boot()` calls this to rehydrate from whatever the last successful write
+ * durably committed, instead of always rebuilding the store from the §3.1
+ * seed. Kept in THIS file, not `@/persistence/schema` or `boot.ts`,
+ * specifically so it can read `SNAPSHOT_STORE`/`SNAPSHOT_KEY`/`SEQUENCE_KEY`
+ * directly rather than a second, independently-declared copy of those
+ * constants — the exact drift risk task-5-brief.md calls out ("the read
+ * path must use the IDENTICAL store name and key the write path already
+ * uses, or rehydration silently reads nothing").
+ *
+ * Returns `null` for every "there is nothing to rehydrate" case alike — no
+ * factory, a refused `open()`, an unreadable transaction, or (structurally)
+ * no snapshot ever written (`snapshotReq.result` is `undefined`, passed
+ * through as-is; `boot.ts`'s validation step treats that the same as any
+ * other invalid snapshot) — and never throws, matching `commitToPersistence`
+ * and `bootstrapStorage`'s own discipline. This function does NOT validate
+ * the snapshot's row CONTENT — only `boot.ts` (which owns
+ * `loadAndValidateSeed` and the zod schemas) decides whether a read
+ * snapshot is trustworthy enough to use.
+ */
+export async function readLatestSnapshot(
+  factory: IDBFactory | null,
+): Promise<{ readonly snapshot: unknown; readonly sequence: unknown } | null> {
+  if (!factory) return null
+
+  let db: IDBDatabase
+  try {
+    db = await openDatabase(factory)
+  } catch {
+    return null
+  }
+
+  return new Promise((resolve) => {
+    let settled = false
+    const settle = (result: { readonly snapshot: unknown; readonly sequence: unknown } | null) => {
+      if (settled) return
+      settled = true
+      db.close()
+      resolve(result)
+    }
+
+    let tx: IDBTransaction
+    try {
+      tx = db.transaction([SNAPSHOT_STORE], 'readonly')
+    } catch {
+      settle(null)
+      return
+    }
+
+    const snapshotReq = tx.objectStore(SNAPSHOT_STORE).get(SNAPSHOT_KEY)
+    const sequenceReq = tx.objectStore(SNAPSHOT_STORE).get(SEQUENCE_KEY)
+    // Same discipline as `commitToPersistence`: resolve on the
+    // TRANSACTION's own `oncomplete`/`onerror`/`onabort`, never on an
+    // individual request's `onsuccess`, and never `preventDefault()` a
+    // request error.
+    tx.oncomplete = () => settle({ snapshot: snapshotReq.result, sequence: sequenceReq.result })
+    tx.onerror = () => settle(null)
+    tx.onabort = () => settle(null)
   })
 }
 
@@ -2311,7 +2388,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       audit: [...store.get('audit'), audit],
     }
 
-    const committed = await commitToPersistence(persistence.factory, prospective, audit, event)
+    const committed = await commitToPersistence(persistence.factory, prospective, audit, event, seq)
     if (!committed.ok) {
       // Downgrade honestly: a commit that just failed means storage is no
       // longer trustworthy for THIS session, not only for this one write.
