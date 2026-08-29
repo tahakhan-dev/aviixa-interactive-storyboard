@@ -107,7 +107,7 @@ function acceptanceFor(moduleId: string): readonly string[] {
  * out of this task's scope.
  */
 const NO_DECISION_SOURCE: readonly string[] = [
-  'No decision-log registry exists in this build yet — nothing to cite honestly for any route until one is authored (out of Task 14 scope).',
+  'No decision-log registry exists in this build yet — nothing to cite honestly for any route until one is authored.',
 ]
 
 /**
@@ -116,7 +116,7 @@ const NO_DECISION_SOURCE: readonly string[] = [
  * and recording it there, out of this task's scope.
  */
 const NO_TEST_SOURCE: readonly string[] = [
-  'No live-verification ledger exists yet (docs/process/ledgers/live-verification-ledger.json is not present) — nothing to cite honestly for any route until one is recorded (out of Task 14 scope).',
+  'No live-verification ledger exists yet (docs/process/ledgers/live-verification-ledger.json is not present) — nothing to cite honestly for any route until one is recorded.',
 ]
 
 /**

@@ -422,7 +422,7 @@ function PermissionsBody({
       key: 'assign',
       header: 'Assign role',
       render: (u) => (
-        <AssignControl userId={u.id} canWrite={canWrite} onOpen={() => openAssign(u.id)} />
+        <AssignControl userId={u.id} canWrite={canWrite} writeGate={writeGate} onOpen={() => openAssign(u.id)} />
       ),
     },
   ]
@@ -671,23 +671,31 @@ function CreateAction({
 function AssignControl({
   userId,
   canWrite,
+  writeGate,
   onOpen,
 }: {
   readonly userId: string
   readonly canWrite: boolean
+  readonly writeGate: ReturnType<typeof evaluateAccess>
   readonly onOpen: () => void
 }) {
   const controlId = `permissions-assign-${userId}`
   if (!canWrite) {
     return (
-      <button
-        type="button"
-        disabled
-        data-control-id={controlId}
-        className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
-      >
-        Assign role
-      </button>
+      <div className="flex max-w-xs flex-col items-end gap-1">
+        <button
+          type="button"
+          disabled
+          aria-describedby={`${controlId}-reason`}
+          data-control-id={controlId}
+          className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
+        >
+          Assign role
+        </button>
+        <p id={`${controlId}-reason`} className={`text-right text-xs ${textColor('ink-muted')}`}>
+          {writeGate.explanation}
+        </p>
+      </div>
     )
   }
   return (

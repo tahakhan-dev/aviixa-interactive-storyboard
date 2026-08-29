@@ -1842,7 +1842,7 @@
       },
       {
         "id": "open-add-worker",
-        "narration": "He clicks Add worker.",
+        "narration": "She clicks Add worker.",
         "action": {
           "kind": "click",
           "controlId": "worker-lifecycle-add-worker"
@@ -1851,7 +1851,7 @@
       },
       {
         "id": "choose-new-user",
-        "narration": "He chooses to invite a new worker \u2014 this creates their account first, then their worker record, as two real, sequential writes.",
+        "narration": "She chooses to invite a new worker \u2014 this creates their account first, then their worker record, as two real, sequential writes.",
         "action": {
           "kind": "click",
           "controlId": "worker-lifecycle-add-choose-new-user"
@@ -1860,7 +1860,7 @@
       },
       {
         "id": "type-new-name",
-        "narration": "He names the new account.",
+        "narration": "She names the new account.",
         "action": {
           "kind": "type",
           "controlId": "field-displayName",
@@ -1887,7 +1887,7 @@
       },
       {
         "id": "select-worker-type",
-        "narration": "He records the worker type.",
+        "narration": "She records the worker type.",
         "action": {
           "kind": "select",
           "controlId": "field-workerType",
