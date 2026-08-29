@@ -506,16 +506,27 @@ function SupportAccessConsole({
    * real session happens to exist.
    */
   async function handleCloseSupportSession() {
-    setClosureRecorded(true)
+    // Fix round 2 (coordinator review, new issue 2) — `setClosureRecorded`
+    // used to fire unconditionally, BEFORE the real close was even awaited:
+    // a denied or persistence-unavailable real close still flipped the
+    // fixture panel to "closed by operator" immediately, claiming success
+    // that hadn't happened. No real session to close is the ONE case this
+    // stays unconditional for (there is nothing real to fail); otherwise it
+    // fires only once the awaited result actually says `closed`.
     if (session.accessSessionId === null || session.accessSessionId === undefined) {
+      setClosureRecorded(true)
       return
     }
     setCloseError(null)
     setClosePending(true)
     const result = await closeSupportSession()
     setClosePending(false)
-    if (result.kind === 'denied' || result.kind === 'persistence-unavailable') {
+    if (result.kind === 'closed') {
+      setClosureRecorded(true)
+    } else if (result.kind === 'denied' || result.kind === 'persistence-unavailable') {
       setCloseError(result.explain)
+    } else {
+      setCloseError('No support session is open to close.')
     }
   }
 
