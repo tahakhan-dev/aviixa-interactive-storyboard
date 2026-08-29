@@ -615,7 +615,7 @@
       "connectivity": "online",
       "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
       "steps": [
-        "(continued from LV-0016/17/18, same document, still signed in as Root)",
+        "(continued from LV-0028/29/30, same document, still signed in as Root Super Admin; clicked the 'Console Users, Roles and Change Approvals' nav link)",
         "clicked 'Invite console user'",
         "named a candidate 'Task 12 Verification Support' / task12.verification.support@platform.aviixa.example",
         "selected the 'Support' role",
@@ -673,6 +673,7 @@
       "expected": "Task 6's People tab renders a tenant's real user roster with role and status, and names the First Tenant Admin.",
       "observed": "'First Tenant Admin: Dana Whitfield -- accepted the invitation'; table listed 28 real Bright Bikes users (Tenant Admins, Supervisors, Quality Managers, Read-only Auditors, Workers) each with a role and an 'Active' status, paginated 'Showing 1-20 of 28'.",
       "screenshots": [
+        "docs/screenshots/live/unit-01/tenant-detail-brightbikes-overview.png",
         "docs/screenshots/live/unit-01/tenant-detail-brightbikes-people.png"
       ],
       "consoleErrors": [],
@@ -680,7 +681,7 @@
       "verdict": "pass",
       "defect": null,
       "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
-      "stamp": "2026-08-29T03:35:03Z"
+      "stamp": "2026-08-29T03:35:12Z"
     },
     {
       "id": "LV-0029",

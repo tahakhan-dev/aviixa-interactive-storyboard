@@ -313,12 +313,13 @@ approvals-ar0001-after-approve.png
 approvals-ar0001-approved-confirmed.png
 ```
 
-These 33 files are all distinctly captured (each a genuine screenshot action against a distinct page
+These 34 files are all distinctly captured (each a genuine screenshot action against a distinct page
 state), sitting alongside ~205 pre-existing PNGs from Tasks 1-11 this task did not touch.
-`final-export-spine-smoke-check.png` — a smoke-check of the dashboard after `pnpm verify`'s rebuild —
-is byte-identical to `modules-MOD-SA-01-signed-in-dashboard.png` captured 22 minutes earlier; that is
-Next's deterministic server-rendered output for an unauthenticated-then-identical-role render, not a
-distinct visual state, and is named as such here rather than presented as separately informative.
+`final-export-spine-smoke-check.png` — a smoke-check of the tenants list after `pnpm verify`'s
+rebuild — is byte-identical (md5 `8d99fdac…`) to `modules-MOD-SA-09-tenants-list.png`, captured 22
+minutes earlier; both are the tenants-list page, not the dashboard. That is Next's deterministic
+server-rendered output for the identical page/role render, not a distinct visual state, and is named
+as such here rather than presented as separately informative.
 
 Per `docs/process/live-verification-procedure.md`'s own stated limit, these image files are not
 re-read by this or any later automated pass — the filename plus each row's `observed` prose is the
