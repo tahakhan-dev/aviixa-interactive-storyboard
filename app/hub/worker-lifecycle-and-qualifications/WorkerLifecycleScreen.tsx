@@ -1029,9 +1029,9 @@ function WorkerDetailBody({
         </ul>
       )}
       <p className={`text-xs ${textColor('ink-muted')}`}>
-        A grant with no Site/Area named reads as tenant-wide, not narrowed — no signed-in session in this build
-        yet populates a real site/area scope on sign-in (a pre-existing, previously-disclosed gap in
-        session-construction wiring, not this screen&apos;s own).
+        A grant with no Site/Area named reads as tenant-wide, not narrowed. Session scope is populated from the
+        signed-in user&apos;s own active role-grant(s) at sign-in; a grant changed after sign-in is not
+        re-resolved until the next sign-in.
       </p>
       <Link
         href={devicesHref}
