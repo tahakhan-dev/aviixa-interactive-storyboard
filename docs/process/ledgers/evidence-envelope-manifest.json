@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-5b37680a8c73b4ec",
+  "envelope_id": "ENV11-7b4101195fb80435",
   "candidate_id": "SLICE11-40350cb6ac702e62",
   "slice": "11",
-  "payload_sha256": "5b37680a8c73b4ec64f6429a3765ef4d92519fc59753fb9ffdc95beac65484c5",
+  "payload_sha256": "7b4101195fb804350dd3c2629401f4f5a49176896ad2f2896d887c078a3de447",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -23,8 +23,8 @@
     "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
   },
   "payload_excludes_self": true,
-  "payload_count": 100,
-  "supersedes": "ENV11-9d235de5d68afda0",
+  "payload_count": 102,
+  "supersedes": "ENV11-d2272fec35b39306",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -40,6 +40,11 @@
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-modules.md",
       "bytes": 25494,
       "sha256": "a5a013054db9db51820d7fda79c0fa2f341e8737a25aae5597c8da44f059c883"
+    },
+    {
+      "path": "artifacts/evidence/unit-01-task-12-verify/pnpm-verify-fixround1.txt",
+      "bytes": 171355,
+      "sha256": "92eb8d4aa8b41d96046bd08f86046d763e570a7573ffdfad34a10746f44384fc"
     },
     {
       "path": "docs/census/2026-08-17-surf-sa-build-map.md",
@@ -112,9 +117,14 @@
       "sha256": "7523db35b19fbe3834f70c534ea295c2fc72844843ffee20f7542a8767220001"
     },
     {
+      "path": "docs/process/2026-08-29-unit-01-verification.md",
+      "bytes": 23041,
+      "sha256": "2c4d534c2d931be67c0011fa7802b7f784005c278c2351601862088b5c06f764"
+    },
+    {
       "path": "docs/process/RESUME.md",
-      "bytes": 40435,
-      "sha256": "ae391c8523f5682086ebf59aa4ccf6ec4be7d85e4c0185650bb8af4fcbc12757"
+      "bytes": 45253,
+      "sha256": "719700229935cd9ac1f2a5fc09ce3677e119993ee8350585814320901dd03533"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
@@ -363,8 +373,8 @@
     },
     {
       "path": "docs/process/ledgers/live-verification-ledger.json",
-      "bytes": 36977,
-      "sha256": "dc936a42deb41e41af4bd80a45ed5f550d479ed33fbc4e83fecc024a30814f83"
+      "bytes": 45762,
+      "sha256": "9126f53464a358d5b833d5c4a79cecc265e9001fe03e2d5ee36ddd11b3b79708"
     },
     {
       "path": "docs/process/ledgers/loop-ledger.json",

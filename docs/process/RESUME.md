@@ -435,47 +435,63 @@ ran `stripComments` and found that comments never carry citations at all. That f
 relocation rule for every remaining task in the programme: an identifier that governs a permission
 decision is passed as that call's `sourceRefs`, never left in a comment.
 
-### Unit 1 — platform bootstrap and tenant provisioning — CLOSED
+### Unit 1 — platform bootstrap and tenant provisioning — CLOSED (task 12 fix round 1)
 
 **Read this before the "Session S14" material above it and the round-7 material below it — this is
 the position at unit 1's close, measured fresh rather than recalled.** All twelve tasks complete.
-Verification record: `docs/process/2026-08-29-unit-01-verification.md`. Ledger:
+Verification record: `docs/process/2026-08-29-unit-01-verification.md`. Task ledger (the SDD
+progress record, distinct from the Live-Verification Ledger discussed below):
 `.superpowers/sdd/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning/progress.md`.
-Candidate commit `79cbd4f130865253bccc967973ba04d89cc05927` (task 11's close); task 12 (this
-closure) is uncommitted evidence on top of it — the controller commits.
+Task 12's first pass is committed as `ece524f0398ab7d3a8e97468e818cc5a27a8e17f` (on top of
+`79cbd4f130865253bccc967973ba04d89cc05927`, task 11's close); fix round 1 (below) sits uncommitted
+on top of `ece524f` — the controller commits.
 
 **Frozen source re-hashed at closure: unchanged, `47bd18db…`, 122,241 lines.** No drift.
 
-**Fresh `pnpm verify` exit 0**, run twice (before and after filling the ledger) on the bytes this
-task actually produced — not a recollection. Census unchanged at **277 of 5,015** demonstrated
-(this task touches no product/seed/registry file). `scan:no-external-network` and
-`scan:no-fallback-shells` both report zero violations.
+**Fresh `pnpm verify` exit 0**, run three times across task 12 and its fix round, most recently on
+the corrected bytes — output preserved durably at
+`artifacts/evidence/unit-01-task-12-verify/pnpm-verify-fixround1.txt` (not a session scratchpad),
+with its own exit-code line appended. Census unchanged at **277 of 5,015** demonstrated (this task
+touches no product/seed/registry file).
 
-**The Live-Verification Ledger — empty at every prior session's close — now holds 25 rows**, all
-driven fresh in this task against the served export, none transcribed from a report: 23 `pass`,
-1 `fail` (LV-0009: write-only persistence reproduced live, not just re-cited), 1 `blocked`
-(LV-0010: the full accept→activate spine continuity cannot be driven in one document — no in-app
-link connects the Hub and Super Admin surfaces, and no seeded row sits in the narrow transitional
-state the `Activate` gate needs). `ledger-reconcile.mjs` section B (ledger rows naming a path no
-registry contains) reads **0** — every `pathId` driven resolves to a real census row. Section A
-(backlog) reads 4,990 of 5,015 — the honest, stated remainder of a scoped regression set, not an
-attempt at exhaustive coverage.
+**The Live-Verification Ledger — empty at every prior session's close — now holds 30 rows**, all
+driven fresh against the served export: 28 `pass`, 1 `fail` (LV-0009: write-only persistence
+reproduced live), 1 `blocked` (LV-0010: the full accept→activate spine continuity cannot be driven
+in one document). `ledger-reconcile.mjs` Section B (phantom paths) reads **0**. **Section A (backlog)
+reads 5,003 of 5,015** — corrected in fix round 1 from an original, WRONG figure of 4,990, which had
+been computed as `5015 − row-count` where the tool actually counts distinct `pathId`s; read the
+tool's own output, never recompute it by formula.
 
-**Both manifests resealed on the final bytes.** Product-candidate manifest unchanged
-(`40350cb6…`, `docs/process/` is an evidence root so this task's writes never entered its scope);
-evidence-envelope manifest's payload hash changed (`…5b37680a…`) because the ledger it now covers is
-no longer empty. `worktree_clean: false` with the seal's own honest sentence — nothing here
-attributes these bytes to a commit until the controller commits them.
+**Fix round 1 also corrected two transposed workflow ids** (LV-0015 root-sign-in-step-up now
+correctly cites `WF-ROLE-004`; the six ordinary sign-in/out rows now cite `modules:MOD-SA-01`, a
+defensible substitution since no registry row represents ordinary Super Admin sign-in, stated as
+such rather than dressed up as exact); **added five rows (LV-0026–0030)** for the two privileged
+doors' successful-write paths (`inviteConsoleUser`, `decideApprovalRequest` — task 7's own
+maker-checker happy path had no row before this) and task 6's tenant-detail People/Entitlements/
+Audit tabs; and **named, rather than implied, that the tour RUNNER itself (15 tours, 135 steps) has
+no ledger row and was not driven** — every tour-shaped row replicates the tour's scripted steps
+against real controls directly, which is real product-behaviour evidence but not runner evidence.
+
+**The seal was restated against the true committed baseline rather than an intermediate one.**
+Task 12's seal is the first fresh reseal since `79cbd4f`'s own manifest (itself stale, carrying
+`git_commit a49d53ec…`, several commits behind) — 16 product files newly brought into scope, 4
+orphaned `fixtures.ts` files correctly dropped, net **+12 (834 → 846)**. That is real, valuable work
+a prior phrasing ("unchanged") hid. Envelope manifest similarly: 97 → 100 (task 12) → 102 (fix round
+1, adding this record and the durable verify log).
 
 **Seven findings carried forward, named rather than fixed, in full in the verification record's
-§7:** persistence is write-only (`boot()` never rehydrates, `Repository.reset()` has no caller —
-reproduced live this session, not merely re-cited); `advanceClock` moves a decorative clock separate
-from `store.clock`; the tour registry has no gate on `spotlight`/`expectVisible`/`assertState.check`
-targets; the shipped console-users page renders blueprint locators from a pre-existing overlay
-component this unit never touched; five identifiers have no honest citation home under this unit's
-own rule and stay `not-represented`; `acceptInvitation` takes a tenant id and no caller identity
-(anyone holding a tenant id can accept as that tenant's first administrator); a stray `git stash`
-entry sits on the branch, left deliberately per task 11's ruling rather than dropped.
+§7:** persistence is write-only (reproduced live, not merely re-cited); `advanceClock` moves a
+decorative clock; the tour registry has no gate on `spotlight`/`expectVisible`/`assertState.check`
+targets; the shipped console-users page renders blueprint locators from a pre-existing overlay;
+five identifiers have no honest citation home; `acceptInvitation` takes a tenant id and no caller
+identity; a stray `git stash` entry sits on the branch, left deliberately.
+
+**A structural fact about LV-0010's block, surfaced by review rather than assumed:** `ProductRuntime`
+is mounted in the root layout, so a SOFT navigation between the Hub and Super Admin surfaces would
+in fact preserve the store — the block is real only because no soft navigation path connects the two
+surfaces in the shipped UI, not because the runtime itself cannot carry state across a client-side
+transition. Worth remembering before any future task assumes the two surfaces are inherently
+incompatible.
 
 **What the next session should do with this:** the persistence/reset task named in finding 1 is the
 natural next dependency for any unit that demonstrates a write surviving a reload. Unit 2 (or

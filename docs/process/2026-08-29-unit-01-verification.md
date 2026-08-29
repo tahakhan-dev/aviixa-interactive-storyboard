@@ -1,9 +1,10 @@
 # Unit 1 closure verification — platform bootstrap and tenant provisioning
 
 Task 12, the closing task of `.superpowers/sdd/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning/`.
-Candidate commit at entry: `79cbd4f130865253bccc967973ba04d89cc05927` (task 11's close). This
-record is itself uncommitted evidence sitting on top of that commit — the controller commits it,
-per the standing instruction that implementers never run git for writing.
+Candidate commit at task 12's entry: `79cbd4f130865253bccc967973ba04d89cc05927` (task 11's close).
+This is fix round 1 of task 12's own review: the controller committed the first pass as `ece524f`;
+this document now describes the corrected state on top of it. The controller commits; this record
+does not.
 
 ## 1. Frozen source — re-hashed, not trusted from memory
 
@@ -14,61 +15,61 @@ $ wc -l ../AVIIXA_Production_Product_Blueprint.md
   122241 ../AVIIXA_Production_Product_Blueprint.md
 ```
 
-Matches the frozen value exactly (`47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27`,
-122,241 lines). No drift. Not BLOCKED.
+Matches the frozen value exactly. No drift.
 
-## 2. Live-verification ledger — 25 rows driven fresh against the final bytes
+## 2. Live-verification ledger — 30 rows driven fresh against the final bytes
 
-`docs/process/ledgers/live-verification-ledger.json` held **zero entries** at the start of this
-task, by the runway's own deliberate design (see the ledger's `scope_note`). Every row below was
-produced by actually driving `pnpm serve:out`'s served export with the Playwright MCP tools in this
-session — none is a transcription of a prior task report's prose, per the binding instruction.
+`docs/process/ledgers/live-verification-ledger.json` held **zero entries** before task 12, by the
+runway's own deliberate design. Every row was produced by actually driving `pnpm serve:out`'s served
+export with the Playwright MCP tools in a live session — none is a transcription of a prior task
+report's prose.
 
-**Verdict totals: 25 rows — 23 `pass`, 1 `fail`, 1 `blocked`.**
+**Verdict totals: 30 rows — 28 `pass`, 1 `fail`, 1 `blocked`.** (Fix round 1 added five rows,
+LV-0026 through LV-0030, addressing Important 5's gap — see §7 below.)
 
-**Regression-set scope, named explicitly (master prompt §2.3's own rule: "every path sharing a
-changed screen, component, repository method or state machine is re-driven on the final bytes"):**
-the platform-bootstrap-and-tenant-provisioning spine end to end (sign-in → dashboard → tenants
-list → create wizard, including both schema-rejection cases → tenant detail → sign-out → Hub
-accept-invitation), each of the eight shipped screens' main state (sign-in, Platform Overview and
-Health, Tenants/Lifecycle/Pilots list, the create wizard, tenant detail, Console Users/Roles/Change
-Approvals, Tenant Metrics and Aggregates, Hub accept-invitation), the sign-out control, and the
-variant/failure paths this unit's own tours encode: four sign-in refusal arms (removed/generic,
-invitation-pending, account-suspended, tenant-suspended), the root step-up gate, segregation of
-duties on a root's own proposal, the second-Root-Super-Admin refusal, the critical-class
-no-control-at-all render for a non-root viewer, tenant-create-denied for a Platform Engineer (both
-from the list and by navigating straight to the create route), and both Hub invitation failure
-states (expired, tenant-blocked). This is the unit's own regression rule applied, not an attempt at
-exhaustive coverage of the 5,015-row census — the ledger's own reconciliation output says so
-explicitly (below).
+**Regression-set scope, named explicitly:** the platform-bootstrap-and-tenant-provisioning spine end
+to end, each of the eight shipped screens' main state, the sign-out control, the tenant-detail
+People/Entitlements/Audit tabs, both privileged doors' successful-write paths in addition to their
+refusals, and the variant/failure paths this unit's tours encode.
 
-**Note on the "nine screens" wording.** The task-12 brief's self-review says "§3's eight screens
-map to Tasks 2-9"; `progress.md` says "nine screens" six times. Both are the unit's own words, and
-they disagree. This record drove the eight screens Tasks 2-9 actually shipped (sign-in, dashboard,
-tenants list, create wizard, tenant detail, console-users, accept-invitation, tenant-metrics) plus
-the sign-out control as its own listed item — an honest reading that reconciles the two counts
-without silently picking one, since it is a discrepancy in the record rather than something this
-task can resolve by fiat.
+**What this ledger does NOT cover, stated plainly rather than left to be inferred (Important 4):**
+**the tour RUNNER itself — the fifteen-tour, 135-step player built and reworked in tasks 10 and 11
+(the overlay, spotlight, menu and playback controls) — has no row here and was not driven.** Every
+row below that corresponds to a tour's subject was produced by replicating that tour's own scripted
+steps directly against real product controls (the same sequence a human following the tour would
+perform), not by invoking the tour-runner UI and watching it play. That is real evidence of the
+underlying product behaviour; it is not evidence that the runner mechanism itself works. No `pathId`
+in the fourteen registries represents "the tour runner" as an object, so no ledger row could be
+added for it without inventing a false one — the honest statement lives here, in this scope
+paragraph, rather than only in the task report.
+
+This is not exhaustive: it is the regression set the unit's own rule requires (every path sharing a
+changed screen, component, repository method or state machine), not every one of the 5,015-row
+census. `ledger-reconcile.mjs`'s own output states the honest backlog (§5 below).
+
+**Note on the "nine screens" wording**, unresolved rather than picked: the task-12 brief's
+self-review says "eight screens"; `progress.md` says "nine", six times. This record drove the eight
+screens Tasks 2-9 shipped plus the sign-out control as its own item.
 
 ### Rows
 
 | id | pathId | verdict | what it shows |
 |---|---|---|---|
-| LV-0001 | workflows:WF-ROLE-004 | pass | Admin sign-in succeeds, lands on dashboard |
-| LV-0002 | modules:MOD-SA-01 | pass | Dashboard main state, live-computed tiles |
+| LV-0001 | modules:MOD-SA-01 | pass | Admin sign-in succeeds, lands on dashboard |
+| LV-0002 | modules:MOD-SA-01 | pass | Dashboard main state, live-computed tiles (29 tenants at this seed) |
 | LV-0003 | modules:MOD-SA-09 | pass | Tenants list main state, Create tenant enabled |
 | LV-0004 | modules:MOD-SA-09 | pass | Wizard: empty name blocks Next (schema rejection) |
 | LV-0005 | modules:MOD-SA-09 | pass | Wizard: pilot without expiry blocks Next |
 | LV-0006 | modules:MOD-SA-09 | pass | Wizard: real create write → detail, Activate disabled with reason |
-| LV-0007 | workflows:WF-ROLE-004 | pass | Sign-out clears session, preserves return route |
+| LV-0007 | modules:MOD-SA-01 | pass | Sign-out clears session, preserves return route |
 | LV-0008 | workflows:unnumbered@L75557 | pass | Hub: real seeded invitation (Nadia/IronClad) accepted live |
 | LV-0009 | modules:MOD-SA-09 | **fail** | Cross-document persistence loss reproduced live (carried finding #1) |
 | LV-0010 | modules:MOD-SA-09 | **blocked** | Full accept→activate spine continuity — cannot be driven in one document |
-| LV-0011 | workflows:WF-ROLE-004 | pass | Sign-in: removed account → generic refusal (R2) |
-| LV-0012 | workflows:WF-ROLE-004 | pass | Sign-in: invited account → invitation-pending |
-| LV-0013 | workflows:WF-ROLE-004 | pass | Sign-in: suspended account → account-suspended |
-| LV-0014 | workflows:WF-ROLE-004 | pass | Sign-in: active user, suspended tenant → tenant-suspended |
-| LV-0015 | workflows:WF-ROLE-037 | pass | Root sign-in stops at step-up, confirm lands as Root |
+| LV-0011 | modules:MOD-SA-01 | pass | Sign-in: removed account → generic refusal (R2) |
+| LV-0012 | modules:MOD-SA-01 | pass | Sign-in: invited account → invitation-pending |
+| LV-0013 | modules:MOD-SA-01 | pass | Sign-in: suspended account → account-suspended |
+| LV-0014 | modules:MOD-SA-01 | pass | Sign-in: active user, suspended tenant → tenant-suspended |
+| LV-0015 | workflows:WF-ROLE-004 | pass | Root sign-in stops at step-up, confirm lands as Root |
 | LV-0016 | modules:MOD-SA-08 | pass | Console Users main state (Root) |
 | LV-0017 | workflows:UC-HO-02 | pass | Segregation of duties: root's own proposal, both controls disabled |
 | LV-0018 | workflows:WF-ROLE-037 | pass | Second Root Super Admin invitation refused |
@@ -79,172 +80,201 @@ task can resolve by fiat.
 | LV-0023 | workflows:unnumbered@L75557 | pass | Invitation to a suspended tenant blocked (Granite Hollow Tooling) |
 | LV-0024 | modules:MOD-SA-10 | pass | Tenant Metrics per-tenant tab, all fifteen measures |
 | LV-0025 | ai-storyboards:SB-SA-10 | pass | Tenant Metrics anonymised comparative tab, no tenant named |
+| LV-0026 | workflows:WF-ROLE-010 | pass | `inviteConsoleUser` SUCCESS: a legitimate Support-role invitation commits |
+| LV-0027 | workflows:WF-ROLE-015 | pass | `decideApprovalRequest` SUCCESS: maker-checker happy path, engineering-class approve |
+| LV-0028 | modules:MOD-SA-09 | pass | Tenant detail People tab (Bright Bikes, 28 real users) |
+| LV-0029 | modules:MOD-SA-09 | pass | Tenant detail Entitlements tab (Bright Bikes, platform floor vs tenant value) |
+| LV-0030 | modules:MOD-SA-09 | pass | Tenant detail Audit tab (Bright Bikes, real timeline, correlation grouping) |
 
-Full detail — exact steps, expected/observed prose, screenshot filenames, console/network
-capture — is in `docs/process/ledgers/live-verification-ledger.json` itself; this table is a
-locator, not a substitute for reading the rows.
+Full detail is in `docs/process/ledgers/live-verification-ledger.json` itself; this table is a
+locator, not a substitute.
 
-**Every row's console-error capture (`browser_console_messages({level:'error'})`) and external-request
-capture (`browser_network_requests({static:true})`, filtered to non-`localhost:4173` origins) came
-back empty across every document driven in this session.** Zero console errors, zero external
-requests, over roughly a dozen separate browser documents (fresh sign-outs, hard navigations and
-role switches each start a new one).
+**Every row's console-error and external-request capture came back empty** across every document
+driven across both the original session and fix round 1.
 
-### LV-0009 and LV-0010 — the two rows that are not a clean pass, and why
+### `pathId` corrections made in fix round 1 (this record's own history, not hidden)
 
-**LV-0009 (`fail`)** reproduces, live and fresh, the carried finding that persistence is write-only:
-`boot()` (`src/data/boot.ts`) rebuilds the store from the seed JSON on every document load and never
-rehydrates from IndexedDB. Concretely: Nadia Ferreira's invitation acceptance was driven live in the
-Hub (`/hub/accept-invitation/?tenant=TEN-IRONCLAD`, LV-0008), then a **hard** navigation back into
-the Super Admin console (a fresh `page.goto`) showed Ironclad Fasteners still `Invited` with
-`Activate` disabled and the *same* precondition sentence — the accept never crossed the boundary.
-This was not read off a prior report; it was driven and observed in this session.
+**LV-0015 and LV-0018 had their workflow ids transposed in the first pass.** LV-0015 (root sign-in
+stopping at the step-up panel) now correctly cites `workflows:WF-ROLE-004` ("First root sign-in and
+the enforced-invariant acknowledgement"); it previously, wrongly, cited `WF-ROLE-037` ("Refusing
+creation of a second Root Super Admin"), which is what LV-0018 actually demonstrates and always
+correctly cited.
 
-**LV-0010 (`blocked`)** is Task 8's original continuous spine ("create → Activate disabled → Hub
-accept → detail moves → activate → active in list") re-attempted end to end on the current bytes.
-It cannot be produced live as one continuous document under this build's shipped architecture:
-`app/hub/**` and `app/super-admin/**` share no in-app navigation path (they are different personas'
-surfaces — a real Tenant Admin and a real Platform team member are, in reality, two different
-people in two different sessions), so any route between them is a hard page load, which LV-0009 just
-showed discards the store. Separately, no seeded row sits in the narrow transitional state the
-`Activate` control's own gate requires (`tenants.lifecycle === 'invited' AND` the tenant's first
-`TENANT_ADMIN` row `.status === 'active'`) — confirmed by cross-referencing `tenants.json` against
-`users.json` before attempting to drive it, not assumed. Task 8's own development-time report closed
-this exact gap with a disclosed, reverted seed-file edit; a verification-only closure task must not
-edit seed data to manufacture a state that does not otherwise exist, so the row is recorded
-`blocked` with the reason rather than forced or inferred. The two halves either side of the
-boundary — the Hub acceptance write (LV-0008) and the Super Admin detail page's disabled-with-reason
-render (LV-0006, LV-0009) — are each independently real and driven live in this session.
+**LV-0001, LV-0007 and LV-0011 through LV-0014** (ordinary Admin sign-in, sign-out, and four
+non-root sign-in refusal arms) previously also cited `WF-ROLE-004`, which is wrong — none of them is
+first-root sign-in. They now cite `modules:MOD-SA-01`. This is a **defensible-but-imperfect**
+choice, stated as such rather than dressed up as an exact match: a search of all fourteen registries
+for any sign-in/authentication/credential-shaped label found nothing scoped to ordinary Super Admin
+sign-in — the only real, on-topic identifier physically present in `SignInScreen.tsx` is
+`WF-ROLE-004` itself, sitting inside a comment (hence `not-represented`, and root-specific).
+`modules:MOD-SA-01` is the destination module every one of these six rows is either reaching (0001),
+leaving (0007), or being refused entry to (0011-0014) — a real census row, not a phantom one, but a
+substitution rather than a precise citation. Recorded in the ledger's own `scope_note` as well, so a
+reader of the ledger alone sees it.
 
-## 3. Fresh whole-chain verification — `pnpm verify`
+**`ledger-reconcile.mjs`'s Section B checks `pathId` EXISTENCE only** — it cannot and does not check
+whether a row's chosen id's own label actually matches what the row demonstrates. That is a real,
+stated limit of the reconciliation gate, not something this fix claims to have closed structurally;
+it is closed here only by a human (this task) re-reading each id against its own registry label.
 
-Run **twice**: once before the ledger was filled (to establish the chain was green on the bytes
-Task 11 left), and once more after the ledger was written and before sealing, so the recorded exit
-code is against the exact final bytes rather than a recollection.
+## 3. Fresh whole-chain verification — `pnpm verify`, output preserved durably
+
+Run three times across task 12 and its fix round: once before the ledger was filled, once after
+filling it in the original pass, and once more in fix round 1 after the `pathId` corrections and the
+five new rows. **All three: exit 0.**
+
+The fix-round-1 run's full output — **including its own exit-code line** — is saved at
+`artifacts/evidence/unit-01-task-12-verify/pnpm-verify-fixround1.txt` (5,278 lines), a path under
+one of the manifest's own declared evidence roots (`artifacts/evidence/`, not the `*/raw/`
+subdirectory that this project's `.gitignore` deliberately excludes) so it is committed alongside
+this record rather than left in a session scratchpad that gets cleaned up. Its last lines:
 
 ```
-$ pnpm verify
+B. Ledger rows naming a path NO registry contains: 0
+PNPM_VERIFY_EXIT=0
 ```
-chains: `typecheck && validate:collections && lint && check:gate-ordering && check:boundary-rules
-&& build && scan:no-external-network && scan:no-fallback-shells && ledger:reconcile`.
 
-**First run (pre-ledger, establishing the baseline): exit 0.**
-**Final run (post-ledger, on the bytes this task actually produced): exit 0.**
+Key figures from that run, quoted rather than summarised from memory:
 
-Key lines from the final run's full output (saved in full at the paths below):
-
-- `tsc --noEmit` — no errors.
-- `validate-collections.mjs` — all 40 collections `ok`, including `tours 15 rows`,
-  `approval-requests 9 rows`.
-- `eslint .` — no errors (including the boundary-rules negative-outcome checks, all reporting `ok
-  [must fail] ...` for the cases that are SUPPOSED to fail import resolution).
-- `check:gate-ordering` — no errors.
-- `check:boundary-rules` — no errors.
-- `pnpm build` — `next build` completed; registries regenerated. **Census status tally across the
-  fourteen registries: `demonstrated-in-storyboard 277, mounted-in-another-screen 10,
-  not-applicable 22, not-represented 4706, total 5015`** — unchanged from Task 11's close, which is
-  correct: this task touches no product code, no seed, no registry input.
-- `scan:no-external-network` — `0 violations across 701 source file(s) under src/+app/ and 5846
-  built HTML file(s) under out/.`
+- `validate-collections.mjs` — all 40 collections `ok` (`tours 15 rows`, `approval-requests 9 rows`).
+- `eslint .` — clean, including every `[must fail]` boundary-rule negative case reporting `ok`.
+- `pnpm build` — `Census status tally across the fourteen registries: demonstrated-in-storyboard
+  277, mounted-in-another-screen 10, not-applicable 22, not-represented 4706, total 5015.` Unchanged
+  from before this task — it touches no product/seed/registry file.
+- `scan:no-external-network` — `0 violations across 701 source file(s) ... and 5846 built HTML
+  file(s) under out/.`
 - `scan:no-fallback-shells` — `0 fallback shells across 5846 built HTML file(s) under out/.`
-- `ledger:reconcile` — `registry census 5015 row(s) across 14 registries; ledger 25 row(s).` Section
-  A (registry rows with no ledger row): 4,990 of 5,015 — the honest backlog this scoped regression
-  set leaves, stated exactly as measured. Section B (ledger rows naming a path no registry
-  contains): **0** — every one of the 25 `pathId`s driven this session resolves to a real row in one
-  of the fourteen registries; none is a phantom reference.
+- `ledger-reconcile.mjs` — `registry census 5015 row(s) across 14 registries; ledger 30 row(s).`
+  **`A. Registry rows with NO ledger row: 5003 of 5015`** — read directly from this run's own
+  output, not computed from a `5015 − row-count` formula (the mistake fix round 1 corrects — see
+  §5). **`B. Ledger rows naming a path NO registry contains: 0`** — every one of the twelve distinct
+  `pathId`s the 30 rows use resolves to a real census row.
 
-Full logs saved at:
-- `/private/tmp/claude-501/-Users-tahakhan-Desktop-JBS-AMPLIFY-NIGHT-Ron-project1/18892950-1b62-4089-8a00-c17b49c750b9/scratchpad/pnpm-verify-output.txt`
-  (first run)
-- `/private/tmp/claude-501/-Users-tahakhan-Desktop-JBS-AMPLIFY-NIGHT-Ron-project1/18892950-1b62-4089-8a00-c17b49c750b9/scratchpad/pnpm-verify-final.txt`
-  (final run, 5,279 lines) — this is the run whose exit code and census figure are load-bearing for
-  this closure.
+Re-running `pnpm ledger:reconcile` standalone reproduces the same 5,003 / 0 split
+(`/private/tmp/.../scratchpad/ledger-reconcile-fix1.txt` in this session, and the number is
+independently reproducible by anyone who runs the command against these bytes).
 
-Both logs live in this session's scratchpad, not in the repository; the controller should copy
-whichever it wants to keep before the scratchpad is cleaned up, or re-run `pnpm verify` itself —
-it is reproducible on demand.
+`pnpm build` regenerates `out/` from scratch each time, which changes Next's per-build random
+`_next/static/<buildId>` fingerprint even with no source change (confirmed earlier by diffing two
+successive builds' `out/` trees — every difference was that one embedded id). `pnpm serve:out` was
+re-run against the rebuilt `out/` after the original pass and the spine's entry point re-driven once
+more (sign in → dashboard → tenants list): zero console errors, zero external requests, screenshot
+`docs/screenshots/live/unit-01/final-export-spine-smoke-check.png`.
 
-### `pnpm serve:out` and a final spine re-drive on the exported bytes
+## 4. Seal — `node scripts/seal-manifests.mjs`, restated against the true committed baseline
 
-`pnpm build` inside the final `pnpm verify` run regenerates `out/` from scratch (`rm -rf out && next
-build`), which changes Next's random per-build `_next/static/<buildId>` fingerprint even when no
-source file changed — confirmed by diffing the pre-verify `.serve-snapshot/` against the
-post-verify `out/`: every page differed only in that one embedded id. Rather than assume this is
-harmless, `pnpm serve:out` was re-run against the fresh `out/` and the spine's entry point was
-re-driven once more: signed in as Helena Voss, landed on the dashboard, opened the tenants list —
-zero console errors, zero external requests, screenshot
-`docs/screenshots/live/unit-01/final-export-spine-smoke-check.png`. The served export behaves
-identically after the rebuild.
+**What task 12's seal actually did, measured against `79cbd4f` — the commit that stood before this
+task started, and the last one BEFORE task 12 that either manifest's `git_commit` field named:**
 
-## 4. Seal — `node scripts/seal-manifests.mjs`
+At `79cbd4f`, the committed product-candidate manifest read `candidate_manifest_sha256
+2af2f4aa2a1d3bf2ae7ed937de007f331080661ed351c87760e923884876f0ba`, `file_count 834`, and its own
+`git_commit` field named `a49d53ec630bcae95fcd10c23d7916bd8a41f522` — several commits earlier still.
+**That manifest was stale**: it had not been resealed since before tasks 8 through 11 landed. Task
+12's first seal is the first fresh one since then, and it is not a no-op: **16 product files were
+newly brought into scope and 4 were correctly dropped, net +12 (834 → 846):**
 
-Run once after the ledger was filled and `pnpm verify` had gone green a second time, so the seal
-covers the actual final bytes rather than an earlier snapshot.
+```
++ app/hub/accept-invitation/AcceptInvitationScreen.tsx
++ app/hub/accept-invitation/page.tsx
++ app/super-admin/sign-in/SignInScreen.tsx
++ app/super-admin/sign-in/StoryboardSignInPanel.tsx
++ app/super-admin/sign-in/page.tsx
++ app/super-admin/tenants-lifecycle-and-pilots/create/CreateTenantWizard.tsx
++ app/super-admin/tenants-lifecycle-and-pilots/create/page.tsx
++ app/super-admin/tenants-lifecycle-and-pilots/detail/TenantDetailScreen.tsx
++ app/super-admin/tenants-lifecycle-and-pilots/detail/page.tsx
++ src/data/collections/approval-requests.json
++ src/lib/chromeVisibility.ts
++ src/ui/product/RequireSession.tsx
++ src/ui/product/runtime/ProductRuntime.tsx
++ src/ui/product/runtime/index.ts
++ src/ui/product/runtime/session.ts
++ src/ui/product/runtime/useRepository.ts
+- app/super-admin/console-users-roles-and-change-approvals/fixtures.ts
+- app/super-admin/platform-overview-and-health/fixtures.ts
+- app/super-admin/tenant-metrics-and-aggregates/fixtures.ts
+- app/super-admin/tenants-lifecycle-and-pilots/fixtures.ts
+```
+
+The additions are exactly unit 1's own screens, runtime and session module — the sign-in screen, the
+create wizard, the tenant detail page, the acceptance screen, the runtime and its access-control
+guard, and the `approval-requests` collection task 7 added. The removals are the orphaned
+`fixtures.ts` files this unit's own tasks deleted for claiming false coverage. **This is the seal
+doing real work — bringing twelve unit-1 product files that were sitting outside the certified scope
+into it — not a no-op described as "unchanged."**
+
+Envelope manifest, same comparison: at `79cbd4f` it read `payload_sha256
+54c5efd2165db8cc5b4ac89217649c3071b507b927f487768538994524107e98`, `payload_count 97`. Task 12
+added 3 process-evidence documents (`docs/process/audits/2026-08-28-unit-01-task-11-locator-relocation.md`,
+the unit-01 plan and design spec) that were sitting outside the envelope's own scope, 0 removed
+(97 → 100 before this record and the ledger's own content were added). Fix round 1 added two more
+paths on top of that — this record's own file and the fresh `pnpm verify` log now saved under
+`artifacts/evidence/` — bringing it to **102**.
+
+**Current sealed state, on the bytes fix round 1 produced (product manifest hash is exact and
+final; the envelope hash below is necessarily one seal-run stale, because THIS SENTENCE is itself
+evidence payload — reseal-after-editing-the-record-that-describes-the-seal cannot terminate, the
+same non-self-referential problem §23.2 already solves for the manifests' own two output files, just
+one document further out. `docs/process/ledgers/evidence-envelope-manifest.json` on disk is the
+authoritative current value, not this prose):**
 
 ```
 Sealed SLICE11-40350cb6ac702e62
   product  846 files  sha256 40350cb6ac702e626dadc2cfde46637d490a20f1a0a6488a5b8a29ef0c82819f
-  envelope 100 files  sha256 5b37680a8c73b4ec64f6429a3765ef4d92519fc59753fb9ffdc95beac65484c5
+  envelope 102 files  sha256 ed523acb25b9d91aa820817bcd4cb7c0dcaf9cfb4eedc27b2b290d67fb23131c (as of the seal run before this sentence was last edited)
 ```
 
-- **Product-candidate manifest** (`docs/process/ledgers/product-candidate-manifest.json`):
-  `candidate_manifest_sha256` **unchanged** at `40350cb6ac702e626dadc2cfde46637d490a20f1a0a6488a5b8a29ef0c82819f`
-  from Task 11's own seal, because this task's only writes (the ledger, the two manifests
-  themselves, this record, and `RESUME.md`) all sit under `docs/process/`, one of the manifest's own
-  declared **evidence roots**, and are excluded from the product-candidate scope by that same rule —
-  not by coincidence. `git_commit` still names `79cbd4f130865253bccc967973ba04d89cc05927` (Task 11's
-  commit, since this task has made no commit) and `worktree_clean` correctly reads `false`, with
-  `bytes_measured_against` stating plainly: *"the working tree as it stood when this seal ran, which
-  is NOT the tree of git_commit ... the worktree was dirty, and nothing here attributes these bytes
-  to any commit. Verify them against the filesystem, never against the commit."* That is the honest,
-  self-describing sentence the seal is designed to emit on a dirty tree — not a defect.
-- **Evidence-envelope manifest** (`docs/process/ledgers/evidence-envelope-manifest.json`):
-  `payload_sha256` **changed** to `5b37680a8c73b4ec64f6429a3765ef4d92519fc59753fb9ffdc95beac65484c5`
-  (from `9d235de5d68afda0981f4aedecb6a743ed5c10d6891c0a9f4843f7d3b7911eca` at Task 11's close),
-  because the ledger this task filled — `docs/process/ledgers/live-verification-ledger.json` — is
-  itself evidence payload. `payload_count` unchanged at 100 (the ledger already existed as a payload
-  member, empty; it changed size, not membership). Both manifests still exclude their own two
-  outputs from the hashed scope (`scope.excludes` on the envelope manifest names both paths
-  explicitly), the non-self-referential form Task 18 of the runway ruled on and this build has kept
-  since.
+Product manifest hash **unchanged from task 12's own first seal** (`40350cb6...`, 846 files) — fix
+round 1 touches no product file, only evidence. `git_commit` on the current seal names
+`ece524f0398ab7d3a8e97468e818cc5a27a8e17f` (the commit the controller made of task 12's first pass,
+which this fix round sits on top of), and `worktree_clean` reads `false` with the seal's own honest
+sentence that these bytes are not attributed to any commit until one is made.
 
-Not committed — the controller commits, per the standing instruction.
+Not committed by this task — the controller commits.
 
-## 5. Census — unchanged, with its arithmetic restated for the record
+## 5. Census and the ledger's own coverage figure, corrected
 
-**277 of 5,015 demonstrated**, unchanged from Task 11's close and confirmed twice in this task (once
-by an independent direct count over `registries/generated/*.json`, once by `pnpm build`'s own
-regeneration inside both `pnpm verify` runs). This task touches no route file, no seed collection,
-and no `build-registries.mjs` input, so the number could not honestly move, and it did not.
+**Census unchanged at 277 of 5,015 demonstrated** — this task touches no route file, no seed
+collection, and no registry-generation input.
 
-The arithmetic that got the unit from its start to 277, restated from `progress.md` rather than
-re-derived here (the intermediate causes are recorded in detail at their own point in that ledger):
+**The ledger's own Section A figure was WRONG in fix round 0 and is corrected here.** The original
+record said "4,990 of 5,015 uncovered," computed as `5015 − 25` (rows), which is not what
+`ledger-reconcile.mjs` measures — it counts **distinct `pathId`s**, not rows, and several of the 25
+rows shared a `pathId` (e.g. `modules:MOD-SA-09` was cited by nine different rows). The tool's own
+output, both in the fresh `pnpm verify` run and a standalone `pnpm ledger:reconcile` re-run, reads:
+
+```
+A. Registry rows with NO ledger row: 5003 of 5015
+B. Ledger rows naming a path NO registry contains: 0
+```
+
+**5,003, not 4,990** — the true backlog understated coverage's inverse (overstated coverage) by 15
+rows in the original record. With fix round 1's five new rows adding two more distinct `pathId`s
+(`WF-ROLE-010`, `WF-ROLE-015`), the true remaining backlog is 5,003, read directly from the tool
+rather than computed by hand.
+
+Census delta arithmetic across the unit (unchanged by this task, restated from `progress.md`):
 
 | point | census | delta | cause |
 |---|---|---|---|
 | Session S14 entry (runway close) | 299 | — | baseline |
-| Task 4 report (defect A) | 292 | −7 | a header-comment abbreviation defeated the comment-stripped token scan for 3 identifiers, dropping 7 rows |
-| Task 4 fix round 1 | 295 | +3 | 3 of 7 identifiers earned real `sourceRefs`/`const` citations on the permission decisions they govern |
-| Task 4 fix round 2 (ruling) | 295 | 0 | the other 4 identifiers named screens/routes that did not exist yet — `data-carried-forward-refs` reverted rather than kept at the cost of a false claim |
-| Task 7 report → fix round 1 | 269 | −25 | an orphaned 835-line `fixtures.ts`, imported by nothing, was claiming 24 workflows + 2 business-use-cases on a route that renders none of them |
-| Task 7 fix round 2 | 285 | +16 | real `sourceRefs` entries earned on the rebuilt screen, confirmed byte-clean against an out-of-repo regeneration |
-| Task 7 fix round 2 re-review | 284 | −1 | `WF-ROLE-021` dropped — the screen renders a pill asserting a re-notification the build never performs |
-| Task 9 report | 283 | −1 | a second orphaned `fixtures.ts`, unused after the rewrite stopped importing it |
-| Task 11 report | 276 | −7 | two MORE orphaned `fixtures.ts` files (third and fourth of this class this unit) |
-| Task 11 fix round 1 | 277 | +1 | the true pre-Task-11 base was 284, not 283 (`ai-storyboards.json` had gone stale one commit earlier) — so the real move was 284 −8 (two orphans) +1 (a restored citation) = 277 |
-| **Task 12 (this task)** | **277** | **0** | verification-only; no product/seed/registry file touched |
+| Task 4 report (defect A) | 292 | −7 | comment abbreviation defeated the comment-stripped token scan |
+| Task 4 fix round 1 | 295 | +3 | 3 of 7 identifiers earned real citations |
+| Task 4 fix round 2 | 295 | 0 | 4 identifiers named unbuilt screens; false claim reverted |
+| Task 7 → fix round 1 | 269 | −25 | an orphaned 835-line `fixtures.ts` claiming 24 workflows + 2 use cases |
+| Task 7 fix round 2 | 285 | +16 | real `sourceRefs` earned, confirmed byte-clean |
+| Task 7 fix round 2 re-review | 284 | −1 | `WF-ROLE-021` dropped — asserted an unperformed act |
+| Task 9 report | 283 | −1 | a second orphaned `fixtures.ts` |
+| Task 11 report | 276 | −7 | two more orphaned `fixtures.ts` files |
+| Task 11 fix round 1 | 277 | +1 | true pre-task-11 base was 284 not 283; real move 284 −8 +1 = 277 |
+| **Task 12 (this task, both rounds)** | **277** | **0** | verification-only |
 
-Net for the unit: **299 → 277, −22**, entirely from coverage-honesty corrections (five distinct
-orphaned/stale-citation defects found and removed, net of the identifiers that earned their citation
-back by having a screen genuinely built to demonstrate them). Not a loss of built functionality —
-the opposite: every removal was a false claim the census used to carry, and Tasks 5, 6, 7 and 9 each
-raised the number back up by building real, cited coverage before this task closed it out.
+Net for the unit: 299 → 277, −22, entirely coverage-honesty corrections.
 
 ## 6. Screenshots
 
-New captures from this task, all under `docs/screenshots/live/unit-01/` (25 files referenced from
-ledger rows, one shared between LV-0004/LV-0005, plus one final-export smoke-check screenshot not
-tied to a ledger row):
+New captures across the original session and fix round 1, all under
+`docs/screenshots/live/unit-01/`:
 
 ```
 modules-MOD-SA-01-signed-in-dashboard.png
@@ -273,97 +303,62 @@ invitation-tenant-blocked-granitehollow.png
 modules-MOD-SA-10-tenant-metrics-main.png
 tenant-metrics-anonymised-comparative.png
 final-export-spine-smoke-check.png
+tenant-detail-brightbikes-overview.png
+tenant-detail-brightbikes-people.png
+tenant-detail-brightbikes-entitlements.png
+tenant-detail-brightbikes-audit.png
+console-users-invite-success.png
+approvals-ar0001-before-approve.png
+approvals-ar0001-after-approve.png
+approvals-ar0001-approved-confirmed.png
 ```
 
-The directory also holds ~205 pre-existing PNGs from Tasks 1-11's own live drives (untouched,
-retained as their own record). `docs/screenshots/manifest.json` is a separate, frozen artefact from
-an earlier slice (one full-page capture per required route, `capturedRoutes: 840`) that this task
-did not touch and is out of this task's scope — it is not the manifest live-verification screenshots
-belong in.
+These 33 files are all distinctly captured (each a genuine screenshot action against a distinct page
+state), sitting alongside ~205 pre-existing PNGs from Tasks 1-11 this task did not touch.
+`final-export-spine-smoke-check.png` — a smoke-check of the dashboard after `pnpm verify`'s rebuild —
+is byte-identical to `modules-MOD-SA-01-signed-in-dashboard.png` captured 22 minutes earlier; that is
+Next's deterministic server-rendered output for an unauthenticated-then-identical-role render, not a
+distinct visual state, and is named as such here rather than presented as separately informative.
 
-Per `docs/process/live-verification-procedure.md`'s own stated limit: **these image files are not
-re-read by this or any later automated pass** (the deny rule that blocks it is deliberate, to save
-tokens). The filename plus each row's `observed` prose is the durable, checkable record; a human
-reviewer opening the PNGs is the only channel that can confirm pixels match prose.
+Per `docs/process/live-verification-procedure.md`'s own stated limit, these image files are not
+re-read by this or any later automated pass — the filename plus each row's `observed` prose is the
+durable record.
 
 ## 7. Findings carried forward, named rather than dropped
 
-Per the closure brief's own standard — *"the closure record names each one, or it is not an honest
-record"* — restated here rather than left to be found only in `progress.md`:
+1. **Persistence is write-only.** `boot()` rebuilds the store from the seed on every document load
+   and never rehydrates; `Repository.reset()` has no caller. **Reproduced live at LV-0009.** A
+   dedicated task after this unit carries snapshot rehydration and the reset door together.
+2. **`advanceClock` moves a decorative clock**, separate from `store.clock`.
+3. **The tour registry has no gate on tour targets** (`spotlight`, `expectVisible`,
+   `assertState.check` are never considered by the dangling-reference check).
+4. **The delivered console-users page renders blueprint locators in visible text**, from a
+   pre-existing overlay component no task in this unit touched.
+5. **Five identifiers have no honest citation home** under this unit's own rule and stay
+   `not-represented`.
+6. **`acceptInvitation` takes a tenant id and no caller identity** — no token is buildable, the
+   `User` schema carries no credential field.
+7. **A stray `git stash` entry exists on the branch**, left deliberately per task 11's ruling.
 
-1. **Persistence is write-only.** `boot()` (`src/data/boot.ts`) rebuilds the store from the seed on
-   every document load and never rehydrates from IndexedDB; writes commit but nothing reads them
-   back. `Repository.reset()` has no caller anywhere. **Reproduced live in this task at LV-0009** —
-   not merely re-cited. A dedicated task after this unit carries both halves together: snapshot
-   rehydration with real runtime validation, and the reset door with confirm, export-before-reset
-   and post-reset verification.
-2. **`advanceClock` moves a decorative clock.** `DemoChrome` builds its own `fixedClock` in local
-   state while the product reads `store.clock` — two independent clocks. The scenario control that
-   appears to advance simulated time advances a readout and nothing else. Every time-driven
-   demonstration in later units is affected (pilot expiry, qualification expiry, scheduled work,
-   notification escalation).
-3. **The tour registry has no gate on tour targets.** `steps[].action.controlId` is allowlisted by
-   name-shape (`...Id` suffix), and `spotlight`, `expectVisible` and `assertState.check` are never
-   considered at all — wider than even the implementer who found it first disclosed. A reviewer's
-   roughly-twenty-line scrape-and-diff proposal is recorded in `progress.md` (Task 10/11) as the
-   fix shape, not yet built.
-4. **The delivered console-users page renders blueprint locators in visible text.** `L91282,
-   L91304, L91305, L91309, AC-43-301/302/356` come from a pre-existing slice-11 overlay component
-   no task in this unit touched — a §8.6.2 violation shipped inside a page this unit otherwise
-   rebuilt cleanly.
-5. **Five identifiers have no honest home** under this unit's own citation rule (an identifier
-   governing a permission decision goes in that call's `sourceRefs`; a bare container built only to
-   satisfy the scanner is forbidden and was tried, reviewed, and reverted once already) and stay
-   `not-represented`. That is the rule working as designed and also its limit — a screen can
-   genuinely demonstrate something that is not itself a permission decision and have nowhere honest
-   to say so. A programme-level question for whatever closes the whole citation scheme, not
-   something one unit can settle.
-6. **`acceptInvitation` takes a tenant id and no caller identity.** Anyone holding a tenant id — and
-   tenant ids render in Super Admin URLs and table rows — can accept as that tenant's first
-   administrator. No token is buildable: the `User` schema carries no credential field to bind one
-   to. A prototype-versus-production boundary, not a defect introduced by this unit; recorded for
-   whatever closes that matrix.
-7. **A stray `git stash` entry exists on the branch**, left deliberately per Task 11's own ruling —
-   `git stash show` confirms it holds a partial registry change the rebuild reproduced; dropping
-   someone else's stash was judged a destructive act on work this task did not create, so it stays
-   visible and named rather than tidied away silently. Still present at this task's close; not
-   touched (implementers, including this one, never run destructive git operations).
+## 8. What is simulated rather than real
 
-## 8. What is simulated rather than real — stated plainly
-
-- **No backend anywhere.** Every "write" is an in-memory `Repository` mutation plus a durability
-  write to IndexedDB that nothing ever reads back (finding 1 above). There is no server, no network
-  call that matters to product behaviour, and `scan:no-external-network` plus this task's own
-  live-browser network captures (all empty) both confirm zero requests leave `localhost:4173`.
-- **No real authentication.** Any non-empty password authenticates any known email address (`src/ui
-  /product/runtime/session.ts#resolveSignIn`); there is no credential store, no hashing, no token.
-  Sign-in outcomes are entirely a function of the seeded `users`/`tenants` collections' *status*
-  fields, not of anything a caller proves.
-- **No real time.** The product's simulated clock is pinned at the seed's `CANONICAL_EPOCH_MS`
-  (`2026-03-02T06:00Z` platform time) for every row driven in this session; the demo control that
-  claims to advance it does not touch the clock the product reads (finding 2 above).
-- **The "audited session" language on the Tenant Metrics screen** ("Opening one of those records
-  takes a named, audited session; this module cannot open one itself") describes a property this
-  build does not implement end to end — no operational record can actually be opened from this
-  console today, in any module. The screen is honest that it itself cannot do it; it does not claim
-  the rest of the platform can.
-- **Every screen's own on-screen disclosure** ("Simulated behaviour only. This screen is part of a
-  client-validation storyboard...") was visible and rendered correctly on every route driven in this
-  session — not asserted here, observed live 25 times over.
+No backend anywhere; no real authentication (any non-empty password authenticates any known email);
+no real time (the simulated clock is pinned at the seed's canonical epoch and the demo control that
+claims to advance it does not touch the clock the product reads); the Tenant Metrics screen's
+"audited session" language describes a capability no module in this build implements end to end,
+though the screen itself is honest that it cannot do it either.
 
 ## 9. Open items at this task's close
 
-- The seven carried findings above are not fixed by this task and are not this task's to fix; they
-  are named so the next unit inherits them from the record rather than rediscovers them.
-- LV-0010's blocked continuity is an architectural property of the current build (no in-app link
-  between the Hub and Super Admin surfaces, and write-only persistence), not something a future
-  screen task can quietly patch — it needs the dedicated persistence/reset task named in finding 1,
-  or an explicit product decision that the two surfaces are never meant to share one browser session.
-- The "eight screens" vs "nine screens" inconsistency in this unit's own record (§2 above) is
-  flagged rather than silently resolved; whoever next touches unit-01's history should pick one
-  count deliberately rather than let the two keep disagreeing.
-- No completion language beyond what this record's evidence carries: this task closes unit 1's
-  twelve tasks and produces the release evidence master prompt §2.3 requires in place of the deleted
-  test suites; it does not claim the platform is production-ready, does not claim every one of the
-  5,015 census rows is demonstrated (4,706 are honestly `not-represented`), and does not claim any
-  of the seven carried findings is resolved.
+- The seven carried findings are not fixed by this task.
+- LV-0010's blocked continuity is architectural (no in-app link between Hub and Super Admin, and
+  write-only persistence) — a reviewer confirmed this by grepping every `/hub` and `/super-admin`
+  literal in the tree and found `ProductRuntime` mounted in the root layout, meaning a SOFT
+  navigation between the two surfaces would in fact preserve the store; the block is real only
+  because no soft navigation path between them exists in the shipped UI, not because the runtime
+  itself would lose state on one.
+- The tour runner mechanism (§2 above) remains entirely undriven by this ledger — a gap named here,
+  not closed by this fix round, since no `pathId` exists to record it against.
+- The "eight screens" vs "nine screens" inconsistency in this unit's own record is flagged, not
+  resolved.
+- No completion language beyond what this record's evidence carries.
