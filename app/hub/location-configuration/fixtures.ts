@@ -726,31 +726,22 @@ export const CONTROL_MATRIX = [
       'A soft archive. History stays readable and the archival is held until the cascade completes.',
     sourceRef: 'L27122, L112908',
   },
-  {
-    id: 'CTL-07',
-    control: 'Reassign a paused Job during the cascade',
-    surface: 'screen',
-    status: {
-      TENANT_ADMIN: 'allowed',
-      SUPERVISOR: 'allowed-with-conditions',
-      QUALITY_MANAGER: 'explicitly-prohibited',
-      READONLY_AUDITOR: 'explicitly-prohibited',
-      WORKER: 'explicitly-prohibited',
-    },
-    detail: {
-      TENANT_ADMIN:
-        'Allowed (L27123), tenant-wide.',
-      SUPERVISOR:
-        'Allowed with conditions — own Area scope (L27123).',
-      QUALITY_MANAGER: BARE_PROHIBITION,
-      READONLY_AUDITOR: BARE_PROHIBITION,
-      WORKER: BARE_PROHIBITION,
-    },
-    rendering:
-      'Live for the Tenant Admin tenant-wide and for the Supervisor inside their own Area. ABSENT for the other three.',
-    effect: 'Releases the held archival once the last paused Job has been reassigned.',
-    sourceRef: 'L27123',
-  },
+  /*
+   * CTL-07 ("Reassign a paused Job during the cascade", L27123) removed here
+   * (Task 8, unit-02 registry reconciliation, reviewer-directed narrower fix
+   * over the round-1 full-array deletion that broke build-doh-module-reach
+   * .mjs). This row's own `control:` label matched a real
+   * `actionable-controls.json` id and, being still scanned whole-file
+   * regardless of import status, falsely read `demonstrated-in-storyboard`
+   * for `/hub/location-configuration/` even though
+   * `LocationConfigurationScreen.tsx`'s own header records this control as
+   * NOT carried forward (no paused-Job state exists in this build to
+   * reassign). The other ten rows stay — `build-doh-module-reach.mjs` only
+   * refuses on a fully EMPTY `CONTROL_MATRIX`, and `CTL-01` alone already
+   * grants TENANT_ADMIN/SUPERVISOR reach on MOD-DOH-02, so removing this one
+   * row changes no role's computed reach. See
+   * `docs/process/audits/2026-08-29-unit-02-task-8-locator-relocation.md`.
+   */
   {
     id: 'CTL-08',
     control: 'Set the Site timezone',
