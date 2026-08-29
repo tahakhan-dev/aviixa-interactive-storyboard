@@ -84,29 +84,25 @@ import { dohModuleById } from '@/surfaces/doh/modules'
  * disclosed on screen below with the alternative named, per the Global
  * Constraints citation rule, rather than silently substituted for it.
  *
- * DISCLOSED DEVIATION, MATCHING THIS UNIT'S OWN ESTABLISHED PRECEDENT
- * (`ShiftManagementScreen.tsx`'s own header, `LocationConfigurationScreen
- * .tsx`'s own header): `MTX-TEN-02a` reads Supervisor/Quality Manager as
- * `Unavailable` for the WHOLE module, which would mean they cannot even
- * VIEW this screen. This build follows the repository's own uniform
- * `'hub'`-authority read/view floor instead (`TENANT_OPERATIONAL_WRITERS`:
- * Tenant Admin, Supervisor, Quality Manager may all view and attempt these
- * two doors; Read-only Auditor may view only; Worker reaches no Hub screen
- * at all, D11) — the same disclosed widening `ShiftManagementScreen.tsx`'s
- * own header records for its own `WRITE_REQUEST`. This is deliberate, and
- * it is what makes the segregation-of-duties refusal below LIVE-VERIFIABLE
- * through the real product UI: a Supervisor or Quality Manager can open
- * "Invite user"/"Assign role" and submit, and receive the door's own
- * business-specific refusal, rather than never reaching a control at all —
- * which is also this screen's answer to the brief's own risk-3 requirement
- * (drive the denial through the door, not only through a hidden control).
- * The role-select controls on both forms are therefore NOT narrowed per
- * acting role in their options list (`TENANT_USER_ROLES`, the same four
- * options, for every actor who may open the form) — `assignTenantRole`'s
- * own segregation-of-duties gate is the enforcement, and narrowing the
- * options to the empty set for Supervisor/Quality Manager would make the
- * control impossible to exercise at all, defeating the very live-verify
- * this task's Step 6 asks for.
+ * `MTX-TEN-02a` reads Supervisor/Quality Manager `Unavailable` for the
+ * WHOLE `MOD-DOH-09` module — not narrowed, absent — so `VIEW_REQUEST`
+ * below excludes both, exactly the same reading `LocationConfigurationScreen
+ * .tsx`'s own `VIEW_REQUEST` already gives Worker on an identical
+ * `Unavailable` cell (that file's own comment: "no standing on the module
+ * in any scope"). Neither role reaches this screen at all; the whole-screen
+ * `Unavailable` state (`PermissionsGate`, below) renders for them instead of
+ * a degraded or disabled roster view. `TENANT_OPERATIONAL_WRITERS` — the
+ * wider floor these two doors' own `AccessRequest`s in `repository.ts` use
+ * — still governs who may ATTEMPT either door AT THE REPOSITORY LAYER
+ * (Supervisor/Quality Manager included, refused there by the
+ * segregation-of-duties check); it is deliberately NOT this screen's own
+ * `VIEW_REQUEST`/`WRITE_REQUEST` floor, which is narrower and reflects only
+ * who can reach a live control on THIS UI. The segregation-of-duties
+ * refusal is still real and still enforced by the door for a caller that
+ * reaches it some other way (a direct repository call, a future screen, a
+ * script) — this screen's own report records that evidence, gathered
+ * outside the UI once Supervisor/Quality Manager could no longer open a
+ * live control to produce it through here.
  */
 
 const MODULE = dohModuleById('MOD-DOH-09')
@@ -139,30 +135,36 @@ const STATUS_TONE: Readonly<Record<UserRow['status'], StatusToken>> = {
 /**
  * The whole screen's own view gate — real, enforced here, not left to the
  * nav rail alone (`ShiftManagementScreen.tsx`'s own `VIEW_REQUEST` shape).
- * `WORKER` excluded (D11, no Hub screen at all). See this file's own header
- * for why Supervisor/Quality Manager are included despite `MTX-TEN-02a`'s
- * `Unavailable` reading — a disclosed widening, matching this unit's own
- * precedent, not a silent one.
+ * `MTX-TEN-02a`'s own `MOD-DOH-09` row: Tenant Admin `Allowed`, Supervisor
+ * `Unavailable`, Quality Manager `Unavailable`, Read-only Auditor
+ * `Read-only`, Worker `Explicitly prohibited`. `Unavailable` excludes
+ * Supervisor/Quality Manager from this list entirely — the same "excluded
+ * outright" reading `LocationConfigurationScreen.tsx`'s own `VIEW_REQUEST`
+ * already gives Worker for an identical `Unavailable` cell — not merely a
+ * narrower write floor for them, which is what an earlier draft of this
+ * file got wrong (see this file's own header).
  */
 const VIEW_REQUEST: AccessRequest = {
   action: 'view-permissions-roles-and-access',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'READONLY_AUDITOR'],
+  allowedRoles: ['TENANT_ADMIN', 'READONLY_AUDITOR'],
   sourceRefs: ['L22015', 'MTX-TEN-02a', 'repository.ts'],
 }
 
 /**
- * Screen-level DISPLAY gate only, mirroring `CREATE_TENANT_USER_REQUEST`'s/
- * `ASSIGN_TENANT_ROLE_REQUEST`'s own floor in `repository.ts` (private
- * there, so restated here rather than imported — same split
- * `TenantsScreen.tsx`'s own `createDecision` already uses beside
- * `provisionTenant`'s door authorisation). The REAL, enforced authorisation
- * is the door itself; this decides only whether to show a live control or
- * a disabled one with its reason.
+ * Screen-level DISPLAY gate only. Now trivially `TENANT_ADMIN` alone, since
+ * `VIEW_REQUEST` above already excludes every other role that could ever
+ * pass it and still want to write (Read-only Auditor never should). The
+ * REAL, enforced authorisation remains the door itself
+ * (`CREATE_TENANT_USER_REQUEST`/`ASSIGN_TENANT_ROLE_REQUEST` in
+ * `repository.ts`, wider on purpose — see this file's own header) — this
+ * decides only whether to show a live control or a disabled one with its
+ * reason, and today it can only ever show the live one, for the one role
+ * that reaches it.
  */
 const WRITE_REQUEST: AccessRequest = {
   action: 'manage-tenant-users-and-roles',
-  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
-  sourceRefs: ['L18973', 'L18976', 'TRN-ACC-01', 'TRN-ACC-04', 'repository.ts'],
+  allowedRoles: ['TENANT_ADMIN'],
+  sourceRefs: ['L18976', 'TRN-ACC-04', 'repository.ts'],
 }
 
 export function PermissionsScreen() {
@@ -437,14 +439,13 @@ function PermissionsBody({
           </summary>
           <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
             The frozen source states this directly: only a Tenant Admin may grant any of the four
-            tenant roles. The tenant role-to-module matrix (MTX-TEN-02a, frozen source line 22015)
-            states Supervisor and Quality Manager &quot;Unavailable&quot; for the whole Permissions,
-            Roles and Access module — not narrowed, absent. The account-lifecycle authority table
-            (TRN-ACC-04, line 18976) names Tenant Admin as both Requester and Authorizer of a role
-            assignment, singular. A narrower default — Supervisor and Quality Manager granting
-            Worker only — was the fallback this build would have used had the source stayed
-            silent; it did not need to. Supervisor and Quality Manager can still open the controls
-            below and attempt a grant; the door refuses it, with this same reason, every time.
+            tenant roles. The tenant role-to-module matrix, MTX-TEN-02a, states Supervisor and
+            Quality Manager &quot;Unavailable&quot; for the whole Permissions, Roles and Access
+            module — not narrowed, absent, which is why neither role reaches this screen at all.
+            The account-lifecycle authority table, TRN-ACC-04, names Tenant Admin as both
+            Requester and Authorizer of a role assignment, singular. A narrower default —
+            Supervisor and Quality Manager granting Worker only — was the fallback this build
+            would have used had the source stayed silent; it did not need to.
           </p>
         </details>
 
@@ -548,8 +549,8 @@ function PermissionsBody({
               >
                 {roleById(assignResult.grantorRole).name} may not grant the{' '}
                 {roleById(assignResult.requestedRole).name} role. Only a Tenant Admin may assign a
-                tenant role (MTX-TEN-02a, MOD-DOH-09; TRN-ACC-04 — frozen source line 22015, line
-                18976).
+                tenant role (the tenant role-to-module matrix MTX-TEN-02a, MOD-DOH-09; the
+                account-lifecycle authority table TRN-ACC-04).
               </p>
             ) : null}
             {assignResult !== null && !assignResult.ok && assignResult.kind !== 'segregation-of-duties' ? (

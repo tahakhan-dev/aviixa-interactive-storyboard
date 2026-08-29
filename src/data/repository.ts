@@ -2487,9 +2487,14 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
      * `TENANT_ROLE_GRANT_MATRIX`'s own comment for Step 2's research and its
      * citations.
      *
-     * ORDER, and why: the authority/writability gate (static, no row read)
-     * first; `evaluateAccess` next, before any row is read at all (same
-     * discipline `createTenantUser` above follows); THEN the
+     * ORDER, and why: `evaluateAccess` is the LITERAL FIRST statement, same
+     * as `createTenantUser` above and every other door in this file (fix:
+     * an earlier draft ran the authority/writability gate before it — no
+     * row was ever read there, so it was not the same class of bug Task 1's
+     * round-1 review caught, but it was still inconsistent with the shape
+     * this task is held to; the gate is now deferred to immediately before
+     * the write it actually gates, matching where `createTenantUser` runs
+     * its own `usersAuthority`/`grantsAuthority` checks). THEN the
      * segregation-of-duties check — computed HERE, per call, from
      * `ctx.identity.role` (the ACTING identity's own role, read fresh from
      * the context this call was made with, never baked into the static
@@ -2508,9 +2513,6 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
      * `archiveLocationTierEntity`'s own fix-round-1 finding established.
      */
     async assignTenantRole(userId, role, ctx) {
-      const authority = truthStoreFor('role-grants')
-      if (!writableThroughRepository(authority)) return truthStoreRefusal('role-grants', authority)
-
       const decision = evaluateAccess(ASSIGN_TENANT_ROLE_REQUEST, ctx)
       if (!permitsAction(decision)) {
         return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
@@ -2589,6 +2591,9 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
           ),
         )
       }
+
+      const authority = truthStoreFor('role-grants')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('role-grants', authority)
 
       const nowIso = new Date(store.clock.now()).toISOString()
       const grantRow: RowOf<'role-grants'> = {
