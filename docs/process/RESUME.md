@@ -435,6 +435,53 @@ ran `stripComments` and found that comments never carry citations at all. That f
 relocation rule for every remaining task in the programme: an identifier that governs a permission
 decision is passed as that call's `sourceRefs`, never left in a comment.
 
+### Unit 1 — platform bootstrap and tenant provisioning — CLOSED
+
+**Read this before the "Session S14" material above it and the round-7 material below it — this is
+the position at unit 1's close, measured fresh rather than recalled.** All twelve tasks complete.
+Verification record: `docs/process/2026-08-29-unit-01-verification.md`. Ledger:
+`.superpowers/sdd/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning/progress.md`.
+Candidate commit `79cbd4f130865253bccc967973ba04d89cc05927` (task 11's close); task 12 (this
+closure) is uncommitted evidence on top of it — the controller commits.
+
+**Frozen source re-hashed at closure: unchanged, `47bd18db…`, 122,241 lines.** No drift.
+
+**Fresh `pnpm verify` exit 0**, run twice (before and after filling the ledger) on the bytes this
+task actually produced — not a recollection. Census unchanged at **277 of 5,015** demonstrated
+(this task touches no product/seed/registry file). `scan:no-external-network` and
+`scan:no-fallback-shells` both report zero violations.
+
+**The Live-Verification Ledger — empty at every prior session's close — now holds 25 rows**, all
+driven fresh in this task against the served export, none transcribed from a report: 23 `pass`,
+1 `fail` (LV-0009: write-only persistence reproduced live, not just re-cited), 1 `blocked`
+(LV-0010: the full accept→activate spine continuity cannot be driven in one document — no in-app
+link connects the Hub and Super Admin surfaces, and no seeded row sits in the narrow transitional
+state the `Activate` gate needs). `ledger-reconcile.mjs` section B (ledger rows naming a path no
+registry contains) reads **0** — every `pathId` driven resolves to a real census row. Section A
+(backlog) reads 4,990 of 5,015 — the honest, stated remainder of a scoped regression set, not an
+attempt at exhaustive coverage.
+
+**Both manifests resealed on the final bytes.** Product-candidate manifest unchanged
+(`40350cb6…`, `docs/process/` is an evidence root so this task's writes never entered its scope);
+evidence-envelope manifest's payload hash changed (`…5b37680a…`) because the ledger it now covers is
+no longer empty. `worktree_clean: false` with the seal's own honest sentence — nothing here
+attributes these bytes to a commit until the controller commits them.
+
+**Seven findings carried forward, named rather than fixed, in full in the verification record's
+§7:** persistence is write-only (`boot()` never rehydrates, `Repository.reset()` has no caller —
+reproduced live this session, not merely re-cited); `advanceClock` moves a decorative clock separate
+from `store.clock`; the tour registry has no gate on `spotlight`/`expectVisible`/`assertState.check`
+targets; the shipped console-users page renders blueprint locators from a pre-existing overlay
+component this unit never touched; five identifiers have no honest citation home under this unit's
+own rule and stay `not-represented`; `acceptInvitation` takes a tenant id and no caller identity
+(anyone holding a tenant id can accept as that tenant's first administrator); a stray `git stash`
+entry sits on the branch, left deliberately per task 11's ruling rather than dropped.
+
+**What the next session should do with this:** the persistence/reset task named in finding 1 is the
+natural next dependency for any unit that demonstrates a write surviving a reload. Unit 2 (or
+whatever is next in `docs/superpowers/plans/`) can start clean; nothing here blocks it, and nothing
+here should be re-litigated from memory — read the verification record and the ledger rows directly.
+
 ### Round 7 of the slice-11 audit loop is closed — round 8 is owed
 
 **172 findings declared across seven rounds. Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.

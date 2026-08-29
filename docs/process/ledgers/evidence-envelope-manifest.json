@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-54c5efd2165db8cc",
-  "candidate_id": "SLICE11-2af2f4aa2a1d3bf2",
+  "envelope_id": "ENV11-5b37680a8c73b4ec",
+  "candidate_id": "SLICE11-40350cb6ac702e62",
   "slice": "11",
-  "payload_sha256": "54c5efd2165db8cc5b4ac89217649c3071b507b927f487768538994524107e98",
+  "payload_sha256": "5b37680a8c73b4ec64f6429a3765ef4d92519fc59753fb9ffdc95beac65484c5",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -23,8 +23,8 @@
     "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
   },
   "payload_excludes_self": true,
-  "payload_count": 97,
-  "supersedes": "ENV11-21326f52183cabaf",
+  "payload_count": 100,
+  "supersedes": "ENV11-9d235de5d68afda0",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -113,8 +113,8 @@
     },
     {
       "path": "docs/process/RESUME.md",
-      "bytes": 36409,
-      "sha256": "4998b429728881f79d38906ce270b584f4ca00a9dce2fc9309604ab711722ae0"
+      "bytes": 40435,
+      "sha256": "ae391c8523f5682086ebf59aa4ccf6ec4be7d85e4c0185650bb8af4fcbc12757"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
@@ -190,6 +190,11 @@
       "path": "docs/process/audits/2026-08-25-slice-11-audit-round-7-findings.md",
       "bytes": 22388,
       "sha256": "c30e9dc367c61eb67121f05ab8ab1595c41166e70c62054e5a61cc7c017b25e3"
+    },
+    {
+      "path": "docs/process/audits/2026-08-28-unit-01-task-11-locator-relocation.md",
+      "bytes": 23764,
+      "sha256": "6d8d467837a25e6cf0e94f523f8ee0c869e9dbadb489d18017f5390b2c328b4c"
     },
     {
       "path": "docs/process/audits/briefs/fix-A-storyboard-text.md",
@@ -338,8 +343,8 @@
     },
     {
       "path": "docs/process/ledgers/approval-ledger.json",
-      "bytes": 40458,
-      "sha256": "b7e15c33085bbcc0cfd80d5a0237e160fb73b9aacec925637e3c6e060ee92647"
+      "bytes": 44759,
+      "sha256": "317bfbdafd7ab9ac48009b620309d7c45dc0f45b9c6f8979cb7a14c4589c7616"
     },
     {
       "path": "docs/process/ledgers/capability-preflight-matrix.json",
@@ -353,13 +358,13 @@
     },
     {
       "path": "docs/process/ledgers/invocation-evidence-ledger.json",
-      "bytes": 49031,
-      "sha256": "1a547b76b898d47a4cb29a7a316c92f25d14adc686775e0ff6aae44ebbddb0df"
+      "bytes": 54172,
+      "sha256": "dc37afe3c79b9f9eb8427a8be502fa0d29024403e362b73d48ef40e2a37b23cc"
     },
     {
       "path": "docs/process/ledgers/live-verification-ledger.json",
-      "bytes": 4490,
-      "sha256": "cf986fc98bb2e23b3758f049ffb7150f505c1fbac968cd179796d18d52ffed44"
+      "bytes": 36977,
+      "sha256": "dc936a42deb41e41af4bd80a45ed5f550d479ed33fbc4e83fecc024a30814f83"
     },
     {
       "path": "docs/process/ledgers/loop-ledger.json",
@@ -388,8 +393,8 @@
     },
     {
       "path": "docs/process/live-verification-procedure.md",
-      "bytes": 11019,
-      "sha256": "9bd3afbbb3888132b18707a4f21e9cbefa4e45db259b1794a20334a441a37ca2"
+      "bytes": 11688,
+      "sha256": "8d1ffc7f1b849284f35597f63901a8e7fde3d101fb5877989c7175a55c2db3c3"
     },
     {
       "path": "docs/process/master-prompt/AVIIXA_Interactive_Storyboard_Master_Prompt_v1.0.md",
@@ -472,6 +477,11 @@
       "sha256": "760045363c92b99522e07c53f4922182eb23911fe0b1f3d793d4fc35a8f3b232"
     },
     {
+      "path": "docs/superpowers/plans/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning.md",
+      "bytes": 40571,
+      "sha256": "f2f1d70ccb57dda724a12eed6c9ebecbac59563452a589360e1f2199205e9711"
+    },
+    {
       "path": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
       "bytes": 45040,
       "sha256": "e9dac281fc76db96de06d35dbc369844f7a5c22e67c41199c2e48ac19e92d305"
@@ -510,6 +520,11 @@
       "path": "docs/superpowers/specs/2026-08-26-product-fidelity-rebuild-design.md",
       "bytes": 19124,
       "sha256": "7009f5121702e4e144f984a0dd7e892fbbeee273ccd5045723858cf57125da60"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning-design.md",
+      "bytes": 8683,
+      "sha256": "a3198b60ab71557c3a8fa57b9c944dc01d5bec03af7f2bbee126ab8eae24e253"
     }
   ]
 }

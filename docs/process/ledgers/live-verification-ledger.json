@@ -7,7 +7,7 @@
     "docs/superpowers/plans/2026-08-26-runway.md, Task 19",
     "docs/process/live-verification-procedure.md (the call sequence every row's evidence must follow)"
   ],
-  "scope_note": "Created by Task 19, the final task of the 2026-08-26 runway, as the release-evidence apparatus that survives the whole-project deletion of every test suite under tests/ (APP-020, ~324 suites, effective immediately after this task). Every earlier task's live-in-Chrome verification lives only as prose inside .superpowers/sdd/2026-08-26-runway/task-*-report.md; this ledger is the first STRUCTURED record of that class of evidence and is deliberately seeded with ZERO rows rather than backfilled from those reports. Two reasons, stated rather than left implicit: (1) backfilling would mean writing 'screenshots'/'consoleErrors'/'externalRequests' values this task did not itself observe through the procedure in live-verification-procedure.md -- that is exactly the shape of unearned precision this project's own audits (fix-P-round5-absence-claims.md, fix-U-round6-coverage-and-disclosure.md) have repeatedly found and corrected elsewhere, and Task 19 will not reintroduce it in the one document whose whole job is to be trustworthy evidence; (2) the honest starting position matters more than a flattering one -- running scripts/ledger-reconcile.mjs against zero rows reports the entire fourteen-registry census (5015 rows at this build) as uncovered, and that number belongs in the record exactly as measured, not minimised by a handful of retrofitted rows chosen to look like progress. Every row from here forward is added by the §24.2 workflow unit that performs the live verification it describes, following docs/process/live-verification-procedure.md exactly, at the time that unit actually runs the Chrome MCP sequence -- never reconstructed afterward from memory or from a report's prose summary.\n\nROW SHAPE, verbatim from the runway plan's Task 19 interface (`LiveVerificationRow`): id, pathId, role, surface, connectivity, clockStamp, steps, expected, observed, screenshots, consoleErrors, externalRequests, verdict, defect, candidateId, stamp.\n\nPATH ID FORMAT: `${registrySlug}:${id}`, where `registrySlug` is one of the fourteen filenames in registries/generated/*.json without its extension (modules, features, sub-features, functions, workflows, business-use-cases, business-objects, events, commands, notifications, offline-scenarios, ai-storyboards, scheduled-work, actionable-controls) and `id` is that row's own `id` field verbatim. The slug prefix is required, not decorative: registry row ids are NOT unique across the fourteen registries (e.g. `SB-001` is a real, distinct id in both `workflows.json` and `ai-storyboards.json`) -- scripts/ledger-reconcile.mjs's own header explains the collision this prevents. `scripts/ledger-reconcile.mjs` reconciles this ledger's `pathId` column against that same census in both directions: registry rows with no ledger row (the backlog), and ledger rows naming a path no registry contains (a data-integrity defect, fails that script's exit code).\n\nVERDICT VALUES: 'pass' (observed matched expected, externalRequests empty), 'fail' (observed did not match, or externalRequests is non-empty -- ANY entry in externalRequests is a Critical defect per Task 19's brief, regardless of what else passed), 'blocked' (the step sequence could not be completed for a reason recorded in `defect`, e.g. a decision-blocked control per the coverage dashboard's own status vocabulary).\n\nEXTERNAL-NETWORK ROWS ARE NOT THIS LEDGER'S JOB TO CATCH STRUCTURALLY: `scripts/scan-no-external-network.mjs` is the compile-level, always-run gate for that (fetch/XHR/WebSocket/EventSource/sendBeacon/remote URL/`/api` path/telemetry sink, across src/, app/ and out/). `externalRequests` on a ledger row is the LIVE-BROWSER complement to that static scan -- what the Chrome MCP network panel actually observed during one recorded session -- not a substitute for it.",
+  "scope_note": "Created by Task 19, the final task of the 2026-08-26 runway, as the release-evidence apparatus that survives the whole-project deletion of every test suite under tests/ (APP-020, ~324 suites, effective immediately after this task). Every earlier task's live-in-Chrome verification lives only as prose inside .superpowers/sdd/2026-08-26-runway/task-*-report.md; this ledger is the first STRUCTURED record of that class of evidence and is deliberately seeded with ZERO rows rather than backfilled from those reports. Two reasons, stated rather than left implicit: (1) backfilling would mean writing 'screenshots'/'consoleErrors'/'externalRequests' values this task did not itself observe through the procedure in live-verification-procedure.md -- that is exactly the shape of unearned precision this project's own audits (fix-P-round5-absence-claims.md, fix-U-round6-coverage-and-disclosure.md) have repeatedly found and corrected elsewhere, and Task 19 will not reintroduce it in the one document whose whole job is to be trustworthy evidence; (2) the honest starting position matters more than a flattering one -- running scripts/ledger-reconcile.mjs against zero rows reports the entire fourteen-registry census (5015 rows at this build) as uncovered, and that number belongs in the record exactly as measured, not minimised by a handful of retrofitted rows chosen to look like progress. Every row from here forward is added by the §24.2 workflow unit that performs the live verification it describes, following docs/process/live-verification-procedure.md exactly, at the time that unit actually runs the Chrome MCP sequence -- never reconstructed afterward from memory or from a report's prose summary.\n\nROW SHAPE, verbatim from the runway plan's Task 19 interface (`LiveVerificationRow`): id, pathId, role, surface, connectivity, clockStamp, steps, expected, observed, screenshots, consoleErrors, externalRequests, verdict, defect, candidateId, stamp.\n\nPATH ID FORMAT: `${registrySlug}:${id}`, where `registrySlug` is one of the fourteen filenames in registries/generated/*.json without its extension (modules, features, sub-features, functions, workflows, business-use-cases, business-objects, events, commands, notifications, offline-scenarios, ai-storyboards, scheduled-work, actionable-controls) and `id` is that row's own `id` field verbatim. The slug prefix is required, not decorative: registry row ids are NOT unique across the fourteen registries (e.g. `SB-001` is a real, distinct id in both `workflows.json` and `ai-storyboards.json`) -- scripts/ledger-reconcile.mjs's own header explains the collision this prevents. `scripts/ledger-reconcile.mjs` reconciles this ledger's `pathId` column against that same census in both directions: registry rows with no ledger row (the backlog), and ledger rows naming a path no registry contains (a data-integrity defect, fails that script's exit code).\n\nVERDICT VALUES: 'pass' (observed matched expected, externalRequests empty), 'fail' (observed did not match, or externalRequests is non-empty -- ANY entry in externalRequests is a Critical defect per Task 19's brief, regardless of what else passed), 'blocked' (the step sequence could not be completed for a reason recorded in `defect`, e.g. a decision-blocked control per the coverage dashboard's own status vocabulary).\n\nEXTERNAL-NETWORK ROWS ARE NOT THIS LEDGER'S JOB TO CATCH STRUCTURALLY: `scripts/scan-no-external-network.mjs` is the compile-level, always-run gate for that (fetch/XHR/WebSocket/EventSource/sendBeacon/remote URL/`/api` path/telemetry sink, across src/, app/ and out/). `externalRequests` on a ledger row is the LIVE-BROWSER complement to that static scan -- what the Chrome MCP network panel actually observed during one recorded session -- not a substitute for it.\n\nUNIT-01 CLOSURE (Task 12, 2026-08-29, candidate 79cbd4f130865253bccc967973ba04d89cc05927): the first entries filled, all driven fresh against `pnpm serve:out` on the current bytes rather than transcribed from any task report. Scope: the platform-bootstrap-and-tenant-provisioning spine end to end, each of the shipped screens in its main state, the sign-out control, and the variant/failure paths (sign-in refusals, tenant-create denial, segregation of duties, second-root refusal, critical-class no-control, invitation expired/tenant-blocked). One row (LV-0010) is recorded `blocked`: the full cross-surface accept-then-activate continuity cannot be driven in one document under this build's current architecture (no in-app link connects the Hub and Super Admin surfaces; any navigation between them is a hard page load; `boot()` never rehydrates from IndexedDB) -- reproduced live at LV-0009 rather than only cited from Task 8's report. This is not exhaustive: it is the regression set the unit's own rule requires (every path sharing a changed screen, component, repository method or state machine), not every one of the 5015 census rows.",
   "columns": [
     "id",
     "pathId",
@@ -26,5 +26,586 @@
     "candidateId",
     "stamp"
   ],
-  "entries": []
+  "entries": [
+    {
+      "id": "LV-0001",
+      "pathId": "workflows:WF-ROLE-004",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated to /super-admin/sign-in/",
+        "typed helena.voss@platform.aviixa.example into the email field",
+        "typed a non-empty password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "A valid Admin credential signs in and lands on the Platform Overview and Health dashboard.",
+      "observed": "URL changed to /super-admin/platform-overview-and-health/, header read 'Signed in as Helena Voss' with a 'Sign out' control.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0002",
+      "pathId": "modules:MOD-SA-01",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued from LV-0001, same document)",
+        "read the Platform Health tile row and the Tenants-needing-attention table"
+      ],
+      "expected": "The dashboard renders live-computed tiles from the seeded collections (29 tenants, active/pilot counts, platform users, devices, AI requests) and an honest 'Unknown' for the uncomputable critical-approvals tile.",
+      "observed": "Tenants 29, Active tenants 8, Active pilots 5, Needs attention 16, Platform users 7, Devices enrolled 25, AI requests 13, 'Open critical-class approvals: Unknown' with the stated reason. Attention table lists 16 tenants with lifecycle badges and days-in-state.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0003",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued from LV-0002)",
+        "clicked the 'Tenants, Lifecycle and Pilots' nav link"
+      ],
+      "expected": "The tenant list renders all 29 seeded tenants, paginated, with a real 'Create tenant' control enabled for this role.",
+      "observed": "URL /super-admin/tenants-lifecycle-and-pilots/, table shows tenant rows with lifecycle/tier/pilot columns, 'Create tenant' control present and enabled for Admin.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/modules-MOD-SA-09-tenants-list.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0004",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked 'Create tenant'",
+        "left the Tenant name field empty",
+        "attempted to click 'Next'"
+      ],
+      "expected": "The wizard blocks advancement on an empty required field (schema rejection, R3).",
+      "observed": "'Next' rendered aria-disabled=true and did not advance; click action timed out against the disabled control.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0005",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) typed a tenant name",
+        "checked 'This is a pilot tenant' without setting an expiry date",
+        "attempted to click 'Next'"
+      ],
+      "expected": "A pilot tenant requires an expiry date before the wizard advances (second schema-rejection case, R3).",
+      "observed": "'Next' rendered disabled a second time until the Pilot expiry date field was filled.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0006",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "filled name, tier, pilot expiry, administrator name and email across the wizard's four steps",
+        "opened the review confirmation and confirmed it",
+        "clicked Finish"
+      ],
+      "expected": "A real repository.create('tenants', ...) write commits; the app navigates to the new tenant's detail page at ?tenant=<generated-id>, which is not in the static export's generateStaticParams (created-in-session rendering path).",
+      "observed": "Navigated to /super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-TASK12VERIFICATI-1, success toast 'Task 12 Verification Tenant was created. Invited — not yet operating until its administrator accepts.', lifecycle pill 'Invited', 'Activate' rendered disabled with reason 'Activation is not available until Verification Admin accepts the invitation and completes identity proof.', pilot expiry rendered 'Yes Expires Jun 1, 2026.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/wizard-review-step.png",
+        "docs/screenshots/live/unit-01/modules-MOD-SA-09-wizard-created-detail-invited.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0007",
+      "pathId": "workflows:WF-ROLE-004",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued, still on the new tenant's detail page)",
+        "clicked the AppShell 'Sign out' control"
+      ],
+      "expected": "Sign-out clears the session and redirects to sign-in, preserving the exact prior route as a `next=` return parameter (task 10 fix).",
+      "observed": "Redirected to /super-admin/sign-in/?next=%2Fsuper-admin%2Ftenants-lifecycle-and-pilots%2Fdetail%2F%3Ftenant%3DTEN-TASK12VERIFICATI-1.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/spine-sign-out-redirect.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0008",
+      "pathId": "workflows:unnumbered@L75557",
+      "role": "Tenant Admin (invited)",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated (fresh document) to /hub/accept-invitation/?tenant=TEN-IRONCLAD",
+        "clicked 'Accept invitation'"
+      ],
+      "expected": "The invited administrator's acceptance moves their user row from invited to active and signs them in on the Hub, per §15.1/WF-ROLE-004-adjacent acceptance workflow. Acceptance itself does not activate the tenant (Task 6's design, disclosed on screen).",
+      "observed": "Landed signed-in as 'Nadia Ferreira' in the Delivery Operations Hub; status message read 'Signed in as Nadia Ferreira — Tenant Admin. Your workspace becomes fully active once the platform team activates it from the Super Admin console; until then you can see it here but it is not yet operating.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-before.png",
+        "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-after.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0009",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(fresh document/hard navigation) navigated to /super-admin/sign-in/, signed in as helena.voss",
+        "navigated (hard nav) to /super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-IRONCLAD"
+      ],
+      "expected": "Per the carried finding 'persistence is write-only' (boot() rebuilds the store from the seed on every document load and never rehydrates), Nadia's acceptance written in LV-0008's document is NOT visible here, because it is a different document/store instance.",
+      "observed": "Ironclad Fasteners still rendered lifecycle 'Invited' with Activate disabled, reason 'Activation is not available until Nadia Ferreira accepts the invitation and completes identity proof.' — i.e. the accept from LV-0008 did not cross the hard-navigation boundary. This is the write-only persistence defect, reproduced live and fresh rather than only cited from a prior report.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/detail-ironclad-post-hardnav-still-invited.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "fail",
+      "defect": "Write-only persistence (carried finding #1): a write committed in one document/session is invisible from a second document, because boot() always rebuilds the store from the seed JSON and never rehydrates from IndexedDB. Reproduced live on TEN-IRONCLAD/Nadia Ferreira.",
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0010",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin / Tenant Admin",
+      "surface": "Super Admin Platform Console + Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "attempted to chain LV-0008's Hub acceptance directly into a Super Admin 'Activate' click in one continuous session"
+      ],
+      "expected": "Task 8's original spine drive (create -> Activate disabled -> Hub accept -> detail moves -> Activate -> active in list) re-driven end to end on the current bytes.",
+      "observed": "Cannot be driven as one continuous document: Hub (app/hub/**) and Super Admin (app/super-admin/**) share no in-app navigation path, so reaching one from the other requires a hard page load, which per LV-0009 discards the in-memory store. No seeded tenant sits in the transitional state (lifecycle 'invited' AND its first Tenant Admin already 'active') that would let 'Activate' render enabled from a fresh boot — confirmed by querying tenants.json x users.json. Task 8's own report used a disclosed, reverted seed edit to close this gap during development; a verification-only task must not edit seed data to manufacture a state. The Hub-side accept (LV-0008) and the Super Admin 'Activate enabled + write + list reflects active' mechanics are each independently real and were exercised on other tenants/tasks, but the full continuous chain across the surface boundary cannot be produced live under this build's current architecture.",
+      "screenshots": [],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "blocked",
+      "defect": "Cannot drive the cross-surface leg of the spine in one document: no in-app link connects Hub and Super Admin, any navigation between them is a hard page load, and boot() never rehydrates (carried finding #1). No seeded row exists in the narrow transitional state (invited tenant + already-active admin) needed to observe 'Activate' enabled from a fresh boot without first performing a live accept in the same document. Not driven; not claimed as pass.",
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0011",
+      "pathId": "workflows:WF-ROLE-004",
+      "role": "removed account",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed peter.dijk@vantageindustrial.example (status: removed) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "R2: a removed account folds into the SAME generic outcome as an unknown address, to avoid disclosing that the account once existed.",
+      "observed": "Banner 'There is a problem — The email or password you entered is incorrect.' identical wording to an unknown address.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/signin-removed-generic.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0012",
+      "pathId": "workflows:WF-ROLE-004",
+      "role": "invited account",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed nadia.ferreira@ironcladfasteners.example (status: invited) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "An invited account (never set a password) is told to accept its invitation rather than shown a generic credentials error (R2).",
+      "observed": "Status message 'Invitation not yet accepted — nadia.ferreira@ironcladfasteners.example has an open invitation to this platform that has not been accepted yet...'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/signin-invitation-pending.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0013",
+      "pathId": "workflows:WF-ROLE-004",
+      "role": "suspended account",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed camille.dubois@brightbikes.example (status: suspended, tenant active) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "A suspended user inside an active tenant is refused with the account-suspended reason.",
+      "observed": "Alert 'Account suspended — Account suspended by a platform administrator.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/signin-account-suspended.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0014",
+      "pathId": "workflows:WF-ROLE-004",
+      "role": "active user, suspended tenant",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed callum.reid@northforgemetal.example (active user, tenant TEN-NORTHFORGE soft-suspended) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "An active account whose tenant is suspended is refused and told which of the two is the actual problem.",
+      "observed": "Alert 'Tenant account suspended — This account is fine, but its organisation's account is currently soft suspended (lifecycle: soft-suspended). Contact your platform administrator.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/signin-tenant-suspended.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0015",
+      "pathId": "workflows:WF-ROLE-037",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed root.admin@platform.aviixa.example and a password",
+        "clicked 'Sign in'",
+        "clicked 'Confirm' on the platform floor register step-up panel"
+      ],
+      "expected": "Root sign-in never lands directly; it stops at a step-up panel (six enforced invariants) before landing (WF-ROLE-004, §7.5).",
+      "observed": "After sign-in, remained on /super-admin/sign-in/ showing the step-up panel; after confirming, landed on /super-admin/platform-overview-and-health/ as Root Super Admin.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/signin-root-stepup-required.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0016",
+      "pathId": "modules:MOD-SA-08",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked 'Console Users, Roles and Change Approvals' nav link"
+      ],
+      "expected": "The approvals queue renders seeded pending/decided change requests with class chips (Critical/Engineering) and platform user rows.",
+      "observed": "Screen rendered the approvals queue and platform users table with 7 platform accounts.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/modules-MOD-SA-08-console-users-root-main.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0017",
+      "pathId": "workflows:UC-HO-02",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) opened approval request AR-0002, an engineering-class change the root itself proposed"
+      ],
+      "expected": "Maker-checker: the platform allows no one, including the root, to decide a change they proposed themselves (§15.1).",
+      "observed": "'Approve' and 'Return' both rendered disabled with reason 'The same person cannot both make and approve this change.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-sod-ar0002-root-own-proposal.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0018",
+      "pathId": "workflows:WF-ROLE-037",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked 'Invite console user'",
+        "named a candidate 'Backup Root Candidate' / backup.root@platform.aviixa.example",
+        "selected the 'Root Super Admin' role",
+        "clicked 'Send invitation'"
+      ],
+      "expected": "Exactly one Root Super Admin account can ever exist; no console path, including this invitation, can create a second.",
+      "observed": "Dialog rendered the refusal 'Exactly one Root Super Admin account exists on this platform. It is created only by the backend at platform commissioning, and no console path — including this invitation — can create a second.' Platform users table remained 'Showing 1-7 of 7' (unchanged) confirming no row was created.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-second-root-denied-result.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0019",
+      "pathId": "ai-storyboards:SB-HO-004",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as helena.voss@platform.aviixa.example",
+        "opened approval request AR-0003, a critical-class compliance suspension"
+      ],
+      "expected": "For a critical-class change, a non-root viewer sees NO Approve/Return control at all (structurally absent, not merely disabled) — only the sentence naming why.",
+      "observed": "No 'Approve' or 'Return' button rendered anywhere in the decision panel; only the paragraph 'Critical class — root approval required.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/workflows-critical-no-control-ar0003-admin.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0020",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Platform Engineer",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as kwame.adjei@platform.aviixa.example (Platform Engineer)",
+        "opened the tenant list"
+      ],
+      "expected": "Tenant creation is reserved for Root Super Admin and Admin; the Platform Engineer sees 'Create tenant' visible but disabled with the reason stated.",
+      "observed": "'Create tenant' rendered disabled with 'The current role does not carry a grant for this action. Tenant creation is held by the Root Super Admin and the Admin...'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/tenant-create-denied-platform-engineer.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0021",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Platform Engineer",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated directly to /super-admin/tenants-lifecycle-and-pilots/create/ (bypassing the list's disabled control)",
+        "filled all four wizard steps with a candidate tenant and administrator",
+        "confirmed the review step and clicked Finish"
+      ],
+      "expected": "Navigating straight to the create route does not bypass the rule; the wizard itself re-checks who is asking before it writes anything (write-time authorization, not just render-time UI).",
+      "observed": "The Finish click produced 'This action is not permitted — The current role does not carry a grant for this action.' The wizard stayed on step 4/Review; no navigation to a detail page occurred, i.e. no tenant was created.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/tenant-create-route-direct-nav-denied.png",
+        "docs/screenshots/live/unit-01/tenant-create-denied-wizard-finish-refused.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0022",
+      "pathId": "workflows:unnumbered@L75557",
+      "role": "unauthenticated invitation link",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/accept-invitation/?tenant=TEN-REDROCKMFG"
+      ],
+      "expected": "An invitation older than the platform's expiry window (TRN-ACC-01, ~7 days) reads as expired rather than accepting silently or erroring.",
+      "observed": "Heading 'This invitation has expired' and body 'It was issued on Feb 22, 2026 for Red Rock Manufacturing. Ask your platform administrator to re-issue it.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/invitation-expired-redrockmfg.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0023",
+      "pathId": "workflows:unnumbered@L75557",
+      "role": "unauthenticated invitation link",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/accept-invitation/?tenant=TEN-GRANITEHOLLOW (tenant lifecycle: compliance suspended)"
+      ],
+      "expected": "An invitation to a currently-suspended tenant cannot be accepted while the suspension holds.",
+      "observed": "Heading 'This workspace is not available' and body \"Granite Hollow Tooling's account is currently compliance suspended. Contact your platform administrator.\"",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/invitation-tenant-blocked-granitehollow.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0024",
+      "pathId": "modules:MOD-SA-10",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as helena.voss@platform.aviixa.example",
+        "opened Tenant Metrics and Aggregates",
+        "selected Bright Bikes in the tenant chooser (default selection)"
+      ],
+      "expected": "All fifteen named measures render for the selected tenant (§15.2 vocabulary: counts, rates, statuses only), each with an as-of stamp and an honest unknown/partial/complete completeness marker rather than a fabricated zero.",
+      "observed": "Fifteen tiles rendered: Errors and agent-run failures (Partial, explained), Active workflows 5, Active agents (Partial, explained), Tokens consumed 983 'to date', Runs 75 'Complete', Deviations 15 'Complete', Worker-Shift consumption 164/month 'Complete', Sync health (Partial, explained), Hold-propagation lag (Unknown, explained), Clearance volumes 5 'Complete', Adoption-timing lag (Unknown, explained), Eval posture (Unknown, not tenant-attributed), Learning-proposal lifecycle (Unknown, explained), Notification/escalation health 0 fallbacks 'Complete', Override patterns 4 clustering groups 'Complete'.",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/modules-MOD-SA-10-tenant-metrics-main.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    },
+    {
+      "id": "LV-0025",
+      "pathId": "ai-storyboards:SB-SA-10",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked the 'Anonymised comparative' tab"
+      ],
+      "expected": "master prompt §15.2: cross-tenant comparison is anonymised as an enforced invariant in the shape of the data, never by omitting a label at render time; a tenant with no runs is excluded from the deviation-rate bands rather than counted as 0%.",
+      "observed": "No tenant name appeared anywhere in the tab; the screen's own disclosure states anonymisation happens before the numbers are computed and is presentational rather than informational (the per-tenant tab already publishes the same counts by name). 'Eval pass rate — platform-wide 63%'; deviation-rate bands with the caption '12 of 29 tenants have a recorded run and a deviation rate to place in a band; the rest ... are counted in neither band.'",
+      "screenshots": [
+        "docs/screenshots/live/unit-01/tenant-metrics-anonymised-comparative.png"
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:33Z"
+    }
+  ]
 }
