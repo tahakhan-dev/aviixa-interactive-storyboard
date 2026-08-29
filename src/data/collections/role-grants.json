@@ -3,9 +3,7 @@
     "id": "RG-0001",
     "userId": "USR-BB-ADMIN",
     "role": "TENANT_ADMIN",
-    "siteIds": [
-      "SITE-BB-RIVERSIDE"
-    ],
+    "siteIds": [],
     "areaIds": [],
     "shiftIds": [],
     "grantedBy": "USR-PLAT-ADM-01",
@@ -18,9 +16,7 @@
     "id": "RG-0002",
     "userId": "USR-BB-ADMIN-02",
     "role": "TENANT_ADMIN",
-    "siteIds": [
-      "SITE-BB-RIVERSIDE"
-    ],
+    "siteIds": [],
     "areaIds": [],
     "shiftIds": [],
     "grantedBy": "USR-BB-ADMIN",
