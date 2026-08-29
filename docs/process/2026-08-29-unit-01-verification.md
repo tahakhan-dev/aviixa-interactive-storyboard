@@ -609,6 +609,15 @@ here from sweep Tasks 6 and 7):**
   task brief and a progress ledger) about a screen-count description, not a product defect. This
   project's own append-only philosophy argues against rewriting old entries for a wording
   disagreement. Left exactly as §2 recorded it.
+- **No in-app soft-navigation link exists between `SURF-DOH` (Hub) and `SURF-SA` (Super Admin).**
+  Surfaced by this task's own re-drive of `LV-0010` (fix round 1, opus review): G's persistence fix
+  makes state survive a HARD navigation between the two surfaces — real and re-verified live — but
+  it does not add the missing in-app link `LV-0010`'s original `blocked` verdict named. That gap is
+  unchanged; `LV-0010`'s own `defect` field now discloses the criterion its `pass` was actually
+  earned against, rather than presenting an unqualified pass against the original bar. Building a
+  real in-app Hub↔Super Admin navigation affordance is new-feature scope — a new route, nav control
+  and access-control surface between two product surfaces — not a defect this closure sweep's own
+  tasks touch. A natural Unit 3 candidate, not an oversight of this sweep.
 
 **Fresh whole-chain verification, run after every fix in this task landed.** `pnpm verify` — exit
 **0**. Full output saved durably at

@@ -552,6 +552,13 @@ updating it.
   policy (§2.3, APP-020: no test cases, ever) forbids. The denial is real and enforced at the door;
   only its demonstration through a real browser click is structurally impossible for a control the
   screen correctly never renders. Not touched.
+- **No in-app soft-navigation link exists between `SURF-DOH` (this unit's own Hub surface) and
+  `SURF-SA` (Super Admin)** — shared with unit 1, restated here because this unit owns the `SURF-
+  DOH` half of the gap. Surfaced by this task's own re-drive of unit 1's `LV-0010` (fix round 1,
+  opus review): G's persistence fix makes state survive a HARD navigation between the two surfaces,
+  but does not add the missing in-app link. Building one is new-feature scope — a new route, nav
+  control and access-control surface between two product surfaces — not a defect this closure
+  sweep's own tasks touch. A natural Unit 3 candidate, not an oversight of this sweep.
 
 **Fresh whole-chain verification, run after every fix in this task landed.** `pnpm verify` — exit
 **0**. Full output at `artifacts/evidence/units-01-02-closure-sweep-verify/pnpm-verify.txt` (5,273

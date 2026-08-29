@@ -482,6 +482,15 @@ dropped:**
   dev-only test harness this project's own policy (APP-020: no test cases, ever) forbids. The
   denial is real and enforced at the door; only its demonstration through a browser click is
   structurally impossible for a control the screen correctly never renders.
+- **No in-app soft-navigation link exists between `SURF-DOH` (Hub) and `SURF-SA` (Super Admin)**
+  (shared). Surfaced by fix round 1 of this task (opus review): G's persistence fix makes state
+  survive a HARD navigation between the two surfaces — real, re-verified live at `LV-0010` — but it
+  does not add the missing in-app link; that gap is unchanged from before this sweep. `LV-0010`'s
+  own `defect` field now discloses that its `pass` is earned against this narrower, revised
+  criterion (state-survival across a hard navigation), not the original bar (one continuous
+  document). Building a real in-app link is new-feature scope — a new route, nav control and
+  access-control surface between two product surfaces — not a defect this closure sweep's own
+  tasks touch. A natural Unit 3 candidate, not an oversight of this sweep.
 
 **Ledger, this sweep's own closing task: 67 rows (64 pass, 2 blocked, 1 fail) → 68 rows (68 pass,
 0 blocked, 0 fail).** The three non-`pass` rows going into Task 10 were exactly the three
@@ -499,7 +508,7 @@ missing=0`. A final reseal follows once this update and both amended verificatio
 committed, matching the exact two-reseal pattern unit 2's own closure already used.
 
 **What the next session should do with this: nothing here blocks unit 3 starting clean.** Both
-units are genuinely, completely closed — zero remaining open items in either, beyond the four
+units are genuinely, completely closed — zero remaining open items in either, beyond the five
 items named above that stay open by explicit ruling, not oversight, each with its reasoning
 restated in both amended verification records.
 
