@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-ad7098b6a4fcda79",
+  "envelope_id": "ENV11-cb4b336debe0f86f",
   "candidate_id": "SLICE11-880728d0253a6744",
   "slice": "11",
-  "payload_sha256": "ad7098b6a4fcda794da92d6bdd4c64723ce1087b296185ad31d3ecd6084da47c",
+  "payload_sha256": "cb4b336debe0f86f7f93890e26fe2356993737c43f5e9076432f03472ca9238d",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -23,8 +23,8 @@
     "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
   },
   "payload_excludes_self": true,
-  "payload_count": 108,
-  "supersedes": "ENV11-e4892d1df5149d74",
+  "payload_count": 109,
+  "supersedes": "ENV11-ad7098b6a4fcda79",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -137,9 +137,14 @@
       "sha256": "e189d2a500413d1d0b323b64a52d9eeb4bb56f3476034636afaf735483672a31"
     },
     {
+      "path": "docs/process/2026-08-29-unit-02-verification.md",
+      "bytes": 23329,
+      "sha256": "a10424ab70d147d83b376a396cfe1cd1676b0db63b93e43aba9a1ecfcbb47790"
+    },
+    {
       "path": "docs/process/RESUME.md",
-      "bytes": 47644,
-      "sha256": "3a0c9cba9b023d8968dd2657847c163f3a0a8ff74354612b94d2c87b672cdf33"
+      "bytes": 54520,
+      "sha256": "2d87932f68c7846055a3c8d4f05ef2a67be8b259810fc3ef08bfbb7803061bb7"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
