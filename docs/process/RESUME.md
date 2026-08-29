@@ -434,7 +434,10 @@ so the seal's own `git ls-files --cached --others --exclude-standard` scan picke
 this project's own procedure and `.gitignore` rule already cover, before resealing. The corrected
 seal: product `846 → 848` (net +2: Task 1's two seed-generator scripts and the shared
 `scope-reference.ts` helper added; the orphaned `devices/fixtures.ts` Task 8 already flagged
-dropped), envelope `103 → 108`. This was the **first fresh reseal since unit 1's own closure** —
+dropped), envelope `103 → 109` (108 at the first reseal, 109 after a second, final reseal brought
+this record and the RESUME.md update themselves into scope — 109 is the true, current figure, read
+from `docs/process/ledgers/evidence-envelope-manifest.json`'s own `payload_count` at HEAD). This was
+the **first fresh reseal since unit 1's own closure** —
 neither manifest had moved once across all eight of this unit's own tasks, so every one of them
 shipped real product changes underneath a certification still describing unit 1's bytes; not a
 defect any single task caused, just the ordinary lag a per-unit closure task exists to close.

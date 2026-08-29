@@ -223,18 +223,21 @@ Sealed SLICE11-880728d0253a6744
   envelope 108 files  sha256 ad7098b6a4fcda794da92d6bdd4c64723ce1087b296185ad31d3ecd6084da47c
 ```
 
-Envelope manifest: `103 → 108`, net +5 (task 9 adds the ledger update commit, the durable
-`pnpm verify` log, this record, and — once committed alongside the RESUME.md update — that too; the
-number above is this seal run's own count, read from the manifest on disk rather than hand-typed).
+Envelope manifest: `103 → 108` at this seal (net +5: the ledger update commit and the durable
+`pnpm verify` log). This document and the RESUME.md update did not exist yet, so a **second, final
+reseal** followed once they were written and committed, bringing this record itself into scope:
+envelope `108 → 109`. `node scripts/seal-manifests.mjs --verify` after that final reseal reads
+`product: entries=848 drifted=0 missing=0` / `envelope: entries=109 drifted=0 missing=0` — **109 is
+the true, current figure**, read directly from `docs/process/ledgers/evidence-envelope-manifest.json`
+(`payload_count: 109`) at this document's own committed HEAD, not the `108` an earlier draft of this
+paragraph left uncorrected after the second reseal ran.
 
-`node scripts/seal-manifests.mjs --verify` immediately after committing both manifests reads
-`product: entries=848 drifted=0 missing=0` / `envelope: entries=108 drifted=0 missing=0`. `git_commit`
-on the sealed manifest names `78f2b9e2626b10a00b6957761f840acb96a4ab91` (the pnpm-verify-log commit,
-the last one that existed at the moment the seal ran) and `worktree_clean` read `true` at seal time,
-because `scripts/seal-manifests.mjs`'s own two outputs are excluded from the comparison that
-statement makes (the non-self-referential fix unit 1's own closure already applied). This document
-and the RESUME.md update sit on top of that commit and are picked up only by whatever reseal a
-future task or the controller runs next — the same lag unit 1's own record named and explained
+`git_commit` on the final sealed manifest names `25f35a50ef3c12ad7444b4d67638c94bd64c551f` (this
+document's own commit, the last one that existed when the final reseal ran) and `worktree_clean`
+read `true` at seal time, because `scripts/seal-manifests.mjs`'s own two outputs are excluded from
+the comparison that statement makes (the non-self-referential fix unit 1's own closure already
+applied). The manifest-describing-the-seal commit (`360c6f4`) sits one commit above that and is
+itself, by construction, one seal-run stale — the same lag unit 1's own record named and explained
 rather than chased to a fixed point.
 
 Not committed by this task's own hand until the controller reviews it — the controller commits.
