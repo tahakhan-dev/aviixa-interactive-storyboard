@@ -439,13 +439,13 @@ function PermissionsBody({
           </summary>
           <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
             The frozen source states this directly: only a Tenant Admin may grant any of the four
-            tenant roles. The tenant role-to-module matrix, MTX-TEN-02a, states Supervisor and
-            Quality Manager &quot;Unavailable&quot; for the whole Permissions, Roles and Access
-            module — not narrowed, absent, which is why neither role reaches this screen at all.
-            The account-lifecycle authority table, TRN-ACC-04, names Tenant Admin as both
-            Requester and Authorizer of a role assignment, singular. A narrower default —
-            Supervisor and Quality Manager granting Worker only — was the fallback this build
-            would have used had the source stayed silent; it did not need to.
+            tenant roles. The tenant role-to-module matrix states Supervisor and Quality Manager
+            &quot;Unavailable&quot; for the whole Permissions, Roles and Access module — not
+            narrowed, absent, which is why neither role reaches this screen at all. The
+            account-lifecycle authority table names Tenant Admin as both Requester and Authorizer
+            of a role assignment, singular. A narrower default — Supervisor and Quality Manager
+            granting Worker only — was the fallback this build would have used had the source
+            stayed silent; it did not need to. (Citations: see this file's own header, Step 2.)
           </p>
         </details>
 
@@ -549,8 +549,8 @@ function PermissionsBody({
               >
                 {roleById(assignResult.grantorRole).name} may not grant the{' '}
                 {roleById(assignResult.requestedRole).name} role. Only a Tenant Admin may assign a
-                tenant role (the tenant role-to-module matrix MTX-TEN-02a, MOD-DOH-09; the
-                account-lifecycle authority table TRN-ACC-04).
+                tenant role (per the tenant role-to-module matrix and the account-lifecycle
+                authority table — see &quot;Who may grant a tenant role, and why&quot; above).
               </p>
             ) : null}
             {assignResult !== null && !assignResult.ok && assignResult.kind !== 'segregation-of-duties' ? (

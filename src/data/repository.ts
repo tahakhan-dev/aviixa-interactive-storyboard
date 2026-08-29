@@ -2768,7 +2768,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
           deny(
             'explicitlyProhibited',
             'SEGREGATION_OF_DUTIES',
-            `${roleById(actorRole).name} may not create a tenant user holding the ${roleById(user.role).name} role. Only a Tenant Admin may (the tenant role-to-module matrix MTX-TEN-02a, MOD-DOH-09; the account-lifecycle authority table TRN-ACC-04).`,
+            `${roleById(actorRole).name} may not create a tenant user holding the ${roleById(user.role).name} role. Only a Tenant Admin may (per the tenant role-to-module matrix and the account-lifecycle authority table).`,
             { stage: 'SEGREGATION_OF_DUTIES', sourceRefs: ['L22015', 'MTX-TEN-02a', 'L18976', 'TRN-ACC-04'] },
           ),
         )
