@@ -95,10 +95,14 @@ import {
 
 export const SA_FLOOR_ABSENCE = {
   what: 'Any per-module artificial-intelligence-failure behaviour for this surface.',
+  // NO BARE "L91214"/"L91214-L91282" IN THIS RENDERED STRING (it renders via
+  // `AiDegradationOverlay`'s stated-absences `reason`, §8.6.2) — the section
+  // number is the named-identifier the reader needs; `sourceRef` below
+  // already carries the locator, unrendered.
   sweep:
-    'Section 43.3.5 spans L91214 onward and its only table is the control x platform-role '
-    + 'authority matrix. The span L91214-L91282 was swept for `MOD-SA` and carries zero '
-    + 'occurrences. Chapter 43 as a whole names no Super Admin module.',
+    "Section 43.3.5's only table is the control x platform-role authority matrix. That section "
+    + 'was swept end-to-end for `MOD-SA` and carries zero occurrences. Chapter 43 as a whole '
+    + 'names no Super Admin module.',
   soWhat:
     'Unlike the Delivery Operations Hub, whose required behaviour 3 at L90861 names eight of '
     + 'its modules informally, this surface has no source-stated floor at all. Every row of '
@@ -204,7 +208,10 @@ export const SA_AI_OVERLAY: SurfaceAiOverlay = {
       id: 'AC-43-356',
       sourceRef: 'L91309',
       // THE SUBSTANCE, VERBATIM. The criterion's trailing test-method clause is
-      // withheld here and the reason renders beside it — see `withheld`.
+      // withheld here and the reason renders beside it — see `withheld`. NO
+      // "at L91309" IN THAT RENDERED STRING — a bare blueprint line locator
+      // in rendered page text, §8.6.2, and this obligation's own `sourceRef`
+      // above (`L91309`) already carries it, unrendered.
       text: 'No failure-response control crosses a tenant boundary.',
       withheld:
         "The criterion's trailing clause, which states how it is to be checked, uses one of "
@@ -212,7 +219,7 @@ export const SA_AI_OVERLAY: SurfaceAiOverlay = {
         + 'an audit-integrity claim the source does not support for this surface. In the '
         + 'criterion the word carries an unrelated sense. The clause is withheld rather than '
         + 'paraphrased, because paraphrasing a criterion is a worse outcome than naming what '
-        + 'is missing, and the line is openable at L91309.',
+        + 'is missing.',
     },
   ],
   sourceNotes: [
