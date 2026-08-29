@@ -220,9 +220,14 @@ function formatPlatformTime(ms: number): string {
  * `0` for that absence — this is the tile that renders `kind: 'unknown'` in
  * every real render of this screen, not only under the diagnostic swap the
  * live-verification ledger records separately.
+ *
+ * Task 11 (unit-01): this reason string is `StatTile`'s own
+ * `<p>{data.reason}</p>` — rendered content — and used to name `MOD-SA-08`
+ * in parentheses, a bare requirement identifier on screen (§8.6.2). The
+ * fact stays; the citation stays only here, in the comment.
  */
 const CRITICAL_APPROVALS_UNKNOWN_REASON =
-  'No queryable collection in this build models a change-approval queue. Console Users, Roles and Change Approvals (MOD-SA-08) names the concept; this repository carries no record of it.'
+  'No queryable collection in this build models a change-approval queue. Console Users, Roles and Change Approvals names the concept; this repository carries no record of it.'
 
 interface OverviewSnapshot {
   readonly tenants: readonly Tenant[]

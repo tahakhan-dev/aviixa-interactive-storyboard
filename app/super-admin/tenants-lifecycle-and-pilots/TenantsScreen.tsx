@@ -458,7 +458,12 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
         emptyState={{
           title: 'There are no tenants yet.',
           whatCreatesIt:
-            "The platform team creates one from Create tenant. No public self-signup path exists (AC-SA-09-01).",
+            // Task 11 (unit-01): the bare identifier `AC-SA-09-01` was
+            // rendered here — a §8.6.2 violation, since this string is
+            // `DataTable`'s own `<p>{emptyState.whatCreatesIt}</p>`. The
+            // fact stays; the citation moves to the header comment above
+            // (line ~105), which already carries it.
+            "The platform team creates one from Create tenant. No public self-signup path exists.",
         }}
       />
     </AppShell>
