@@ -381,6 +381,128 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
+### Units 1 and 2 — closure sweep — BOTH GENUINELY, COMPLETELY CLOSED (zero remaining open items), before unit 3 begins
+
+**Read this subsection first — it is the current position, measured fresh rather than recalled.**
+Everything below it (Unit 2's own closure, unit 1's own closure) is still true and still the
+history this build stands on; this subsection is what sits on top of both of them.
+
+**Frozen source re-hashed one final time here:**
+
+```
+$ shasum -a 256 ../AVIIXA_Production_Product_Blueprint.md
+47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27  ../AVIIXA_Production_Product_Blueprint.md
+```
+
+Unchanged across the whole sweep, every task boundary, and here at its close.
+
+**Why this sweep exists.** Both units closed with real, individually-disclosed open items — none
+blocking their own scope, all named honestly. The client asked for a genuine zero: every open item
+in both units either fixed for real and live-verified, or explicitly and individually ruled
+not-fixable-without-harm with that reasoning left on record — under the same standing autonomous-
+decision authority (APP-012/018) units 1 and 2 ran under. Design:
+`docs/superpowers/specs/2026-08-29-units-01-02-closure-sweep-design.md`. Plan (ten tasks):
+`docs/superpowers/plans/2026-08-29-units-01-02-closure-sweep.md`. Full task-by-task ledger:
+`.superpowers/sdd/2026-08-29-units-01-02-closure-sweep/progress.md`.
+
+**Closed at `b42aea6`** (Task 10's own last commit before this update and the final reseal),
+after: four small self-contained fixes (Tasks 1-4), three architectural builds (Tasks 5-7:
+persistence rehydration, session scope wiring, the support-access door and cross-surface
+navigation), a build-time tour-target gate (Task 8), real tour-runner live-verification (Task 9),
+and this final closure task (Task 10) — which additionally found and fixed two real seed-data
+defects surfaced by Tasks 6 and 7's own review rounds, re-drove every ledger row those defects had
+invalidated, and found and fixed one more genuinely new defect (a stale disclosure Task 6's own fix
+made false) while driving its own regression set. `pnpm verify` exit 0 on the final tree.
+`docs/process/2026-08-29-unit-01-verification.md` (§11) and
+`docs/process/2026-08-29-unit-02-verification.md` (§10) were each amended in place — appended, not
+rewritten — read them whole, not just this summary.
+
+**Fixed and live-verified this sweep, the full accounting (design doc §2, items A through K):**
+
+- **A** `advanceClock` wired to the real `store.clock` (Task 1).
+- **B** console-users locator leak, 12 render sites across 6 files (Task 2, 3 fix rounds).
+- **C** `updateShift` missing tenant check, copied from `archiveShift`'s own shape (Task 4).
+- **D** unit 2 cosmetic batch, four independent text/JSX fixes (Task 3).
+- **E** stray git stash dropped (Task 1).
+- **F** `acceptInvitation` no-caller-identity disclosure added (Task 1).
+- **G** persistence rehydration, shared — `boot()` now rehydrates from the last durable IndexedDB
+  snapshot instead of always rebuilding from seed (Task 5). **Live-verified for the first time in
+  Task 10**, not merely built: `LV-0009` (unit 1's own carried finding #1, `fail` since its own
+  closure) and `LV-0010` (`blocked` since its own closure) both re-driven fresh and now `pass` — a
+  write in one document is visible in a second, hard-navigated document, and the full
+  create→accept→activate spine is drivable end to end across them.
+- **H** session site/area scope wiring, shared — `sessionFor` now populates real `scope` from the
+  signing-in user's own active role-grant(s) (Task 6). **Live-verified for the first time in Task
+  10**: unit 2's own `LV-0059` (`blocked` since its own closure) re-driven fresh and now `pass` — a
+  real scoped Supervisor session (Marco Ellis) genuinely narrows what is visible.
+- **I** support-access door and Hub↔Super Admin navigation, unit 1 (Task 7, 3 fix rounds — 2
+  Critical, 7 Important, 2 self-surfaced regressions, all resolved). **Live-verified with a
+  genuinely new ledger row in Task 10** (`LV-0068`): a real seeded Support account opens a new
+  support session through the real door.
+- **J** tour registry target gate (Task 8) — one real defect caught by hand before the gate's own
+  first run, the gate's own can-fail proof confirmed clean.
+- **K** tour-runner live-verification, shared — the real auto-play runner driven to completion for
+  the first time in either unit's release evidence (Task 9): `LV-0066` (unit 1) and `LV-0067`
+  (unit 2).
+
+**Task 10's own two seed-data fixes, found during Tasks 6 and 7's own work this sweep and
+deliberately deferred here by explicit reviewer recommendation, both fixed and live-verified:**
+
+- **`RG-0001`/`RG-0002`** (Dana Whitfield, Renata Souza, Bright Bikes Tenant Admin) carried
+  `siteIds: ["SITE-BB-RIVERSIDE"]`, contradicting the Tenant Admin role's own frozen-source
+  definition card (`Default scope: Tenant`, L16477). Cleared to `[]`. Five unit-2 ledger rows this
+  invalidated (`LV-0036`, `LV-0037`, `LV-0057`, `LV-0060`, `LV-0061`) re-driven live on the
+  corrected seed, not hand-edited — all `pass`, none refused, none unexpected.
+- **`AS-0001`/`AS-0002`** (Iris Nakamura, Julian Otieno, the two seeded Support accounts) carried
+  `closedAt: null` with `expiresAt` dates after the app's own simulated clock
+  (`CANONICAL_EPOCH_MS`, 2026-03-02T06:00Z), permanently locking both accounts out of Task 7's own
+  correct one-session-per-actor guard. `closedAt` set on both, matching `AS-0003`/`AS-0004`'s own
+  established pattern. Live-verified: `LV-0068`, Iris Nakamura opens a genuinely new support
+  session — a path never live-verifiable before either this fix or Task 7's door existed.
+- **A third defect, found (not deferred, found fresh) while Task 10 drove its own regression set:**
+  the worker Scope tab's own disclosure (`WorkerLifecycleScreen.tsx`) still asserted no session
+  populates real scope — true when written, false since Task 6 landed. Corrected in the same task
+  that found it.
+
+**Explicitly ruled not-fixable-without-harm — both units' §3 items, restated here, not silently
+dropped:**
+
+- **Five identifiers with no citation home** (unit 1). The rule producing this refuses to
+  fabricate a citation for something not yet demonstrated; "fixing" it means inventing one, which
+  is the defect the rule exists to prevent.
+- **"Eight screens" vs "nine screens"** (unit 1). A wording disagreement between two historical
+  process documents, not a product defect. This project's append-only philosophy argues against
+  rewriting old entries for it.
+- **`WF-WKR-004`'s census non-credit** (unit 2). Restoring it means rendering the identifier in
+  product copy — the exact §8.6.2 violation this project spent three fix rounds eliminating
+  elsewhere. The workflow itself is real and runs; only the citation-counting mechanism's own
+  stated rule (a comment is not a citation) excludes it.
+- **A write denial unobservable from the UI for a role the screen gates out** (unit 2). Making this
+  "observable" would mean exposing a repository handle on `window` in a static-export build, or a
+  dev-only test harness this project's own policy (APP-020: no test cases, ever) forbids. The
+  denial is real and enforced at the door; only its demonstration through a browser click is
+  structurally impossible for a control the screen correctly never renders.
+
+**Ledger, this sweep's own closing task: 67 rows (64 pass, 2 blocked, 1 fail) → 68 rows (68 pass,
+0 blocked, 0 fail).** The three non-`pass` rows going into Task 10 were exactly the three
+pre-existing carried findings Tasks 5-7 were built to close — not a coincidence — and each now
+reads `pass` because of a real, independently observed behavior change on the corrected bytes, not
+an edit to the row's own text. Census (`demonstrated-in-storyboard`): unchanged at **274 of
+5,015** across this whole sweep — no task in it touches registry-generation code.
+
+**Reseal — the first since unit 2's own closure, covering all ten of this sweep's tasks at
+once.** `node scripts/seal-manifests.mjs`: product `848 → 851` files (+3: Task 7's
+`app/hub/support-session/{SupportSessionScreen.tsx,page.tsx}`, Task 8's
+`scripts/check-tour-targets.mjs`); envelope `108 → 112`. `node scripts/seal-manifests.mjs
+--verify`: `product: entries=851 drifted=0 missing=0` / `envelope: entries=112 drifted=0
+missing=0`. A final reseal follows once this update and both amended verification records are
+committed, matching the exact two-reseal pattern unit 2's own closure already used.
+
+**What the next session should do with this: nothing here blocks unit 3 starting clean.** Both
+units are genuinely, completely closed — zero remaining open items in either, beyond the four
+items named above that stay open by explicit ruling, not oversight, each with its reasoning
+restated in both amended verification records.
+
 ### Unit 2 — tenant configuration, users, workers and devices — CLOSED (final whole-unit review clean after one fix wave)
 
 **Read this subsection first — it is the current position, measured fresh rather than recalled.**

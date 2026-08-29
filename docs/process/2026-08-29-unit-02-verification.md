@@ -456,3 +456,126 @@ descriptive of the seed's role-grant data, never enforced against a live session
   already landed — real, adjudicated as non-blocking by the re-reviewer's own explicit verdict, not
   sent to a second fix wave under this project's one-wave rule for a final review.
 - No completion language beyond what this record's evidence carries.
+
+## 10. Task 10 — the units-01-02-closure-sweep's own final closure task
+
+This section is written after §§1-9, by Task 10 of a separate closure sweep
+(`.superpowers/sdd/2026-08-29-units-01-02-closure-sweep/`) dispatched after this unit's own final
+whole-unit review closed it, on real-user instruction to bring both units to a genuine zero
+remaining open items before unit 3 begins. It does not rewrite §§1-9; this section states what
+that sweep did on top of them, in the same voice §7's own amendment already used. Candidate at
+this section's own close: `b42aea6`. Frozen source re-hashed again: unchanged, `47bd18db…`.
+
+**Every item from the closure-sweep design doc's §2 that touches this unit, fixed and
+live-verified:**
+
+- **C — `updateShift` missing tenant check.** This IS §7's own carried finding 11, restated there
+  rather than fixed at the time. **Fixed in this sweep (Task 4, commit `c82edcc`):**
+  `repository.ts`'s `updateShift` now carries the same `resolveTenantId`/tenant-mismatch check
+  `archiveShift` (added by the earlier final-review fix wave) already had, copied in at the same
+  point in the sequence — after the row is found, before the write. Task 4's own review confirmed
+  this line-by-line against `archiveShift`'s sibling shape. `LV-0060` (this row's own success-path
+  evidence) was re-driven fresh in this task on the corrected Bright-Bikes seed (below) and still
+  succeeds with the tenant check in place.
+- **D — unit 2 cosmetic batch.** Fixed (sweep Task 3, commit `6f92f07`, 1 commit, all four fixes,
+  reviewed clean): `TOUR-WORKER-ADD-001`'s mid-narration pronoun switch; `EvidencePanel.tsx:110,119`
+  no longer render "(out of Task 14 scope)" as page text; `PermissionsScreen.tsx`'s `AssignControl`
+  disabled state now carries visible reason text matching its sibling `CreateAction`. (Task 6's own
+  "Scope tab" wording mismatch, named in this unit's own §7 finding 4, is a documentation-only
+  disagreement the reviewer already confirmed does not reach the code — left as-is, same reasoning
+  as the "eight vs nine screens" item below.)
+- **G — persistence rehydration (shared with unit 1).** Built (sweep Task 5). This unit's own §7
+  finding 6 ("Persistence is write-only for this unit's five screens too, inherited unchanged from
+  unit 1's own carried finding 1") is now closed: `commitToPersistence`/`boot()` are shared code
+  with no unit-specific branch, and this task's own live re-drive of the mechanism (unit 1's
+  `LV-0009`/`LV-0010`, both now `pass` — Nadia Ferreira's write surviving a hard navigation, then a
+  full create→accept→activate spine driven across two documents) is the same code path every write
+  this unit's own five screens make also goes through. Not separately re-hard-navigated for this
+  unit's own screens in this task (no unit-2-specific ledger row exists for it), but the mechanism
+  itself carries no unit boundary.
+- **H — session site/area scope wiring (shared with unit 1).** Built (sweep Task 6). **This unit's
+  own §7 finding 1, `LV-0059`, recorded `blocked` since Task 9 ("no signed-in session in this build
+  yet populates a real site/area scope on sign-in"), is now `pass`.** Re-driven fresh: signed in as
+  `marco.ellis@brightbikes.example` (Bright Bikes Supervisor, `RG-0003`: `siteIds:
+  [SITE-BB-RIVERSIDE]`, `areaIds: [AREA-BB-ASSEMBLY]`), opened Alice Okonkwo's own worker record's
+  Scope tab (the panel's own disclosure, corrected in this task — see below), then navigated to
+  Location Configuration at Northgate — outside Marco's own scope. Northgate showed "There is no
+  Area under this Site yet.", filtering out the 3 areas that genuinely exist there (visible to a
+  now-correctly-unscoped Tenant Admin in this same task's own `LV-0036`/`LV-0037` re-drives below).
+  Real, live, observed scope-narrowing on a genuinely scoped session — no longer only disclosable.
+- **K — tour-runner live-verification (shared with unit 1).** Done (sweep Task 9). `LV-0067` (this
+  unit's own Worker Lifecycle tour) driven through the real auto-play runner to completion,
+  alongside unit 1's own `LV-0066` — closing the gap this unit's own §2 and §7 both already named
+  plainly (the tour-runner mechanism itself, as opposed to its subjects, undriven by any ledger row).
+
+**Seed fix A1 — `RG-0001`/`RG-0002` (Bright Bikes Tenant Admin site-scoping), found during this
+sweep's own Task 6 while building H, fixed in this task, and this task's own re-drive is entirely
+this unit's own ledger rows:**
+
+Both rows carried `siteIds: ["SITE-BB-RIVERSIDE"]`, contradicting the Tenant Admin role's own
+frozen-source definition card (`Default scope: Tenant`, L16477; tenant-wide `Read` `Allowed`,
+L16487 — unlike the Read-only Auditor's card, which explicitly offers a narrower scope). Cleared
+to `[]` on both rows. Five ledger rows this invalidated, all owned by this unit, **re-driven live
+on the corrected seed as Dana Whitfield rather than hand-edited:**
+
+| id | what changed on re-drive |
+|---|---|
+| `LV-0036` | `createAreaUnderSite` at Northgate — now succeeds (`Battery Pack Assembly`, `AREA-1`); Northgate's Areas tier was also visible for the first time in this exact session (Wheel Build, Precision Machining, previously invisible under the bug) |
+| `LV-0037` | `createLocationUnderArea` under Wheel Build — now succeeds and reachable (`Spoke Tensioning Station 3`, `LOC-3`) |
+| `LV-0057` | Location→Shift cross-link at Northgate — now shows real data (Northgate Day Shift), not an empty/filtered table |
+| `LV-0060` | `updateShift` success on `SHIFT-BB-EXP-01` (Rockford, not Riverside) — still the only live evidence of this success path in either unit's ledger, and this time genuinely reachable rather than dependent on the scoping bug's own absence of enforcement |
+| `LV-0061` | archive `SHIFT-BB-EXP-02` (Peoria, not Riverside) — now succeeds |
+
+None was refused; none behaved unexpectedly after the fix. Full detail (steps, screenshots,
+hashes) in `docs/process/ledgers/live-verification-ledger.json` itself.
+
+**Regression finding, found and fixed while driving H's own regression set:** the worker Scope
+tab's own disclosure (`app/hub/worker-lifecycle-and-qualifications/WorkerLifecycleScreen.tsx`)
+still asserted "no signed-in session in this build yet populates a real site/area scope on sign-
+in" — true when this unit's own §7 finding 1 was written, false since sweep Task 6 landed. This
+task corrected it to state the real current behavior (scope populated from active role-grants at
+sign-in, not re-resolved mid-session if a grant changes after). A genuinely new defect this task
+found on its own, not merely an inherited one this sweep's own G/H work made stale without anyone
+updating it.
+
+**What stays open by ruling, restated plainly — not silently dropped:**
+
+- **`WF-WKR-004`'s census non-credit** (§7 finding 9, §6's 275 → 274). Restoring it means rendering
+  the identifier in product copy — a §8.6.2 violation of the exact class this project spent three
+  fix rounds eliminating elsewhere. The workflow itself is real and runs in `PermissionsScreen.tsx`'s
+  `confirmAssign`; only the citation-counting mechanism's own stated rule (a comment does not count
+  as a citation) excludes it. Not touched. Confirmed still `274` in this task's own fresh `pnpm
+  build` output (below).
+- **A write denial unobservable from the UI for a role the screen gates out** (§7 finding 8,
+  `LV-0063`). The only way to make this "observable" would be exposing a repository handle on
+  `window` in a static-export product build, or building a dev-only test harness this project's own
+  policy (§2.3, APP-020: no test cases, ever) forbids. The denial is real and enforced at the door;
+  only its demonstration through a real browser click is structurally impossible for a control the
+  screen correctly never renders. Not touched.
+
+**Fresh whole-chain verification, run after every fix in this task landed.** `pnpm verify` — exit
+**0**. Full output at `artifacts/evidence/units-01-02-closure-sweep-verify/pnpm-verify.txt` (5,273
+lines) — the same run cited in unit 1's own §11 amendment; this is one combined `pnpm verify` chain
+for the whole repository, not a per-unit one. `validate-collections.mjs` confirms `access-sessions
+4 rows` still valid after this task's seed fix C (AS-0001/AS-0002, unit-1-owned, see that record's
+own §11); `pnpm build`'s census tally reads `demonstrated-in-storyboard 274 ... total 5015`,
+unchanged from this unit's own §6 amendment. `ledger-reconcile.mjs`: `registry census 5015 row(s);
+ledger 68 row(s)`, `A. Registry rows with NO ledger row: 4995 of 5015`, `B. Ledger rows naming a
+path NO registry contains: 0`.
+
+**Ledger totals, this task's own before/after (combined, both units share one ledger file).**
+Before Task 10: 67 rows — 64 `pass`, 2 `blocked`, 1 `fail`. **After: 68 rows — 68 `pass`, 0
+`blocked`, 0 `fail`.** This unit's own contribution to that change: `LV-0059` (`blocked` → `pass`)
+and the five re-driven-but-already-`pass` rows above, whose text now describes what is actually
+observed on the corrected seed rather than what was observed under a bug.
+
+**Reseal.** `node scripts/seal-manifests.mjs`: product `848 → 851`, envelope `108 → 112` — the
+first reseal since this unit's own closure (`f6d590b`), covering all nine prior sweep tasks' real
+changes at once. `--verify`: `product: entries=851 drifted=0 missing=0` / `envelope: entries=112
+drifted=0 missing=0` (a second, final reseal follows once this document, unit 1's own amendment and
+`RESUME.md`'s update are committed, matching the exact pattern this unit's own final-review fix
+wave already used in §5 above).
+
+**This unit is genuinely, completely closed.** Every item from the closure-sweep design doc's §2
+that touches it is fixed and live-verified above; every item from §3 that touches it is restated,
+not dropped, with its ruling's reasoning intact.
