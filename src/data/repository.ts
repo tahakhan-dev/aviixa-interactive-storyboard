@@ -193,14 +193,21 @@ export interface Repository {
    * Task 1 (unit-02) — a new Area's `siteId` must name a real, active,
    * same-tenant Site, a rule the generic `create()` door does not run (it
    * validates the row's own shape against `schemas/org.ts#Area`, never
-   * what the row's `siteId` points at). Authorisation is otherwise
-   * IDENTICAL to `create('areas', ...)` — same `authorizeWrite` call, same
-   * `TENANT_OPERATIONAL_WRITERS` floor — so this door calls `authorizeWrite`
-   * itself rather than re-deriving a parallel role/tenant check the way
-   * `provisionTenant`/`inviteConsoleUser` deliberately bypass it for a
-   * genuinely different authorisation shape. Once authorised, this
-   * delegates to the same internal `createRow` the generic door uses —
-   * see `inviteConsoleUser`'s own comment for that same delegation shape.
+   * what the row's `siteId` points at). Fix round 1 (task-1 review,
+   * Important 3) — this door now declares its own, single, explicitly-
+   * declared `AccessRequest` (`CREATE_AREA_UNDER_SITE_REQUEST`, this
+   * file's own const), matching `PROVISION_TENANT_REQUEST`/
+   * `INVITE_CONSOLE_USER_REQUEST`'s shape, rather than calling
+   * `authorizeWrite` directly — the ORIGINAL pass called `authorizeWrite`
+   * on the theory that its floor was identical to the generic door's, but
+   * `authorizeWrite`'s own `resourceTenant` computation (via
+   * `resolveTenantId`) is exactly the fact `checkSiteReference` below
+   * already re-derives, through the SAME `siteId`, one line later — two
+   * code paths computing the identical tenant fact is the duplication the
+   * brief's own "do not duplicate `authorizeWrite`'s logic" line warned
+   * against, not a reason to keep both. Once authorised, this delegates
+   * to the same internal `createRow` the generic door uses — see
+   * `inviteConsoleUser`'s own comment for that same delegation shape.
    */
   createAreaUnderSite(area: RowOf<'areas'>, ctx: AccessContext): Promise<WriteResult<RowOf<'areas'>>>
   /** Task 1 (unit-02) — `createAreaUnderSite`'s own sibling for Location under Area. */
@@ -877,6 +884,52 @@ const INVITE_CONSOLE_USER_REQUEST: AccessRequest = {
   action: 'invite-console-user',
   allowedRoles: ['ROOT_SUPER_ADMIN'],
   sourceRefs: ['§8.8.1', '§8.8.2', 'SB-31-10'],
+}
+
+/**
+ * Task 1 (unit-02), fix round 1 (task-1 review, Important 3) — the SAME
+ * floor `defaultWriteRoles('hub')` already gives the generic door for
+ * this collection (`TENANT_OPERATIONAL_WRITERS`), declared as this door's
+ * own, single, explicitly-declared `AccessRequest` rather than a call
+ * into `authorizeWrite` — the mandated shape `PROVISION_TENANT_REQUEST`/
+ * `INVITE_CONSOLE_USER_REQUEST` above already establish. No
+ * `resourceTenant` here, deliberately: `createAreaUnderSite`'s own
+ * `checkSiteReference` call, immediately after this decision, already
+ * re-derives the identical tenant fact `authorizeWrite`'s `resourceTenant`
+ * would have — through the SAME `siteId` — so this door asks it once, not
+ * twice through two different mechanisms.
+ */
+const CREATE_AREA_UNDER_SITE_REQUEST: AccessRequest = {
+  action: 'create-area-under-site',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  sourceRefs: ['L27118', 'L26919', 'repository.ts'],
+}
+
+/** `CREATE_AREA_UNDER_SITE_REQUEST`'s own sibling for `createLocationUnderArea`. Same reasoning, `checkAreaReference` in place of `checkSiteReference`. */
+const CREATE_LOCATION_UNDER_AREA_REQUEST: AccessRequest = {
+  action: 'create-location-under-area',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  sourceRefs: ['L27118', 'L26919', 'repository.ts'],
+}
+
+/**
+ * Task 1 (unit-02), fix round 1 (task-1 review, Important 3) — same
+ * floor and same reasoning as `CREATE_AREA_UNDER_SITE_REQUEST` above:
+ * `archiveLocationTierEntity` delegates its actual write to the generic
+ * `update()` (which re-authorises through `authorizeWrite` on that path),
+ * but the READ path — finding the target row and computing its active
+ * children — must itself be authorised before ANY row data is touched
+ * (fix round 1, Critical 1: the pre-fix version read and returned
+ * another tenant's real Area/Location names to an unauthorised caller
+ * before `update()`'s internal check ever ran, on the refusal path,
+ * which never reaches `update()` at all). This is that up-front check,
+ * declared once rather than duplicating `authorizeWrite`'s own role
+ * floor.
+ */
+const ARCHIVE_LOCATION_TIER_ENTITY_REQUEST: AccessRequest = {
+  action: 'archive-location-tier-entity',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  sourceRefs: ['L27122', 'L112908', 'WF-DOH-02-CASCADE', 'repository.ts'],
 }
 
 /**
@@ -2151,7 +2204,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const authority = truthStoreFor('areas')
       if (!writableThroughRepository(authority)) return truthStoreRefusal('areas', authority)
 
-      const decision = authorizeWrite('areas', authority, 'create', asRecord(area), ctx, store)
+      const decision = evaluateAccess(CREATE_AREA_UNDER_SITE_REQUEST, ctx)
       if (!permitsAction(decision)) return refusal(decision)
 
       const actorTenant = ctx.identity.tenant
@@ -2183,7 +2236,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const authority = truthStoreFor('locations')
       if (!writableThroughRepository(authority)) return truthStoreRefusal('locations', authority)
 
-      const decision = authorizeWrite('locations', authority, 'create', asRecord(location), ctx, store)
+      const decision = evaluateAccess(CREATE_LOCATION_UNDER_AREA_REQUEST, ctx)
       if (!permitsAction(decision)) return refusal(decision)
 
       const actorTenant = ctx.identity.tenant
@@ -2230,11 +2283,49 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
      * establishes this shape: a named door adds exactly the ONE rule the
      * generic door doesn't run, then delegates the mechanical write back
      * to it.
+     *
+     * Fix round 1 (task-1 review, Critical 1) — the pre-fix version read
+     * the target row AND both of its child collections, and returned real
+     * Area/Location NAMES on the `has-active-children` refusal path,
+     * before any authorisation check ran at all: that refusal path never
+     * reaches `update()`, so `update()`'s own internal `authorizeWrite`
+     * call — the only check the pre-fix version had — never fired for it.
+     * Measured: any signed-in actor, any tenant, any role, could call
+     * `archiveLocationTierEntity('sites', '<another tenant's real site
+     * id>', ctx)` and receive that tenant's real child names back.
+     * `ARCHIVE_LOCATION_TIER_ENTITY_REQUEST` (role floor) now runs FIRST,
+     * before any `store.get` call, and the row's OWN tenant is resolved
+     * and compared to `ctx.identity.tenant` EXPLICITLY, right after
+     * finding it and before either child collection is ever read — not
+     * left to be caught only incidentally by `update()`'s own check on
+     * the success path, which is exactly the gap that let this through.
      */
     async archiveLocationTierEntity(collection, id, ctx) {
+      const authority = truthStoreFor(collection)
+      if (!writableThroughRepository(authority)) return truthStoreRefusal(collection, authority)
+
+      const decision = evaluateAccess(ARCHIVE_LOCATION_TIER_ENTITY_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
       const rows = store.get(collection) as readonly Record<string, unknown>[]
       const row = rows.find((r) => rowId(r) === id)
       if (row === undefined) return notFoundRefusal(collection, id, 'archive')
+
+      const resolution = resolveTenantId(collection, row, store)
+      if (resolution.kind === 'conflict' || resolution.kind === 'unresolved') {
+        return refusal(tenantIsolationDenial(collection, resolution))
+      }
+      const rowTenant = resolution.kind === 'resolved' ? resolution.tenant : null
+      if (rowTenant === null || rowTenant !== ctx.identity.tenant) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            `This "${collection}" row does not belong to your tenant; it cannot be archived from here.`,
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['§7.4', '§26.3', 'repository.ts'] },
+          ),
+        )
+      }
 
       const children: { readonly collection: string; readonly id: string; readonly name: string }[] = []
       if (collection === 'sites') {

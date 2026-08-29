@@ -841,8 +841,12 @@ function AreasTier({
         >
           {`${site.name} — Areas`}
         </h2>
+        {/* CTL-08, L27124, AC-SCOPE-034 L2612 (see this file's own header,
+            "LOCATOR RELOCATION") — one timezone per Site, no per-Area/per-
+            Shift override; the citation stays in this comment, never in
+            the rendered text (§8.6.2). */}
         <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>
-          {`Timezone (inherited from ${site.name}, Site-only — L27124, AC-SCOPE-034 L2612): `}
+          {`Timezone (inherited from ${site.name}, Site-only): `}
           <span className={`font-medium ${textColor('ink')}`}>{site.timezone}</span>
         </p>
       </div>
@@ -960,8 +964,12 @@ function LocationsTier({
         >
           {`${area.name} — Locations`}
         </h2>
+        {/* CTL-08, L27124, AC-SCOPE-034 L2612 (see this file's own header,
+            "LOCATOR RELOCATION") — one timezone per Site, no per-Area/per-
+            Shift override; the citation stays in this comment, never in
+            the rendered text (§8.6.2). */}
         <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>
-          {`Timezone (inherited from ${site.name}, Site-only — L27124, AC-SCOPE-034 L2612): `}
+          {`Timezone (inherited from ${site.name}, Site-only): `}
           <span className={`font-medium ${textColor('ink')}`}>{site.timezone}</span>
         </p>
       </div>
