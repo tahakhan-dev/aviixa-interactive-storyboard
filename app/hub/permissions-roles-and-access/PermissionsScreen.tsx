@@ -295,6 +295,28 @@ function PermissionsBody({
     openAssign(deepLinkTarget)
   }
 
+  /**
+   * `WF-WKR-004` ("Assigning a role to a tenant user", surface Delivery
+   * Operations Hub, module `MOD-DOH-09`) — this screen's demonstration of it,
+   * through the `assignTenantRole` door.
+   *
+   * AND THE CENSUS ROW IT DOES NOT RESTORE, STATED SO NOBODY LOOKS FOR A
+   * BUG. Until this unit's final review, the only file under this route
+   * naming `WF-WKR-004` was `fixtures.ts` — superseded by Task 3, zero
+   * importers, and deleted in that review. Its `note:` field named the
+   * identifier in a STRING LITERAL, which is code, so
+   * `scripts/build-registries.mjs` counted it and the row read
+   * `demonstrated-in-storyboard`. Deleting the file dropped it to
+   * `not-represented`, and THIS COMMENT CANNOT AND MUST NOT PUT IT BACK:
+   * that generator strips comments before collecting cited tokens, on the
+   * stated ground that "a citation asks whether a screen NAMES the item,
+   * which a comment cannot answer". Spelling the identifier in a rendered
+   * string to win the row back would be manufacturing evidence, and would
+   * also be a §8.6.2 violation. So the row stands at `not-represented`,
+   * correctly under the rule as written, while the workflow itself runs
+   * three lines below — a known limit of the measure, recorded here rather
+   * than worked around.
+   */
   async function confirmAssign(): Promise<void> {
     if (assignTargetId === null) return
     setAssignBusy(true)

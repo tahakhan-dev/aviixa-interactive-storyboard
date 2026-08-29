@@ -694,9 +694,18 @@ export const DOH_MODULES = [
     slug: 'permissions-roles-and-access',
     purpose:
       'Configure who exists in the tenant, what each may do, and where; enforce it across all five surfaces from one place.',
-    // L28518-L28533. Twelve screen rows; only the Worker is `Unavailable`
-    // (viewing the user and role register), and the other three non-admin
-    // roles read that register.
+    // L28518-L28533. Twelve screen rows. THIS COMMENT USED TO SAY "only the
+    // Worker is `Unavailable` ... and the other three non-admin roles read
+    // that register", which was the CARD's reading and derived four roles.
+    // `MTX-TEN-02a` (L22015) marks the Supervisor and the Quality Manager
+    // `Unavailable` on this whole module, and the two tables disagree on
+    // exactly three cells. Unit-02's Task 3 adopted the module row at the
+    // screen gate (`PermissionsScreen.tsx`'s `VIEW_REQUEST` is Tenant Admin
+    // and Read-only Auditor); the rail went on deriving the card until this
+    // unit's final review, so the rail offered two roles a link to a screen
+    // that refused them. `src/surfaces/doh/modules/doh-09/matrix.ts` now
+    // carries the adopted reading and `./modules/doh-09/readings.ts` records
+    // that it IS an adoption, under a source that settles nothing.
     rolesReaching: reachOf('MOD-DOH-09'),
   },
   {
