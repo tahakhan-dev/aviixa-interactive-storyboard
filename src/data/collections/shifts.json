@@ -157,7 +157,7 @@
       "AREA-SM-ENSAM"
     ],
     "digestDeliveryTime": "05:45",
-    "nominalProductionDateRule": "mismo d\u00eda calendario del inicio del turno",
+    "nominalProductionDateRule": "mismo día calendario del inicio del turno",
     "status": "active"
   },
   {
@@ -183,7 +183,7 @@
       "AREA-AC-ENSAM"
     ],
     "digestDeliveryTime": "05:45",
-    "nominalProductionDateRule": "mismo d\u00eda calendario del inicio del turno",
+    "nominalProductionDateRule": "mismo día calendario del inicio del turno",
     "status": "active"
   },
   {
@@ -198,5 +198,278 @@
     "digestDeliveryTime": "05:45",
     "nominalProductionDateRule": "same calendar day as shift start",
     "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-01",
+    "siteId": "SITE-BB-EXP-01",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-01"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-02",
+    "siteId": "SITE-BB-EXP-02",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-02"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-03",
+    "siteId": "SITE-BB-EXP-03",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-03"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-04",
+    "siteId": "SITE-BB-EXP-04",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-04"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-05",
+    "siteId": "SITE-BB-EXP-05",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-05"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-06",
+    "siteId": "SITE-BB-EXP-06",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-06"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-07",
+    "siteId": "SITE-BB-EXP-07",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-07"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-08",
+    "siteId": "SITE-BB-EXP-08",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-08"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-09",
+    "siteId": "SITE-BB-EXP-09",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-09"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-10",
+    "siteId": "SITE-BB-EXP-10",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-10"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-11",
+    "siteId": "SITE-BB-EXP-11",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-11"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-12",
+    "siteId": "SITE-BB-EXP-12",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-12"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-13",
+    "siteId": "SITE-BB-EXP-13",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-13"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-14",
+    "siteId": "SITE-BB-EXP-14",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-14"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-15",
+    "siteId": "SITE-BB-EXP-15",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-15"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-16",
+    "siteId": "SITE-BB-EXP-16",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-16"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-17",
+    "siteId": "SITE-BB-EXP-17",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-17"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-18",
+    "siteId": "SITE-BB-EXP-18",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-18"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-19",
+    "siteId": "SITE-BB-EXP-19",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-19"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-20",
+    "siteId": "SITE-BB-EXP-20",
+    "name": "Afternoon Shift",
+    "startTime": "14:00",
+    "endTime": "22:00",
+    "areaIds": [
+      "AREA-BB-EXP-20"
+    ],
+    "digestDeliveryTime": "13:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-EXP-21",
+    "siteId": "SITE-BB-EXP-21",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-BB-EXP-21"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "archived"
   }
 ]
