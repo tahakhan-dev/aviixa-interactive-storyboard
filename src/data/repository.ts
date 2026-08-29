@@ -50,7 +50,7 @@ import { COLLECTIONS, RELATIONS, type CollectionName } from './schemas'
 import type { Event as EventRow, Audit as AuditRow } from './schemas/crosscutting'
 import type { CollectionData, Store } from './store'
 import { truthStoreFor, writableThroughRepository, type TruthStoreAuthority } from './truth-stores'
-import { checkAreaReference, checkSiteReference, scopeReferenceMessage } from './scope-reference'
+import { checkAreaReference, checkSiteReference, scopeReferenceMessage, type ScopeReferenceProblem } from './scope-reference'
 import { roleById, type RoleId } from '@/domain/roles'
 import type { SurfaceId } from '@/domain/surfaces'
 import {
@@ -213,6 +213,34 @@ export interface Repository {
   /** Task 1 (unit-02) — `createAreaUnderSite`'s own sibling for Location under Area. */
   createLocationUnderArea(location: RowOf<'locations'>, ctx: AccessContext): Promise<WriteResult<RowOf<'locations'>>>
   /**
+   * Task 2 (unit-02) — a new Shift's `siteId` must name a real, active,
+   * same-tenant Site, the same `checkSiteReference` rule
+   * `createAreaUnderSite` runs on its own `siteId`, so this door follows
+   * its exact shape (own static `AccessRequest`, `requiredSites` added at
+   * the call site — see `CREATE_SHIFT_REQUEST`'s own comment). The ONE rule
+   * this door adds beyond that, which no sibling door needs: two Shifts at
+   * the same Site may not hold overlapping `[startTime, endTime)` windows
+   * (`shiftOverlapConflict` below) — checked AFTER `checkSiteReference`
+   * passes (an invalid `siteId` makes "which other Shifts share this Site"
+   * unanswerable), and reported as its own, third result arm naming the
+   * specific conflicting row, never folded into the generic `denied` shape
+   * a `PermissionDecision` carries.
+   */
+  createShift(shift: RowOf<'shifts'>, ctx: AccessContext): Promise<CreateShiftResult>
+  /**
+   * Task 2 (unit-02) — `createShift`'s own sibling for an edit. Runs the
+   * SAME two checks against the row as it would read AFTER the patch is
+   * applied (`{ ...before, ...patch }`) — a `siteId` this Shift is being
+   * MOVED to must resolve exactly as one it is being CREATED with, and its
+   * new `[startTime, endTime)` must not overlap any other Shift at the
+   * (possibly new) Site, itself excluded. Delegates the actual write to the
+   * generic `update()` once both checks pass — same shape
+   * `archiveLocationTierEntity` already established: a named door adds
+   * exactly the rule(s) the generic door doesn't run, then hands the
+   * mechanical write back to it.
+   */
+  updateShift(id: string, patch: Partial<RowOf<'shifts'>>, ctx: AccessContext): Promise<UpdateShiftResult>
+  /**
    * Task 1 (unit-02) — `WF-DOH-02-CASCADE` (design spec §3, "the archival
    * cascade"): archiving a Site or Area must not silently orphan an active
    * Area or Location beneath it. This build has no source authority to
@@ -257,6 +285,30 @@ export type WriteResult<T> =
       explain: string
       capability: PersistenceCapability
     }
+
+/**
+ * Task 2 (unit-02) — `createShift`/`updateShift`'s own result, extending
+ * `WriteResult<RowOf<'shifts'>>` with the two arms the generic write door
+ * never produces: a `siteId` that doesn't resolve to a real, active,
+ * same-tenant Site (`checkSiteReference`, same shape `LocationConfiguration
+ * Screen.tsx`'s own reference-refusal gate already reads), and an
+ * overlapping `[startTime, endTime)` window naming the specific conflicting
+ * row rather than a generic "overlap" sentence — the one rule a static
+ * `AccessRequest`/`PermissionDecision` cannot express (it is a fact about
+ * two ROWS, not about the actor). Neither new arm carries a `PermissionDecision`
+ * — a caller must not mistake "this Shift's own times conflict with another
+ * Shift's" for "you may not do this."
+ */
+export type CreateShiftResult =
+  | WriteResult<RowOf<'shifts'>>
+  | { ok: false; kind: 'overlap'; conflictingShift: RowOf<'shifts'> }
+  | { ok: false; kind: 'invalid-reference'; problem: ScopeReferenceProblem }
+
+/** `CreateShiftResult`'s own sibling for `updateShift`. Same two extra arms, same reasoning. */
+export type UpdateShiftResult =
+  | WriteResult<RowOf<'shifts'>>
+  | { ok: false; kind: 'overlap'; conflictingShift: RowOf<'shifts'> }
+  | { ok: false; kind: 'invalid-reference'; problem: ScopeReferenceProblem }
 
 /**
  * Fix round 1 (unit-01, Task 5 review, minor): the two failure arms above
@@ -927,6 +979,104 @@ const CREATE_LOCATION_UNDER_AREA_REQUEST: AccessRequest = {
   action: 'create-location-under-area',
   allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
   sourceRefs: ['L27118', 'L26919', 'repository.ts'],
+}
+
+/**
+ * Task 2 (unit-02) — the overlap refusal `createShift`/`updateShift` run.
+ * `startTime`/`endTime` are local time-of-day strings (`schemas/org.ts`'s
+ * own comment: "a shift boundary has no date of its own") — compared here
+ * as minutes-since-midnight numbers, never as a constructed `Date` (Global
+ * Constraints: simulated clock only, and a bare time-of-day has no date to
+ * attach one to anyway).
+ *
+ * A block whose `endTime` is not later than its `startTime` (the seeded
+ * `SHIFT-BB-NIGHT`, `"18:00"`–`"02:00"`) crosses midnight and is read as TWO
+ * half-open segments, `[start, 1440)` and `[0, end)`, rather than one — the
+ * same half-open, wraparound-aware shape `overlapConflict`/`timeSegments`
+ * used in the outgoing fixture-driven screen this task replaces
+ * (`./collections/shifts.json`'s own `SHIFT-BB-DAY` "06:00"–"14:00" and
+ * `SHIFT-BB-NIGHT` "18:00"–"02:00" coexist at the same Site today
+ * precisely because neither reading treats the night Shift as spanning the
+ * WHOLE day).
+ */
+function timeToMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(':')
+  return Number(h) * 60 + Number(m)
+}
+
+const MINUTES_PER_DAY = 1440
+
+function shiftTimeSegments(startTime: string, endTime: string): readonly (readonly [number, number])[] {
+  const start = timeToMinutes(startTime)
+  const end = timeToMinutes(endTime)
+  if (end > start) return [[start, end]]
+  return [
+    [start, MINUTES_PER_DAY],
+    [0, end],
+  ]
+}
+
+function segmentsOverlap(
+  a: readonly (readonly [number, number])[],
+  b: readonly (readonly [number, number])[],
+): boolean {
+  return a.some(([aStart, aEnd]) => b.some(([bStart, bEnd]) => aStart < bEnd && bStart < aEnd))
+}
+
+/**
+ * The first other, ACTIVE Shift at the same Site whose `[startTime,
+ * endTime)` window overlaps the candidate's, or `null`. Archived Shifts are
+ * excluded — an archived Shift no longer occupies its working-time block,
+ * so refusing a new one because a retired Shift once covered those hours
+ * would make a Site's schedule permanently unusable; the same reading the
+ * outgoing fixture-driven screen this task replaces already documented for
+ * the same rule one level down (Shift-to-Area, not Shift-to-Site, but the
+ * same "archived no longer occupies" judgement). `excludeId` is the row's
+ * own id on an update, so a Shift is never reported as conflicting with
+ * itself.
+ */
+function shiftOverlapConflict(
+  store: Store,
+  siteId: string,
+  startTime: string,
+  endTime: string,
+  excludeId: string | null,
+): RowOf<'shifts'> | null {
+  const shifts = store.get('shifts') as readonly RowOf<'shifts'>[]
+  const candidate = shiftTimeSegments(startTime, endTime)
+  for (const s of shifts) {
+    if (s.siteId !== siteId) continue
+    if (s.status === 'archived') continue
+    if (excludeId !== null && s.id === excludeId) continue
+    if (segmentsOverlap(candidate, shiftTimeSegments(s.startTime, s.endTime))) return s
+  }
+  return null
+}
+
+/**
+ * Task 2 (unit-02) — same floor, same static/dynamic split as
+ * `CREATE_AREA_UNDER_SITE_REQUEST` above: the SAME floor `defaultWriteRoles
+ * ('hub')` already gives the generic door for `shifts`
+ * (`TENANT_OPERATIONAL_WRITERS`), declared once as this door's own
+ * `AccessRequest`, with NO `requiredSites` baked in — this constant is
+ * static, declared once at module load, with no row to read yet.
+ * `createShift`/`updateShift` add `requiredSites: [siteId]` at the CALL
+ * SITE instead, only when the acting identity actually carries a site
+ * scope, exactly the condition `createAreaUnderSite` uses (see that
+ * constant's own comment for the fix-round-2 finding this shape exists to
+ * avoid repeating).
+ */
+const CREATE_SHIFT_REQUEST: AccessRequest = {
+  action: 'create-shift',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  sourceRefs: ['L27291', 'repository.ts'],
+}
+
+/** `CREATE_SHIFT_REQUEST`'s own sibling for `updateShift`. Same shape. */
+const UPDATE_SHIFT_REQUEST: AccessRequest = {
+  action: 'update-shift',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  sourceRefs: ['L27292', 'repository.ts'],
 }
 
 /**
@@ -2398,6 +2548,90 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       }
 
       return repository.update(collection, id, { status: 'archived' } as Partial<RowOf<typeof collection>>, ctx)
+    },
+
+    /**
+     * Task 2 (unit-02) — see the `Repository` interface's own comment and
+     * `CREATE_SHIFT_REQUEST`'s own comment for the authorisation shape.
+     * Order: role/scope floor first (before any row is read), THEN
+     * `checkSiteReference` (an invalid `siteId` makes the overlap question
+     * unanswerable), THEN the overlap check, THEN the mechanical write —
+     * the same "authorise before touching any row" discipline
+     * `archiveLocationTierEntity`'s own fix-round-1 finding established.
+     */
+    async createShift(shift, ctx) {
+      const authority = truthStoreFor('shifts')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('shifts', authority)
+
+      const decision = evaluateAccess(
+        { ...CREATE_SHIFT_REQUEST, ...(ctx.identity.siteScope.length > 0 ? { requiredSites: [shift.siteId] } : {}) },
+        ctx,
+      )
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A Shift can only be created by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      const problem = checkSiteReference(store, actorTenant, shift.siteId)
+      if (problem !== null) return { ok: false, kind: 'invalid-reference', problem }
+
+      const conflict = shiftOverlapConflict(store, shift.siteId, shift.startTime, shift.endTime, null)
+      if (conflict !== null) return { ok: false, kind: 'overlap', conflictingShift: conflict }
+
+      return createRow('shifts', shift, ctx, authority)
+    },
+
+    /**
+     * Task 2 (unit-02) — `createShift`'s own sibling for an edit. Both
+     * checks read the row as it would exist AFTER the patch merges onto
+     * `before` (`merged` below) — a `siteId`/`startTime`/`endTime` field a
+     * caller leaves out of `patch` is read from the EXISTING row, exactly
+     * like the generic `update()`'s own `{ ...before, ...patch }` merge —
+     * so an edit that only moves the times still gets checked against its
+     * (unchanged) Site, and an edit that only moves the Site still gets
+     * checked against its (unchanged) times.
+     */
+    async updateShift(id, patch, ctx) {
+      const authority = truthStoreFor('shifts')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('shifts', authority)
+
+      const rows = store.get('shifts') as readonly RowOf<'shifts'>[]
+      const before = rows.find((r) => r.id === id)
+      if (before === undefined) return notFoundRefusal('shifts', id, 'update')
+      const merged = { ...before, ...patch }
+
+      const decision = evaluateAccess(
+        { ...UPDATE_SHIFT_REQUEST, ...(ctx.identity.siteScope.length > 0 ? { requiredSites: [merged.siteId] } : {}) },
+        ctx,
+      )
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A Shift can only be updated by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      const problem = checkSiteReference(store, actorTenant, merged.siteId)
+      if (problem !== null) return { ok: false, kind: 'invalid-reference', problem }
+
+      const conflict = shiftOverlapConflict(store, merged.siteId, merged.startTime, merged.endTime, id)
+      if (conflict !== null) return { ok: false, kind: 'overlap', conflictingShift: conflict }
+
+      return repository.update('shifts', id, patch, ctx)
     },
 
     async update(name, id, patch, ctx) {

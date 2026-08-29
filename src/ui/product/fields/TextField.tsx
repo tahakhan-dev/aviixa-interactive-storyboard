@@ -16,7 +16,14 @@ export interface TextFieldProps {
    * component duplicating `FieldShell`'s label/hint/error wiring for two
    * more input types that are otherwise identical single-line text.
    */
-  readonly type?: 'text' | 'email' | 'password' | undefined
+  /** Task 2 (unit-02) addition: `'time'`, same reasoning as the Task 2
+   *  (unit-01) widening above — a native `<input type="time">` for a
+   *  Shift's `startTime`/`endTime`/`digestDeliveryTime` (local time-of-day
+   *  strings, `"06:00"`), rather than a second field component duplicating
+   *  this one's label/hint/error wiring for one more otherwise-identical
+   *  input type. `@/ui/product/fields` carried no time-of-day field before
+   *  this. */
+  readonly type?: 'text' | 'email' | 'password' | 'time' | undefined
   /** Task 2 addition, same reasoning as `type` above. */
   readonly autoComplete?: string | undefined
   /** Task 2 addition: blur is when this screen's inline validation runs. */
