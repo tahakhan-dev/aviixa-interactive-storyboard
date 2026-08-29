@@ -381,6 +381,90 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
+### Unit 2 — tenant configuration, users, workers and devices — Task 9 (closure) complete
+
+**Read this subsection first — it is the current position, measured fresh rather than recalled.**
+Everything below it (Session S14, unit 1's own closure, the slice-11 rounds) is still true and still
+the history this build stands on; it is simply no longer the front of the queue. Unit 2's own spec,
+plan and progress ledger: `docs/superpowers/specs/2026-08-29-unit-02-tenant-configuration-users-workers-design.md`,
+`docs/superpowers/plans/2026-08-29-unit-02-tenant-configuration-users-workers-devices.md`,
+`.superpowers/sdd/2026-08-29-unit-02-tenant-configuration-users-workers-devices/progress.md`. All
+nine plan tasks complete, plus one dedicated corrective task inserted before task 4. Verification
+record: `docs/process/2026-08-29-unit-02-verification.md`.
+
+**Frozen source re-hashed at closure: unchanged, `47bd18db…`, 122,241 lines.** No drift.
+
+**Fresh `pnpm verify` exit 0**, on commit `78f2b9e2626b10a00b6957761f840acb96a4ab91` (the durable
+verify-log commit; the ledger-rows commit `51067f9` sits immediately below it, the reseal commit
+`11a7464` immediately above). Output preserved durably at
+`artifacts/evidence/unit-02-close-verify/pnpm-verify-close.txt` (5,271 lines), matching the exact
+evidence-root pattern of `artifacts/evidence/unit-02-entry-verify/pnpm-verify-entry.txt` this unit
+started from.
+
+**Census: 277 at this unit's entry (design doc §2) → 275 now**, read directly from this task's own
+`pnpm build` output and independently reproduced by the standalone census command
+(`docs/process/2026-08-29-unit-02-verification.md` §6 has both). Net −2, entirely task 8's own
+registry-reconciliation corrections (an over-claiming `CONTROL_MATRIX` entry removed) — this
+closure task itself touches no product, seed or registry-generation file.
+
+**The Live-Verification Ledger — 30 rows at this unit's entry, all unit 1's own — now holds 59
+rows.** This task's own 29 new rows: **28 `pass`, 1 `blocked`, 0 `fail`** — every one driven fresh
+against `pnpm serve:out` in one continuous live Chrome session, none transcribed from a prior task's
+report prose. Combined ledger totals after this task: 56 `pass`, 1 `fail` (unit 1's own LV-0009,
+untouched by this unit), 2 `blocked` (unit 1's own LV-0010, plus this task's own new LV-0059).
+`ledger-reconcile.mjs`'s own output: **`A. Registry rows with NO ledger row: 4996 of 5015`** (down
+from 5,003 at unit 1's close — a real drop of 7, the number of distinct new `pathId`s this task's
+rows introduce). **`B. Ledger rows naming a path NO registry contains: 0`.**
+
+**Coverage, named rather than left implicit:** all five of this unit's rebuilt screens in their main
+states; every one of the ten real write doors this unit's five tasks added, each driven to a real
+observed success (not merely a disabled-button check); the corrective task's role-floor narrowing
+and Task 4's Quality-Manager write exclusion, both re-confirmed enforced; Task 3's segregation-of-
+duties rule and its whole-module `Unavailable` rendering; Task 7's own live SoD discovery
+(a Supervisor can `createWorker` but not the `createTenantUser` its first leg calls) reproduced
+live; Task 6's two cross-links; and all sixteen of this unit's guided tours' subjects (not the
+tour-runner mechanism itself — see the finding below).
+
+**Along the way, sealing turned up a real defect and it was fixed before committing the seal, not
+after.** Two untracked directories at the repository root, `.task-corrective-01-screens/` and
+`.task3-screens/` — real live-verify PNG captures from task 3 and the tasks-1/2 corrective task,
+each disclosed as "untracked, not committed" in that task's own report — sat outside `.gitignore`,
+so the seal's own `git ls-files --cached --others --exclude-standard` scan picked up all 22 files as
+**product scope** on the first attempt. Relocated into `docs/screenshots/live/unit-02/`, the path
+this project's own procedure and `.gitignore` rule already cover, before resealing. The corrected
+seal: product `846 → 848` (net +2: Task 1's two seed-generator scripts and the shared
+`scope-reference.ts` helper added; the orphaned `devices/fixtures.ts` Task 8 already flagged
+dropped), envelope `103 → 108`. This was the **first fresh reseal since unit 1's own closure** —
+neither manifest had moved once across all eight of this unit's own tasks, so every one of them
+shipped real product changes underneath a certification still describing unit 1's bytes; not a
+defect any single task caused, just the ordinary lag a per-unit closure task exists to close.
+
+**Findings carried forward — and named plainly, this unit found and FIXED several real defects
+along the way, which is NOT the same shape as unit 1's own seven purely-disclosed findings:** a
+cross-tenant authorization bypass (Task 1's own Critical 1, fixed in fix round 1), a scope-
+enforcement regression that fix round 1 itself introduced and fix round 2 then fixed, the Tasks-1/2
+write-role floor mismatch against the source's own `MTX-TEN-02a` matrix (fixed by a dedicated
+corrective task inserted before task 4), and three separate live instances of the exact §8.6.2
+locator-rendering defect across three different tasks (Task 1's Critical 2, Task 3's Critical 1, and
+Task 8's own confirmation that its second finding was the same defect class recurring rather than a
+new one) — all three re-checked live on the final bytes this task drove and confirmed still fixed.
+What genuinely remains open, not fixed here and not this unit's own to fix: site/area scope
+narrowing cannot be driven live because no sign-in path in this build populates `siteScope`/
+`areaScope` from `role-grants.json` (Task 1's own finding, re-disclosed by every later task,
+recorded `blocked` at LV-0059 rather than silent); `TOUR-WORKER-ADD-001`'s cosmetic mid-tour pronoun
+switch; a handful of Minor findings each already parked by their own task's reviewer as non-
+blocking; and the tour-runner mechanism, undriven by any ledger row in either unit. Devices' genuine
+absence of a module id (Task 8's Step 2) is SETTLED, not open — named in the verification record
+only because the task-9 brief asked for that outcome to be cited there.
+
+**What the next session should do with this:** §24.2's build order names unit 3 next — this
+position does not scope it, only notes it is next in `docs/superpowers/plans/`. The site/area
+scope-wiring gap (above) is the natural next dependency for whichever future unit builds real
+session-construction wiring, exactly as unit 1's own persistence finding was named as unit 2's
+likely dependency and unit 2 did not, in fact, need to touch it. Nothing here blocks unit 3 starting
+clean; nothing here should be re-litigated from memory — read
+`docs/process/2026-08-29-unit-02-verification.md` and the ledger rows directly.
+
 ### Session S14 — the runway is closed and the §24.2 workflow units have started
 
 **Read this subsection before the round-7 material below it.** That material is still true and still
