@@ -1,0 +1,590 @@
+{
+  "schema_version": 2,
+  "ledger": "Evidence Envelope Manifest",
+  "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
+  "envelope_id": "ENV11-493094c54220167d",
+  "candidate_id": "SLICE11-0a8b025ccc3af492",
+  "slice": "11",
+  "payload_sha256": "493094c54220167d576994b34ca878ead6a50cdac7b476af59540be6c53c5df9",
+  "scope": {
+    "kind": "evidence-envelope",
+    "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
+    "derivation": "git ls-files --cached --others --exclude-standard, foreign probe entries removed, every path under an evidence root, the seal's own two outputs excluded",
+    "evidence_roots": [
+      "docs/process/",
+      "docs/superpowers/",
+      "docs/census/",
+      "artifacts/evidence/"
+    ],
+    "excludes": [
+      "docs/process/ledgers/product-candidate-manifest.json",
+      "docs/process/ledgers/evidence-envelope-manifest.json"
+    ],
+    "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
+  },
+  "payload_excludes_self": true,
+  "payload_count": 112,
+  "supersedes": "ENV11-b51591ab741c0c86",
+  "payload": [
+    {
+      "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
+      "bytes": 21058,
+      "sha256": "8a2a443880a67d5438af4255be78cc9e6545b95f55323498a5037be5b5ec32ce"
+    },
+    {
+      "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch44.md",
+      "bytes": 26000,
+      "sha256": "a5ccc11e2f9a7dcb4fc6778d7443648a2a3ed99838398d6cbf015318321543b7"
+    },
+    {
+      "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-modules.md",
+      "bytes": 25494,
+      "sha256": "a5a013054db9db51820d7fda79c0fa2f341e8737a25aae5597c8da44f059c883"
+    },
+    {
+      "path": "artifacts/evidence/unit-01-task-12-verify/pnpm-verify-controller-gitignore.txt",
+      "bytes": 171335,
+      "sha256": "23d6359dfaa501b9b7ecd9bf7f969b54384fb1d86ad3e1ed12a788c92951eee9"
+    },
+    {
+      "path": "artifacts/evidence/unit-01-task-12-verify/pnpm-verify-fixround1.txt",
+      "bytes": 171355,
+      "sha256": "92eb8d4aa8b41d96046bd08f86046d763e570a7573ffdfad34a10746f44384fc"
+    },
+    {
+      "path": "artifacts/evidence/unit-02-close-verify/pnpm-verify-close.txt",
+      "bytes": 171188,
+      "sha256": "83508f9441ff8ad326762a51b2e22b11aee70cf367a8c446ea4ba6fc929ea10e"
+    },
+    {
+      "path": "artifacts/evidence/unit-02-entry-verify/pnpm-verify-entry.txt",
+      "bytes": 171347,
+      "sha256": "ff7728717bcb0057da1fb36982399053847c3596e1d400c325b9d14582f9acc8"
+    },
+    {
+      "path": "artifacts/evidence/units-01-02-closure-sweep-verify/pnpm-verify.txt",
+      "bytes": 171382,
+      "sha256": "fdec05e0255fbe5138bb97be6e6a35d7a8c453fda54c499b8b6ad53adbd14366"
+    },
+    {
+      "path": "docs/census/2026-08-17-surf-sa-build-map.md",
+      "bytes": 57326,
+      "sha256": "3354405e612ddfffb162d9a1b97d1eebd645676a971c29bce54896f3c03ee7ad"
+    },
+    {
+      "path": "docs/census/2026-08-17-surf-sa-raw-maps.json",
+      "bytes": 704374,
+      "sha256": "db1bb1f7cc1c1d3cf7849e9230350f8bd8aa8b49e792e257bc2116d68fee8527"
+    },
+    {
+      "path": "docs/census/2026-08-19-surf-doh-slice04-build-map.md",
+      "bytes": 75799,
+      "sha256": "52fbbedcc66d4e34e65ce8639c35beaa013cb6afc2c64c599bcdd1459a61b09e"
+    },
+    {
+      "path": "docs/census/2026-08-19-surf-doh-slice04-raw-maps.json",
+      "bytes": 537290,
+      "sha256": "4b50a7cbe3f4754089c6609d8c54949120f881dafefc69ddaa95ccb9248bd66c"
+    },
+    {
+      "path": "docs/census/2026-08-20-surf-stu-slice05-build-map.md",
+      "bytes": 220798,
+      "sha256": "84de29bb9ad1d20dc8c4cdd8c81783c6c20a18b5a4ccc1f9e290104f6eaf530c"
+    },
+    {
+      "path": "docs/census/2026-08-20-surf-stu-slice05-raw-maps.json",
+      "bytes": 121291,
+      "sha256": "4d7694eacf9b9e7349507f276bb69eb37e891f8f374d3939d6473d18324d9865"
+    },
+    {
+      "path": "docs/process/2026-08-21-slice-05-verification.md",
+      "bytes": 23242,
+      "sha256": "d4082aaad90cf42fcc4835265ab73c063906cd253d1a238ff976cfb220e8eb31"
+    },
+    {
+      "path": "docs/process/2026-08-22-slice-06-verification.md",
+      "bytes": 42398,
+      "sha256": "e8bfab8b0ac79fe83ae54633862e96b44111faa7c778444b054a8e087203c85a"
+    },
+    {
+      "path": "docs/process/2026-08-22-slice-07-verification.md",
+      "bytes": 15374,
+      "sha256": "76585ef02f106a31b8c5698c279f03923988a67060d69a2d8667e908fefe3c81"
+    },
+    {
+      "path": "docs/process/2026-08-22-slice-08-verification.md",
+      "bytes": 42500,
+      "sha256": "25ef0c4c52f0be3d8331be9172a9ccf2baab32fc18246922d43774c1227c8291"
+    },
+    {
+      "path": "docs/process/2026-08-23-slice-09-verification.md",
+      "bytes": 39491,
+      "sha256": "5cc3edab810a911794b19c475455313dd1404b7c913e7c1ecab011128e3c4050"
+    },
+    {
+      "path": "docs/process/2026-08-23-slice-10-verification.md",
+      "bytes": 4651,
+      "sha256": "8e4833d7ea0f70423930dbabab90eb21ab2e747398ec69575728892c33163296"
+    },
+    {
+      "path": "docs/process/2026-08-24-slice-11-verification.md",
+      "bytes": 6216,
+      "sha256": "91ad4749821920ff3b1c02619ce4147696f5dc8032f8b0f2dbc96eb32fdf1633"
+    },
+    {
+      "path": "docs/process/2026-08-25-slice-11-round-2-verification.md",
+      "bytes": 3595,
+      "sha256": "7523db35b19fbe3834f70c534ea295c2fc72844843ffee20f7542a8767220001"
+    },
+    {
+      "path": "docs/process/2026-08-29-unit-01-verification.md",
+      "bytes": 46253,
+      "sha256": "89318f75e86b5ec985ef84ad33a4498ea4d54c1b674b4c90e113f629b3b3a1bd"
+    },
+    {
+      "path": "docs/process/2026-08-29-unit-02-verification.md",
+      "bytes": 45215,
+      "sha256": "98d95ee1c5f7d330a0d643a0bda0a15b6c8d3bd91a4b9a5595b68b6028a9ec8a"
+    },
+    {
+      "path": "docs/process/RESUME.md",
+      "bytes": 71385,
+      "sha256": "9af217d6ebf468353d9bda5b2bde302175577ad35f86f94156dc8d5a706c6059"
+    },
+    {
+      "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
+      "bytes": 6720,
+      "sha256": "4a59ea40976ba8845aae5e62319a4bbbc037d1525af997994d36ba076d37f8aa"
+    },
+    {
+      "path": "docs/process/audits/2026-08-24-slice-11-audit-dispositions.md",
+      "bytes": 9265,
+      "sha256": "e0fc2a633111fea1baa73e05bb06d7c5f21c2ee91837618041d363abd9816aef"
+    },
+    {
+      "path": "docs/process/audits/2026-08-24-slice-11-audit-findings.md",
+      "bytes": 28750,
+      "sha256": "f820a8cc0e5e3c3bd9fcef15ded088a0685957e2a4764f95340fd95b4efe7375"
+    },
+    {
+      "path": "docs/process/audits/2026-08-24-slice-11-audit-round-2-brief.md",
+      "bytes": 3803,
+      "sha256": "0b792db757d6e8b31195a57165a5c142e8de338508518a3af919fbc6ff8747a7"
+    },
+    {
+      "path": "docs/process/audits/2026-08-24-slice-11-audit-round-2-findings.md",
+      "bytes": 7756,
+      "sha256": "ffa6cdf7999f57cc6531fe84c77415ed59638a207a2ef91ec1b3eec21e245d75"
+    },
+    {
+      "path": "docs/process/audits/2026-08-24-slice-11-disposition-brief.md",
+      "bytes": 3165,
+      "sha256": "a3b040d01e9c38d68885c89b077b890fee66280c2f47fd24931dfe5b228e7442"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-dispositions-rounds-1-6.md",
+      "bytes": 68725,
+      "sha256": "06a269e63b5ecf83fef52c09467d31f7e037723633780411a51408036d11da84"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-3-brief.md",
+      "bytes": 4472,
+      "sha256": "d003fb3115c44b5123c535a6118acff6c5795479fdffd5dcd864ec206a81a56a"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-3-findings.md",
+      "bytes": 6516,
+      "sha256": "8a46b06529302d3fcb4b3a8681051aecd2389cabcf7d564c0dfaaf80b2441b3e"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-4-brief.md",
+      "bytes": 4260,
+      "sha256": "ce2ce811479af612c96ac7003fc663c3784e59dfdbc1c3c8f47ce4521909bf41"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-4-findings.md",
+      "bytes": 26687,
+      "sha256": "2b41d87f142e8700e59a8e705f3687a6aae865650862906f4703fbecdf8364be"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-5-findings.md",
+      "bytes": 27225,
+      "sha256": "b3ad465cb61cc612368493b12fbff7025ac8aef7a98e59296f50a0e91184555f"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-6-findings.md",
+      "bytes": 22140,
+      "sha256": "49fd466c9ef0d4f74f1057c5151f1f42f5625785c5caabed031b40c4e07b1fa3"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-7-brief.md",
+      "bytes": 7840,
+      "sha256": "8f47768d92b33238309d237d3b59f0734696b36d06d9179acbb52c355f2ebfdc"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-7-findings.md",
+      "bytes": 22388,
+      "sha256": "c30e9dc367c61eb67121f05ab8ab1595c41166e70c62054e5a61cc7c017b25e3"
+    },
+    {
+      "path": "docs/process/audits/2026-08-28-unit-01-task-11-locator-relocation.md",
+      "bytes": 23764,
+      "sha256": "6d8d467837a25e6cf0e94f523f8ee0c869e9dbadb489d18017f5390b2c328b4c"
+    },
+    {
+      "path": "docs/process/audits/2026-08-29-unit-02-task-8-locator-relocation.md",
+      "bytes": 24252,
+      "sha256": "e74fd8384d526af48f80961f82f45d59b23949287e8c68e079545d3b5e38143f"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-A-storyboard-text.md",
+      "bytes": 4775,
+      "sha256": "c286b51152c3d6f514f2fe5fa7726bcfca61a42a6e2ac8591ebabadc055eaee7"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-B-coverage-accounting.md",
+      "bytes": 5766,
+      "sha256": "917a116ec9a2a0268183519db753f951efcc8faeff06a217f6301d7d146143e9"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-C-gate-integrity.md",
+      "bytes": 4681,
+      "sha256": "c5d4f8c5ffc8097fec15152e47b187a9d0b97df0d1005071c9ea109d2fa3e14b"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-D-unreachable-disclosures.md",
+      "bytes": 4442,
+      "sha256": "108865c820489013be8540997e079a5c1ec32c3a4799d5174915104de89f7b78"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-E-round2-gates.md",
+      "bytes": 6736,
+      "sha256": "a5c5ca4b028b6763a6720cb49659b3316fda424fd70d8979d9797ebe67b398e8"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-F-round2-prose.md",
+      "bytes": 9664,
+      "sha256": "bfe71ca3e8cb398a41cc128c821fc1ffd335da0550ee9d95821afcb08ac235fe"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-G-round2-reachability.md",
+      "bytes": 8936,
+      "sha256": "88485027c70905d30f30814a09c8ba2ce2d4eed052ea5489439d41349b02d60d"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-H-round3-tensions.md",
+      "bytes": 6074,
+      "sha256": "cc4cd52d0d6789a2b54281893ea70283e92072f27a4f9ee1dff9083fd27a3cf2"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-I-navigation.md",
+      "bytes": 4936,
+      "sha256": "d161e96ab2e16dc11fd75c3786ece288fe6c925b36be4ab2bffedc607620411e"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-J-suite-integrity.md",
+      "bytes": 6463,
+      "sha256": "daae63c16358808f4744a926e0bdb6e1c47aecb1d60bb09eb3afab5730bb6382"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-K-round4-rendered.md",
+      "bytes": 7203,
+      "sha256": "ab7b90edcd2354aaa04ad533ee213f807bb25c0422306487a002eaf03fd68cd5"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-L-round4-completeness-gates.md",
+      "bytes": 19412,
+      "sha256": "07c8daeda61e37a7806f92698e405b44ba3c45f3e74981b729263c0b37ff0a0d"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-M-round4-four-surfaces.md",
+      "bytes": 12154,
+      "sha256": "d284c2007a7d835ce06a251465128a05d011bb4be67df9aecd97e35c3e2e6c8a"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-N-round4-leftovers.md",
+      "bytes": 8327,
+      "sha256": "781d162e85520db4a56de202afd741ee168c01b6de7714db5b2abd57303eb2ae"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-P-round5-absence-claims.md",
+      "bytes": 6824,
+      "sha256": "5218fa39f3dd78a0cb86e2755c52ed9c9dd4ac57cf7aa548918b9461e1e96460"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-Q-round5-coverage-and-gates.md",
+      "bytes": 16975,
+      "sha256": "a76c1dc709b1f02e4d9dc2ae784c8ef0a795e342bbc4b70532fc70bcda416b5e"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-R-round5-repo-wide-gaps.md",
+      "bytes": 6953,
+      "sha256": "91931f4971b66d7fbb5e4c26bd4f7027351f3edb0d06cb90dcb942e603640bbc"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-S-round6-process-evidence.md",
+      "bytes": 8894,
+      "sha256": "4a9b9ba8f4eb80a4c6289705adc2b59a51819f0c1e6f9feca0ef07a1d158f287"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-T-round6-superadmin-and-reasoning.md",
+      "bytes": 9938,
+      "sha256": "65ca9530eed8c33e46103f88caf1d735fb611b1447e1a2f37195cc795063d05d"
+    },
+    {
+      "path": "docs/process/audits/briefs/fix-U-round6-coverage-and-disclosure.md",
+      "bytes": 10387,
+      "sha256": "bae18bd97ab1e31ec5b742a15d293d0cb0153c18bf07d115e7b1805b1280d0f3"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/README.md",
+      "bytes": 2019,
+      "sha256": "05bef1947bd9e868a3f5860ef384a732b498c647f395b1059cdf843101bfaeb3"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-CC-live-shift-board.png",
+      "bytes": 297225,
+      "sha256": "e34369a7232d57c99af10941e26fbd2728662851677719bf306e1f9e9ef954d8"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-DOH-hub-landing.png",
+      "bytes": 225063,
+      "sha256": "5b1f20890026a1db9b77ef1e0a9ae65bd03c230e347d748ddffb9249bd5642c5"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-FL-run-player.png",
+      "bytes": 283440,
+      "sha256": "21c4398127e6f9009b735a9133e066a06fc9812f46f17fd328f89c6d58af0420"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-SA-tenants-lifecycle-and-pilots.png",
+      "bytes": 315820,
+      "sha256": "a13ad6b329f00f0f3bed7b46ba0c42aabb068120ef010c8fd9c57983b6f88917"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-STU-workflow-builder.png",
+      "bytes": 334239,
+      "sha256": "128f4777dd7a060abedd353c5847c36fccf64c0f092d68e113afa794581e3bf7"
+    },
+    {
+      "path": "docs/process/claude-hooks/CLAUDE.md",
+      "bytes": 4727,
+      "sha256": "89a74c4a0db12ab6272ec16b41a8147fc7daf52c98ad11dd069d6a128f71ddad"
+    },
+    {
+      "path": "docs/process/claude-hooks/README.md",
+      "bytes": 2578,
+      "sha256": "1e76ad7129ee9397956a3ff78e3acf566a0168d154d52e9803e266a6c98ba470"
+    },
+    {
+      "path": "docs/process/claude-hooks/settings.json",
+      "bytes": 1799,
+      "sha256": "9552049a2c9876f49d9aed378811f36254b4c52cdf653909e6032bd2135f5392"
+    },
+    {
+      "path": "docs/process/ledgers/approval-ledger.json",
+      "bytes": 44759,
+      "sha256": "317bfbdafd7ab9ac48009b620309d7c45dc0f45b9c6f8979cb7a14c4589c7616"
+    },
+    {
+      "path": "docs/process/ledgers/capability-preflight-matrix.json",
+      "bytes": 11355,
+      "sha256": "66ae6b2729095e769840ef5b928b9ac004c592cc4a1a8a51f1150db1ce2ce224"
+    },
+    {
+      "path": "docs/process/ledgers/debug-ledger.json",
+      "bytes": 25084,
+      "sha256": "f63ede45c3a8539487cfc8f9ea84213b0c723e9c8215e747d48d5072571b898e"
+    },
+    {
+      "path": "docs/process/ledgers/invocation-evidence-ledger.json",
+      "bytes": 54172,
+      "sha256": "dc37afe3c79b9f9eb8427a8be502fa0d29024403e362b73d48ef40e2a37b23cc"
+    },
+    {
+      "path": "docs/process/ledgers/live-verification-ledger.json",
+      "bytes": 121068,
+      "sha256": "1d096825a81a35597e8a2f83725b0bf4f90302b02334cbe527b39509d7aa5dda"
+    },
+    {
+      "path": "docs/process/ledgers/loop-ledger.json",
+      "bytes": 102924,
+      "sha256": "9ec63f530deb2ba83fa754a60604012a624d4442f16234f09baf3678a490e48d"
+    },
+    {
+      "path": "docs/process/ledgers/research-ledger.json",
+      "bytes": 11019,
+      "sha256": "774bf4be85d81f26eef7ae6f312ec27352ee12f61d213a0c15fe478055503314"
+    },
+    {
+      "path": "docs/process/ledgers/review-ledger.json",
+      "bytes": 45317,
+      "sha256": "f0196455370196dac643c43af96597097e3a83819923fb9818b71e32aed552b8"
+    },
+    {
+      "path": "docs/process/ledgers/tdd-ledger.json",
+      "bytes": 100092,
+      "sha256": "7c8a8970620aaa04a27e4d71cb3ad37a41579eef6d95a37d6200d5ef9b919adb"
+    },
+    {
+      "path": "docs/process/ledgers/verification-ledger.json",
+      "bytes": 49985,
+      "sha256": "8e49bc3d858622464399ef3aee774812f9c709bee5aa2a017bb64bfca2cbaa3d"
+    },
+    {
+      "path": "docs/process/live-verification-procedure.md",
+      "bytes": 12874,
+      "sha256": "ce0a7c372a27932a25752deed3c68b696752961b87bc2929f76bff6451610001"
+    },
+    {
+      "path": "docs/process/master-prompt/AVIIXA_Interactive_Storyboard_Master_Prompt_v1.0.md",
+      "bytes": 212411,
+      "sha256": "96b67c835a880745c748cfd1c270c53fb86fd924c5881478c430582e3506e280"
+    },
+    {
+      "path": "docs/process/source-reading/source-reading-ledger.json",
+      "bytes": 14285,
+      "sha256": "90055d30fe4d29844336068db03c98367b8eb9741343793dc43797afd71e5133"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-16-slice-01-foundations.md",
+      "bytes": 100986,
+      "sha256": "01665716315841469823a59f43096e884a5d1d7da2be7c6a49ef2677fda81127"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-16-slice-02a-contracts-and-persistence.md",
+      "bytes": 66630,
+      "sha256": "c7dca0671650f969c4160943a9d035ab4571b208ed9c68575bd002aa2d8b6821"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-16-slice-02b-review-shell.md",
+      "bytes": 65125,
+      "sha256": "0b21a28f7836cbd5931a0dbf25bb84387434c6648ebb44e8bbbab6e363ad83e6"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-17-slice-02c-spec-closure.md",
+      "bytes": 52793,
+      "sha256": "af55c6d47130d1956aed3a6d17a2390361943a691fbb003e7a07441a2dbf4d67"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-17-slice-03-platform-bootstrap.md",
+      "bytes": 15040,
+      "sha256": "d2ce208dbcace8d3053adc5ef1a158827787b383b0c4768ec38996e9a38df1b4"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-19-slice-04-tenant-setup.md",
+      "bytes": 11646,
+      "sha256": "4271a35aef7d1d580df790e0a5e97ad1764c29c378de389bc6ab71e1333d7dea"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-20-slice-05-studio-authoring.md",
+      "bytes": 274542,
+      "sha256": "df4c42de48443d6865ae9a8318bc453c8c31aa684e8a32cc41e8fcbebdbac7bf"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-21-replan-slices-05-13.md",
+      "bytes": 291646,
+      "sha256": "479ea7c0907f009a55e934ca0318665b881f22a98eed529ed814b038d9c4b8f6"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-21-slice-07-module-brief-common.md",
+      "bytes": 14092,
+      "sha256": "91f976ec7c6238161a8c4342ae5058708d6ec8c5fa6ffbf533ba8f31462c115d"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-22-slice-08-common-brief.md",
+      "bytes": 63785,
+      "sha256": "67c73f6c261f00e6bd6157ed067c1f1b152242d0838e814379346b89f1f3dc64"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-22-slice-09-common-brief.md",
+      "bytes": 87249,
+      "sha256": "40f5f3a84dd9bd621b0a04ddca351f5c177c320a27f429f29618719692ac2301"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-23-slice-10-common-brief.md",
+      "bytes": 25160,
+      "sha256": "8c8e7c4f17ae5c37c8872521f59f9c3f98020bf5906e280a982b450f14fa3dcc"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-23-slice-11-common-brief.md",
+      "bytes": 29200,
+      "sha256": "5a6adb17121c9637df7cd5cdf6da69d0209715d06125ef3d1f69014bd1049ca9"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-26-runway.md",
+      "bytes": 70652,
+      "sha256": "760045363c92b99522e07c53f4922182eb23911fe0b1f3d793d4fc35a8f3b232"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning.md",
+      "bytes": 40571,
+      "sha256": "f2f1d70ccb57dda724a12eed6c9ebecbac59563452a589360e1f2199205e9711"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-29-unit-02-tenant-configuration-users-workers-devices.md",
+      "bytes": 43201,
+      "sha256": "3ac112db7502ef1886b04ccf10cd5c4603cb6a27680c063c4a5ffba5566af0da"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-29-units-01-02-closure-sweep.md",
+      "bytes": 42022,
+      "sha256": "e25bca0846fcb0e64159d0f1ef62eb1c82e6e5f590b5c8dccecf14c05bb2c22e"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
+      "bytes": 45040,
+      "sha256": "e9dac281fc76db96de06d35dbc369844f7a5c22e67c41199c2e48ac19e92d305"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-16-slice-02a-contracts-and-persistence-design.md",
+      "bytes": 14705,
+      "sha256": "dbab6a3974bdb9d8c119b9546f0945fd270474065456b3e9565e605760ae0707"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-16-slice-02b-review-shell-design.md",
+      "bytes": 12837,
+      "sha256": "355ed35c4774ff72c05293f05150b338f540000b3c9e3f6bdc8f638cd3813743"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-17-slice-02c-spec-closure-design.md",
+      "bytes": 11033,
+      "sha256": "fb82c5e96d80e1a98dfbbab60773f006c4235d1bd826a89ffcc50f59d2ce33b2"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-17-slice-03-platform-bootstrap-design.md",
+      "bytes": 18091,
+      "sha256": "050fcd596ed095229c66a3c7162fa26c0ed4b377ff07e5fa5d8eea570f0a8fc5"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-19-slice-04-tenant-setup-design.md",
+      "bytes": 25313,
+      "sha256": "a42aa608ad880c99b391ca59fa62b37134c9fb0e876d42b58659bf5e6a867b69"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-20-slice-05-studio-authoring-design.md",
+      "bytes": 35736,
+      "sha256": "dc1f3f4ed7a65dd31b220c84384825029e55a0cad85c5eb8b9e4b0623006a191"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-26-product-fidelity-rebuild-design.md",
+      "bytes": 19124,
+      "sha256": "7009f5121702e4e144f984a0dd7e892fbbeee273ccd5045723858cf57125da60"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning-design.md",
+      "bytes": 8683,
+      "sha256": "a3198b60ab71557c3a8fa57b9c944dc01d5bec03af7f2bbee126ab8eae24e253"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-29-unit-02-tenant-configuration-users-workers-design.md",
+      "bytes": 9786,
+      "sha256": "46b292085e7396d9096bebc0f731d6bd14368fe17cc37bf36c094c6c4a10c102"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-29-units-01-02-closure-sweep-design.md",
+      "bytes": 13684,
+      "sha256": "62e020396800cbb4db77ea5ec67e3b1805665eb1ea34ea57837a282178a7ebd8"
+    }
+  ]
+}

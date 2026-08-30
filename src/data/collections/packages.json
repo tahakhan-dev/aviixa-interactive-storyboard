@@ -1,0 +1,514 @@
+[
+  {
+    "id": "PKG-0001",
+    "runId": "RUN-0001",
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "workflowVersion": "1.0.0",
+    "contentItemIds": [
+      "WI-0001"
+    ],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-03-02T05:50:00Z",
+    "deliveredAt": "2026-03-02T05:55:00Z",
+    "acknowledgedAt": "2026-03-02T05:56:00Z",
+    "status": "in-use",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-BB-FRAME-ASSY-1.0.0",
+    "runId": null,
+    "workflowDefinitionId": "WFD-BB-FRAME-ASSY-1.0.0",
+    "workflowVersion": "1.0.0",
+    "contentItemIds": [
+      "WI-BB-FRAME-1.0-01",
+      "WI-BB-FRAME-1.0-02",
+      "WI-BB-FRAME-1.0-03",
+      "WI-BB-FRAME-1.0-04",
+      "WI-BB-FRAME-1.0-05",
+      "WI-BB-FRAME-1.0-06"
+    ],
+    "localeSet": [
+      "en",
+      "es"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple",
+      "standard",
+      "expanded"
+    ],
+    "assembledAt": "2026-05-04T05:30:00Z",
+    "deliveredAt": "2026-05-04T05:40:00Z",
+    "acknowledgedAt": "2026-05-04T05:42:00Z",
+    "status": "superseded",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-BB-FRAME-ASSY-1.1.0",
+    "runId": "RUN-BB-2026-0418-03",
+    "workflowDefinitionId": "WFD-BB-FRAME-ASSY",
+    "workflowVersion": "1.1.0",
+    "contentItemIds": [
+      "WI-BB-FRAME-01",
+      "WI-BB-FRAME-02",
+      "WI-BB-FRAME-03",
+      "WI-BB-FRAME-04",
+      "WI-BB-FRAME-05",
+      "WI-BB-FRAME-06",
+      "WI-BB-FRAME-07",
+      "WI-BB-FRAME-08",
+      "CB-BB-FRAME-TORQUE-ZERO",
+      "CB-BB-FRAME-HANDLING"
+    ],
+    "localeSet": [
+      "en",
+      "es"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple",
+      "standard",
+      "expanded"
+    ],
+    "assembledAt": "2026-08-15T05:40:00Z",
+    "deliveredAt": "2026-08-15T05:50:00Z",
+    "acknowledgedAt": "2026-08-15T05:52:00Z",
+    "status": "pinned",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-1",
+    "runId": null,
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "workflowVersion": "1.0.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-07-17T12:41:00.000Z",
+    "deliveredAt": null,
+    "acknowledgedAt": null,
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-2",
+    "runId": null,
+    "workflowDefinitionId": "WFD-BB-FRAME-ASSY-1.0.0",
+    "workflowVersion": "1.0.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-01-27T00:05:00.000Z",
+    "deliveredAt": "2026-01-27T20:04:00.000Z",
+    "acknowledgedAt": null,
+    "status": "delivered",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-3",
+    "runId": null,
+    "workflowDefinitionId": "WFD-BB-FRAME-ASSY",
+    "workflowVersion": "1.1.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple"
+    ],
+    "assembledAt": "2026-02-27T02:10:00.000Z",
+    "deliveredAt": "2026-02-27T19:24:00.000Z",
+    "acknowledgedAt": "2026-02-27T21:11:00.000Z",
+    "status": "validated",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-4",
+    "runId": null,
+    "workflowDefinitionId": "WFD-BB-FRAME-ASSY-2.0.0",
+    "workflowVersion": "2.0.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-05-14T04:57:00.000Z",
+    "deliveredAt": "2026-05-14T17:42:00.000Z",
+    "acknowledgedAt": "2026-05-14T22:16:00.000Z",
+    "status": "pinned",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-5",
+    "runId": null,
+    "workflowDefinitionId": "WFD-BB-GEN-01",
+    "workflowVersion": "1.1.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-02-04T04:15:00.000Z",
+    "deliveredAt": "2026-02-04T18:01:00.000Z",
+    "acknowledgedAt": "2026-02-04T21:37:00.000Z",
+    "status": "in-use",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-6",
+    "runId": null,
+    "workflowDefinitionId": "WFD-NF-GEN-02",
+    "workflowVersion": "3.0.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple"
+    ],
+    "assembledAt": "2026-01-25T04:07:00.000Z",
+    "deliveredAt": "2026-01-25T17:00:00.000Z",
+    "acknowledgedAt": "2026-01-25T21:33:00.000Z",
+    "status": "superseded",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-7",
+    "runId": null,
+    "workflowDefinitionId": "WFD-CW-GEN-03",
+    "workflowVersion": "2.2.1",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-05-17T12:40:00.000Z",
+    "deliveredAt": "2026-05-17T18:11:00.000Z",
+    "acknowledgedAt": "2026-05-17T22:59:00.000Z",
+    "status": "expired",
+    "sourceStatus": "Client Decision Required — DEC-PKGEXP-001, for the whole failure class, not mixed (blueprint §35.6 matrix row \"Expiry\", L79585: \"Client Decision Required — DEC-PKGEXP-001\" is the row’s entire Source status, no Recommendation — R&D component) — this row demonstrates the state’s shape only; no validity-horizon value is decided or implemented."
+  },
+  {
+    "id": "PKG-GEN-8",
+    "runId": null,
+    "workflowDefinitionId": "WFD-HD-GEN-04",
+    "workflowVersion": "2.3.1",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple"
+    ],
+    "assembledAt": "2026-04-02T06:30:00.000Z",
+    "deliveredAt": "2026-04-02T15:09:00.000Z",
+    "acknowledgedAt": "2026-04-02T21:56:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
+  },
+  {
+    "id": "PKG-GEN-9",
+    "runId": null,
+    "workflowDefinitionId": "WFD-VG-GEN-05",
+    "workflowVersion": "3.4.1",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple"
+    ],
+    "assembledAt": "2026-04-09T03:31:00.000Z",
+    "deliveredAt": "2026-04-09T18:32:00.000Z",
+    "acknowledgedAt": null,
+    "status": "corrupt",
+    "sourceStatus": "MIXED: the handling rule (bounded re-pull) is Recommendation — R&D (blueprint §35.6 Rule 1 / matrix row \"Accidental corruption\", L79581); the re-pull retry bound itself is Client Decision Required — DEC-PKGMAN-001 (same row, and L79614), not yet decided."
+  },
+  {
+    "id": "PKG-GEN-10",
+    "runId": null,
+    "workflowDefinitionId": "WFD-IC-GEN-06",
+    "workflowVersion": "1.0.2",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-04-06T02:03:00.000Z",
+    "deliveredAt": "2026-04-06T18:46:00.000Z",
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+  },
+  {
+    "id": "PKG-GEN-11",
+    "runId": null,
+    "workflowDefinitionId": "WFD-SG-GEN-07",
+    "workflowVersion": "3.1.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-07-01T01:09:00.000Z",
+    "deliveredAt": "2026-07-01T18:09:00.000Z",
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+  },
+  {
+    "id": "PKG-GEN-12",
+    "runId": null,
+    "workflowDefinitionId": "WFD-MR-GEN-08",
+    "workflowVersion": "1.1.1",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple"
+    ],
+    "assembledAt": "2026-02-11T09:08:00.000Z",
+    "deliveredAt": null,
+    "acknowledgedAt": null,
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-13",
+    "runId": null,
+    "workflowDefinitionId": "WFD-DW-GEN-09",
+    "workflowVersion": "1.0.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-01-23T05:36:00.000Z",
+    "deliveredAt": null,
+    "acknowledgedAt": null,
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-14",
+    "runId": null,
+    "workflowDefinitionId": "WFD-PW-GEN-10",
+    "workflowVersion": "1.3.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-01-05T00:57:00.000Z",
+    "deliveredAt": "2026-01-05T20:13:00.000Z",
+    "acknowledgedAt": null,
+    "status": "delivered",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-15",
+    "runId": null,
+    "workflowDefinitionId": "WFD-SM-GEN-11",
+    "workflowVersion": "2.1.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-02-08T04:30:00.000Z",
+    "deliveredAt": "2026-02-08T19:31:00.000Z",
+    "acknowledgedAt": null,
+    "status": "corrupt",
+    "sourceStatus": "MIXED: the handling rule (bounded re-pull) is Recommendation — R&D (blueprint §35.6 Rule 1 / matrix row \"Accidental corruption\", L79581); the re-pull retry bound itself is Client Decision Required — DEC-PKGMAN-001 (same row, and L79614), not yet decided."
+  },
+  {
+    "id": "PKG-GEN-16",
+    "runId": null,
+    "workflowDefinitionId": "WFD-HW-GEN-12",
+    "workflowVersion": "1.4.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-01-25T09:21:00.000Z",
+    "deliveredAt": null,
+    "acknowledgedAt": null,
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-17",
+    "runId": null,
+    "workflowDefinitionId": "WFD-AC-GEN-13",
+    "workflowVersion": "2.3.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-04-13T02:54:00.000Z",
+    "deliveredAt": "2026-04-13T15:42:00.000Z",
+    "acknowledgedAt": "2026-04-13T23:47:00.000Z",
+    "status": "expired",
+    "sourceStatus": "Client Decision Required — DEC-PKGEXP-001, for the whole failure class, not mixed (blueprint §35.6 matrix row \"Expiry\", L79585: \"Client Decision Required — DEC-PKGEXP-001\" is the row’s entire Source status, no Recommendation — R&D component) — this row demonstrates the state’s shape only; no validity-horizon value is decided or implemented."
+  },
+  {
+    "id": "PKG-GEN-18",
+    "runId": null,
+    "workflowDefinitionId": "WFD-KD-GEN-14",
+    "workflowVersion": "3.4.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-06-16T06:24:00.000Z",
+    "deliveredAt": "2026-06-16T15:16:00.000Z",
+    "acknowledgedAt": "2026-06-16T23:43:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
+  },
+  {
+    "id": "PKG-GEN-19",
+    "runId": null,
+    "workflowDefinitionId": "WFD-BB-GEN-15",
+    "workflowVersion": "1.4.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-02-18T00:20:00.000Z",
+    "deliveredAt": "2026-02-18T13:06:00.000Z",
+    "acknowledgedAt": "2026-02-18T23:14:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
+  },
+  {
+    "id": "PKG-GEN-20",
+    "runId": null,
+    "workflowDefinitionId": "WFD-NF-GEN-16",
+    "workflowVersion": "1.3.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-04-25T01:52:00.000Z",
+    "deliveredAt": "2026-04-25T15:03:00.000Z",
+    "acknowledgedAt": "2026-04-25T22:49:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
+  },
+  {
+    "id": "PKG-GEN-21",
+    "runId": null,
+    "workflowDefinitionId": "WFD-CW-GEN-17",
+    "workflowVersion": "3.1.1",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-06-25T00:24:00.000Z",
+    "deliveredAt": null,
+    "acknowledgedAt": null,
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
+  },
+  {
+    "id": "PKG-GEN-22",
+    "runId": null,
+    "workflowDefinitionId": "WFD-HD-GEN-18",
+    "workflowVersion": "3.1.3",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "expanded"
+    ],
+    "assembledAt": "2026-04-11T06:40:00.000Z",
+    "deliveredAt": "2026-04-11T16:24:00.000Z",
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+  },
+  {
+    "id": "PKG-GEN-23",
+    "runId": null,
+    "workflowDefinitionId": "WFD-VG-GEN-19",
+    "workflowVersion": "2.2.2",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "simple"
+    ],
+    "assembledAt": "2026-04-08T03:23:00.000Z",
+    "deliveredAt": "2026-04-08T18:38:00.000Z",
+    "acknowledgedAt": "2026-04-08T22:35:00.000Z",
+    "status": "expired",
+    "sourceStatus": "Client Decision Required — DEC-PKGEXP-001, for the whole failure class, not mixed (blueprint §35.6 matrix row \"Expiry\", L79585: \"Client Decision Required — DEC-PKGEXP-001\" is the row’s entire Source status, no Recommendation — R&D component) — this row demonstrates the state’s shape only; no validity-horizon value is decided or implemented."
+  },
+  {
+    "id": "PKG-GEN-24",
+    "runId": null,
+    "workflowDefinitionId": "WFD-IC-GEN-20",
+    "workflowVersion": "3.0.0",
+    "contentItemIds": [],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-02-04T12:48:00.000Z",
+    "deliveredAt": "2026-02-04T20:30:00.000Z",
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+  }
+]

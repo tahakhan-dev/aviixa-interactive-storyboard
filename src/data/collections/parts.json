@@ -1,0 +1,98 @@
+[
+  {
+    "id": "PART-BB-001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame bolt M8",
+    "supplierReference": "SUP-4471-M8",
+    "drawingReference": "DWG-A441",
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-002",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Wheel spoke, 14g stainless",
+    "supplierReference": "SUP-2280-SP14",
+    "drawingReference": "DWG-W220",
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-003",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Brake caliper, dual-pivot",
+    "supplierReference": "SUP-3391-BC",
+    "drawingReference": "DWG-B110",
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-004",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Headset bearing race",
+    "supplierReference": "SUP-1187-HB",
+    "drawingReference": "DWG-H075",
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-005",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Chainring, 44T alloy",
+    "supplierReference": "SUP-5502-CR44",
+    "drawingReference": "DWG-C300",
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-006",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Seat post clamp",
+    "supplierReference": "SUP-6634-SPC",
+    "drawingReference": "DWG-S190",
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-007",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame paint primer, gloss black",
+    "supplierReference": "SUP-7710-PB",
+    "drawingReference": null,
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-008",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Hub bearing, sealed cartridge",
+    "supplierReference": "SUP-2299-HBC",
+    "drawingReference": "DWG-H182",
+    "status": "complete"
+  },
+  {
+    "id": "PART-BB-009",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Derailleur hanger, alloy",
+    "supplierReference": null,
+    "drawingReference": null,
+    "status": "skeletal"
+  },
+  {
+    "id": "PART-BB-010",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Cable housing, 5mm",
+    "supplierReference": null,
+    "drawingReference": null,
+    "status": "skeletal"
+  },
+  {
+    "id": "PART-BB-011",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Kickstand mount bracket (superseded)",
+    "supplierReference": "SUP-0042-KS",
+    "drawingReference": "DWG-K005",
+    "status": "archived"
+  },
+  {
+    "id": "PART-BB-012",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Fork crown race",
+    "supplierReference": "SUP-3315-FCR",
+    "drawingReference": "DWG-F088",
+    "status": "complete"
+  }
+]

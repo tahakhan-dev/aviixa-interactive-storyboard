@@ -1,0 +1,125 @@
+[
+  {
+    "id": "ROOT_SUPER_ADMIN",
+    "name": "Root Super Admin",
+    "domain": "PLATFORM",
+    "purpose": "The one account created behind the scenes when the platform is first stood up, held in the client’s custody.",
+    "homeSurface": "SURF-SA",
+    "reachableSurfaces": [
+      "SURF-SA"
+    ],
+    "backendCreatedOnly": true,
+    "maxInstances": 1,
+    "sourceRef": "MOD-SA-08 / §8.8"
+  },
+  {
+    "id": "ADMIN",
+    "name": "Admin",
+    "domain": "PLATFORM",
+    "purpose": "Runs the platform console day to day, under maker-checker so no single person changes something critical alone.",
+    "homeSurface": "SURF-SA",
+    "reachableSurfaces": [
+      "SURF-SA"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-SA-08 / §8.8"
+  },
+  {
+    "id": "PLATFORM_ENGINEER",
+    "name": "Platform Engineer",
+    "domain": "PLATFORM",
+    "purpose": "Looks after the platform’s technical health and configuration, and is held to the same maker-checker boundaries.",
+    "homeSurface": "SURF-SA",
+    "reachableSurfaces": [
+      "SURF-SA"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-SA-08 / §8.8"
+  },
+  {
+    "id": "SUPPORT",
+    "name": "Support",
+    "domain": "PLATFORM",
+    "purpose": "Helps tenants who raise a problem. Read-only except for the small set of support actions the source names.",
+    "homeSurface": "SURF-SA",
+    "reachableSurfaces": [
+      "SURF-SA"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-SA-08, MOD-SA-15 / §8.8, §8.15"
+  },
+  {
+    "id": "TENANT_ADMIN",
+    "name": "Tenant Admin",
+    "domain": "TENANT",
+    "purpose": "Sets up and runs their own factory’s workspace: sites, shifts, people, roles and settings.",
+    "homeSurface": "SURF-DOH",
+    "reachableSurfaces": [
+      "SURF-DOH",
+      "SURF-STU",
+      "SURF-CC"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-DOH-09 / §3.5"
+  },
+  {
+    "id": "SUPERVISOR",
+    "name": "Supervisor",
+    "domain": "TENANT",
+    "purpose": "Runs the shift. Schedules Runs, assigns qualified workers, and watches the floor while it works.",
+    "homeSurface": "SURF-DOH",
+    "reachableSurfaces": [
+      "SURF-DOH",
+      "SURF-STU",
+      "SURF-CC"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-DOH-09 / §3.5"
+  },
+  {
+    "id": "QUALITY_MANAGER",
+    "name": "Quality Manager",
+    "domain": "TENANT",
+    "purpose": "Owns quality decisions. The only role that can release a lot hold, including an automatic Severity 1 hold.",
+    "homeSurface": "SURF-DOH",
+    "reachableSurfaces": [
+      "SURF-DOH",
+      "SURF-STU",
+      "SURF-CC"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-DOH-09, MOD-CC-13 / §3.5, §6.14.2"
+  },
+  {
+    "id": "READONLY_AUDITOR",
+    "name": "Read-only Auditor",
+    "domain": "TENANT",
+    "purpose": "Checks what happened without changing anything. Reads tenant-wide records and takes no action at all.",
+    "homeSurface": "SURF-DOH",
+    "reachableSurfaces": [
+      "SURF-DOH"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-DOH-09 / §3.5"
+  },
+  {
+    "id": "WORKER",
+    "name": "Worker",
+    "domain": "TENANT",
+    "purpose": "Does the work on the floor, on a tablet, and records the evidence that the work was done correctly.",
+    "homeSurface": "SURF-FL",
+    "reachableSurfaces": [
+      "SURF-FL"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-DOH-09, MOD-FL-A2 / §3.5, §7.4"
+  }
+]

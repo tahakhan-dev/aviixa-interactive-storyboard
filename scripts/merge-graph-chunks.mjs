@@ -1,0 +1,367 @@
+/**
+ * Merge extraction chunks into one semantic graph, and refuse if one identifier
+ * has been split across chunks.
+ *
+ * ── THE FAILURE THIS EXISTS TO CATCH ───────────────────────────────────────
+ * The blueprint's value is that one identifier is referenced from many places:
+ * `DEC-SYNC-003` appears across several chapters, and the point of the graph is
+ * that those references converge on ONE node. Extraction runs chunk by chunk,
+ * so seventy-nine separate agents have to agree on what to call it.
+ *
+ * They do converge -- every chunk inspected produced the canonical `dec_sync_001`
+ * form, and several said so explicitly in their reports -- but "they converge"
+ * is an observation about a sample, not a property of the system. If one agent
+ * prefixes with its chapter (`ch22_dec_sync_003` beside `dec_sync_003`) the graph
+ * quietly holds two half-connected halves of one decision, and every query about
+ * it returns half the answer while looking perfectly healthy.
+ *
+ * ── HOW THE FIRST VERSION OF THIS CHECK WAS WRONG ──────────────────────────
+ * It keyed on the node's LABEL, and so treated MENTIONING an identifier as BEING
+ * one: every permission row labelled "MOD-FL-A1 — Establish a session" folded
+ * into `MOD-FL-A1`, and it reported four fragmentations that did not exist. That
+ * is this build's most familiar defect -- an expectation taken from the wrong
+ * field -- reproduced inside the tool written to prevent it.
+ *
+ * The identity of an identifier node is its ID. The failure that can actually
+ * happen is an id that is another id wearing a prefix, and that is what is
+ * checked here.
+ *
+ * Usage:  node scripts/merge-graph-chunks.mjs [--normalise]
+ */
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+const OUT = join(ROOT, 'graphify-out')
+const NORMALISE = process.argv.includes('--normalise')
+
+const chunkFiles = readdirSync(OUT)
+  .filter((f) => /^\.graphify_chunk_\d+\.json$/.test(f))
+  .sort()
+if (chunkFiles.length === 0) throw new Error('No chunk files to merge.')
+
+const nodes = []
+const edges = []
+const hyperedges = []
+const perChunk = []
+for (const f of chunkFiles) {
+  const d = JSON.parse(readFileSync(join(OUT, f), 'utf8'))
+  nodes.push(...(d.nodes ?? []))
+  edges.push(...(d.edges ?? []))
+  hyperedges.push(...(d.hyperedges ?? []))
+  perChunk.push(`${f}: ${(d.nodes ?? []).length} nodes, ${(d.edges ?? []).length} edges`)
+}
+
+/**
+ * A chapter/chunk/section prefix an agent might have prepended to an id.
+ *
+ * DIGITS ARE REQUIRED, and that is not cosmetic. The first form was
+ * `[0-9a-z]*_`, which matches `check_` -- so `check_tenant_isolation` read as a
+ * prefixed copy of `tenant_isolation` and the merge refused on two nodes that are
+ * genuinely different: a server-side check, and the concept it checks. A real
+ * chapter prefix always carries a number (`ch22_`, `sec_25_6_`).
+ *
+ * Proved against both cases before being trusted: it strips `ch22_dec_sync_003`,
+ * `sec_25_6_permission` and `chunk_03_mod_fl_a1`, and leaves `check_tenant_isolation`
+ * and `channel_state` alone.
+ */
+const PREFIX = /^(?:ch|chunk|sec|file)_?\d+[a-z]?_(?:\d+_)*(?=[a-z])/
+
+const labelOf = new Map(nodes.map((n) => [n.id, String(n.label ?? '').trim().toLowerCase()]))
+const allIds = new Set(labelOf.keys())
+
+/**
+ * id -> the canonical id it duplicates, and separately the ones that merely LOOK
+ * related. The difference is the label, and it decides whether folding is a
+ * repair or a distortion.
+ *
+ * Same id-stem AND same label  -> one entity named twice. Fold it.
+ * Same id-stem, DIFFERENT label -> two entities. Report, never fold.
+ *
+ * The live example: `object_specific_conflict_resolution` is labelled "Step 24 —
+ * ... By Object Family" and is a step in the 37-step protocol;
+ * `sec_36_3_object_specific_conflict_resolution` is labelled "Object-Specific
+ * Conflict Resolution" and is the section that specifies it. Related, not the
+ * same, and folding them would merge a protocol step into a section -- the kind
+ * of averaging that produces a third reading neither extractor stood behind.
+ */
+const fragments = new Map()
+const lookalikes = []
+for (const id of allIds) {
+  const stripped = id.replace(PREFIX, '')
+  if (stripped === id || !allIds.has(stripped)) continue
+  if (labelOf.get(id) === labelOf.get(stripped)) fragments.set(id, stripped)
+  else lookalikes.push([id, stripped])
+}
+
+if (fragments.size > 0 && !NORMALISE) {
+  for (const [from, to] of [...fragments].slice(0, 15)) console.error(`  ${from} -> ${to}`)
+  throw new Error(
+    `${fragments.size} node id(s) are a prefixed duplicate of another id. Merging as-is ` +
+      `would split one entity into two half-connected halves that answer half of every ` +
+      `query while looking healthy. Re-run with --normalise to fold them.`,
+  )
+}
+
+let folded = 0
+if (NORMALISE && fragments.size > 0) {
+  folded = fragments.size
+  for (const n of nodes) if (fragments.has(n.id)) n.id = fragments.get(n.id)
+  for (const e of edges) {
+    if (fragments.has(e.source)) e.source = fragments.get(e.source)
+    if (fragments.has(e.target)) e.target = fragments.get(e.target)
+  }
+}
+
+/**
+ * CANONICALISE `source_file` AGAINST THE MANIFEST.
+ *
+ * An agent was told to copy its file paths verbatim, reported that it had, and
+ * wrote `ch-8/010230-...-7-6-the-domain-matrices.md` for a file that lives in
+ * `ch-7/`. The section is numbered 7.6 and sits beside chapter 8's slices, so
+ * the mistake is an easy one to make and an easy one to miss: the path still
+ * looks entirely plausible, and every downstream tool that keys on the basename
+ * keeps working. Only a check that opens the file notices.
+ *
+ * Repaired rather than re-run. The manifest already knows where every slice
+ * lives, and a lookup is exact where a re-read is a fresh chance to mistype it.
+ * A basename that the manifest does not recognise is left alone -- that is a
+ * code file or something genuinely outside the blueprint, and rewriting it
+ * would be inventing provenance rather than correcting it.
+ */
+const manifestSlices = JSON.parse(
+  readFileSync(join(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8'),
+).slices
+const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-prefixes.json'), 'utf8'))
+const IDENT_SOURCE =
+  `${PREFIXES.matching.leadingGuard}(?:${[...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
+    .sort((a, b) => b.length - a.length)
+    .join('|')})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]${PREFIXES.matching.trailing}`
+const canonicalPath = new Map(manifestSlices.map((sl) => [sl.file.split('/').pop(), sl.file]))
+let repairedPaths = 0
+for (const item of [...nodes, ...edges]) {
+  const raw = String(item.source_file ?? '')
+  if (raw === '') continue
+  const canonical = canonicalPath.get(raw.split('/').pop())
+  if (canonical !== undefined && !raw.endsWith(canonical)) {
+    item.source_file = canonical
+    repairedPaths += 1
+  }
+}
+
+/**
+ * DROP THE WORKED EXAMPLE, AT THE CHOKE POINT.
+ *
+ * The blueprint carries a fictional bicycle manufacturer as an `Illustrative
+ * Example`, and states outright that it creates no requirement. Its instance
+ * data is not requirement data: `JOB-REDBIKE`, `AREA-ASSY-A`,
+ * `RUN-2026-08-14-A`, one lot number mentioned 375 times. Left in, the graph's
+ * busiest neighbourhood is a worked example, and a reader asking what the
+ * product must do gets answers about a bike shop that does not exist.
+ *
+ * ── WHY THE FILTER LIVES HERE AND NOT ONLY IN THE PROMPT ───────────────────
+ * It was in the prompt. An agent read "filter TAB-, LOT-, RB-", noticed that
+ * JOB- and AREA- were not on the list, reasoned correctly from what it was
+ * given, and kept them. It was not wrong; the list was incomplete. Seventy-odd
+ * agents each making a defensible judgement from an incomplete instruction is
+ * not a policy, and re-running them is expensive and still leaves the next one
+ * free to decide differently.
+ *
+ * A deterministic filter at the single point every chunk passes through is the
+ * policy. The prompt now carries the full list too, but the prompt is advice
+ * and this is enforcement.
+ *
+ * ── HOW THE SET WAS ESTABLISHED, RATHER THAN GUESSED ───────────────────────
+ * Appendix A is the document's own allocation authority and states that an
+ * identifier outside it is a defect. None of these eight prefixes appears in
+ * it, and each was checked for an `Illustrative Example` heading at its first
+ * use. `ROLE-` was on this list once and is not any more -- Appendix A lists
+ * `ROLE-PLAT-` and `ROLE-TEN-` outright, and filtering them deleted the actors
+ * from a graph built to answer who-can-do-what.
+ */
+const ILLUSTRATIVE = /^(?:tab|lot|rb|run|job|area|cell|site)_/
+const isIllustrative = (n) =>
+  ILLUSTRATIVE.test(String(n.id ?? '')) &&
+  // A node whose LABEL is a real identifier is kept even if its id looks
+  // illustrative -- the label is the claim about what the node is, and this
+  // build has already shipped two defects from trusting the wrong field.
+  !/^(?:MOD|SCR|FEAT|SUB|FUNC|AC|TEST|DEC|WF|SB|OBJ|FB|SEQ|STATE|EVT|CMD|NOTIF|SCHED|UC|REQ|OFF|RISK|ASSUM)-/.test(
+    String(n.label ?? '').trim(),
+  )
+
+const illustrativeIds = new Set(nodes.filter(isIllustrative).map((n) => n.id))
+const droppedNodes = illustrativeIds.size
+for (let i = nodes.length - 1; i >= 0; i -= 1) {
+  if (illustrativeIds.has(nodes[i].id)) nodes.splice(i, 1)
+}
+const beforeEdges = edges.length
+for (let i = edges.length - 1; i >= 0; i -= 1) {
+  const e = edges[i]
+  if (illustrativeIds.has(e.source) || illustrativeIds.has(e.target)) edges.splice(i, 1)
+}
+const droppedEdges = beforeEdges - edges.length
+
+/**
+ * SCHEMA REPAIR: an edge whose `source_file` is not a path.
+ *
+ * One chunk emitted `source_file: 1` on 48 edges -- a LINE NUMBER in the field
+ * that holds a path. The graph builder calls `.replace()` on it and dies with
+ * `'int' object has no attribute 'replace'`, which names the symptom and not the
+ * cause, three layers below the mistake.
+ *
+ * Repaired rather than dropped, and repaired from evidence rather than guessed:
+ * an edge is written by whichever file its SOURCE node came from, so that node's
+ * `source_file` is the answer. Where the source node has none either, the field
+ * is removed -- an absent provenance is honest, a fabricated one is not.
+ */
+let repairedEdgeFiles = 0
+const fileOfNode = new Map(nodes.map((n) => [n.id, n.source_file]))
+for (const e of edges) {
+  if (typeof e.source_file === 'string' || e.source_file === undefined) continue
+  const inherited = fileOfNode.get(e.source)
+  if (typeof inherited === 'string') e.source_file = inherited
+  else delete e.source_file
+  repairedEdgeFiles += 1
+}
+
+// Deduplicate by id, keeping the first. A later duplicate that DISAGREES is not
+// averaged and not merged field by field -- averaging two extractions produces a
+// third reading that neither agent stood behind.
+const seen = new Set()
+const deduped = []
+for (const n of nodes) {
+  if (seen.has(n.id)) continue
+  seen.add(n.id)
+  deduped.push(n)
+}
+
+// Edges whose endpoints are not in this merge are kept: a chunk legitimately
+// references a module defined in another chunk, and dropping those edges would
+// silently sever exactly the cross-chapter links the graph exists to hold. They
+// resolve once every chunk has landed; the build's health check counts any that
+// never do.
+const ids = new Set(deduped.map((n) => n.id))
+const unresolved = edges.filter((e) => !ids.has(e.source) || !ids.has(e.target)).length
+
+/**
+ * DROP ANY IDENTIFIER THE FROZEN SOURCE DOES NOT CONTAIN.
+ *
+ * An agent extracting an authentication chapter emitted AC-AUTH-007 through
+ * AC-AUTH-015 and AC-SEC-002 through AC-SEC-004. None of those twelve strings
+ * occurs anywhere in the blueprint. The chapter names a few acceptance criteria
+ * and the agent continued the sequence -- a plausible enumeration, invented.
+ *
+ * This is the failure the whole build is organised against, arriving in the one
+ * place that would be hardest to notice: a fabricated identifier looks exactly
+ * like a real one, sorts beside its real siblings, and answers queries with
+ * total confidence. Somebody would eventually cite AC-AUTH-009 in code, and the
+ * citation would point at a line that says something else entirely.
+ *
+ * The check is the cheapest in the pipeline and the least escapable: open the
+ * frozen source, look for the string. An identifier the document does not
+ * contain is not an identifier, whatever confidence the extractor attached.
+ *
+ * Note the asymmetry with the SEQ-001..033 case, which is kept. That agent also
+ * inferred an enumeration -- but all thirty-four of those identifiers are IN the
+ * document. Inference is allowed; inventing the evidence is not.
+ */
+const sourceText = readFileSync(join(ROOT, '..', 'AVIIXA_Production_Product_Blueprint.md'), 'utf8')
+const IDENT_LABEL = new RegExp(`^(${IDENT_SOURCE.replace(PREFIXES.matching.leadingGuard, '')})`)
+
+/*
+ * ONE PASS OVER THE SOURCE, THEN SET MEMBERSHIP.
+ *
+ * This was `sourceText.includes(identifier)` per node: 29,775 nodes each
+ * scanning an 18MB string, roughly a TERABYTE of work, and it made the merge
+ * take 53 seconds. Exactly the shape already fixed in the citation gate, left
+ * here because a merge that is merely slow still produces the right answer --
+ * which is how a quadratic scan survives review.
+ */
+const inSource = new Set()
+const SOURCE_SCAN = new RegExp(IDENT_SOURCE, 'g')
+for (let m = SOURCE_SCAN.exec(sourceText); m !== null; m = SOURCE_SCAN.exec(sourceText)) {
+  inSource.add(m[0])
+}
+const fabricated = new Set()
+for (const n of deduped) {
+  const m = IDENT_LABEL.exec(String(n.label ?? '').trim())
+  if (m === null) continue
+  if (!inSource.has(m[1])) fabricated.add(n.id)
+}
+if (fabricated.size > 0) {
+  for (const id of [...fabricated].slice(0, 15)) console.error(`  fabricated identifier dropped: ${id}`)
+}
+/*
+ * `deduped`, not `nodes`. The first version of this filter spliced `nodes`,
+ * which the writer no longer reads -- dedup has already copied out of it. The
+ * edges dropped and the twelve fabricated nodes sailed through, and the only
+ * reason it was caught is that the locator index re-derives the same fact from
+ * the frozen source and said 12 again.
+ */
+const beforeFab = deduped.length
+for (let i = deduped.length - 1; i >= 0; i -= 1) if (fabricated.has(deduped[i].id)) deduped.splice(i, 1)
+const beforeFabEdges = edges.length
+for (let i = edges.length - 1; i >= 0; i -= 1) {
+  const e = edges[i]
+  if (fabricated.has(e.source) || fabricated.has(e.target)) edges.splice(i, 1)
+}
+const droppedFabNodes = beforeFab - deduped.length
+const droppedFabEdges = beforeFabEdges - edges.length
+
+/**
+ * EVERY SLICE MUST BE REPRESENTED SOMEWHERE.
+ *
+ * An agent reported "238/238 = 100%" for a nine-file batch and had never opened
+ * four of them. Its ratio was true and useless: it measured the identifiers in
+ * the five files it read against the nodes it made from those five files. A
+ * self-measurement cannot see the file it never looked at.
+ *
+ * Coverage per chunk cannot catch this either -- a chunk that reads five of
+ * nine slices well scores well. Only the whole merge knows the full set of
+ * slices that were supposed to be read, so the check belongs here, once, at the
+ * end, against the manifest rather than against anybody's report.
+ *
+ * Short slices are the ones that go missing -- the four skipped were 10, 24, 40
+ * and 16 lines. A slice with no identifiers in it is exempt, because there is
+ * nothing for it to contribute and demanding a node would invent one.
+ */
+const representedSlices = new Set(
+  nodes.map((n) => String(n.source_file ?? '').split('/').pop()).filter(Boolean),
+)
+const IDENT_ANY = new RegExp(IDENT_SOURCE, 'g')
+const unreadSlices = []
+for (const sl of manifestSlices) {
+  const name = sl.file.split('/').pop()
+  if (representedSlices.has(name)) continue
+  const abs = join(ROOT, '..', 'blueprint-slices', sl.file.split('/').slice(-2)[0], name)
+  if (!existsSync(abs)) continue
+  IDENT_ANY.lastIndex = 0
+  if (IDENT_ANY.test(readFileSync(abs, 'utf8'))) unreadSlices.push(name)
+}
+if (unreadSlices.length > 0) {
+  for (const n of unreadSlices.slice(0, 12)) console.error(`  unread: ${n}`)
+  console.error(
+    `  ${unreadSlices.length} slice(s) carry identifiers and contributed no node to any chunk.`,
+  )
+}
+
+writeFileSync(
+  join(OUT, '.graphify_semantic.json'),
+  JSON.stringify({ nodes: deduped, edges, hyperedges, input_tokens: 0, output_tokens: 0 }, null, 1) +
+    '\n',
+)
+
+for (const [a, b] of lookalikes) {
+  console.log(`  note: ${a} and ${b} share an id-stem but not a label -- left as two nodes`)
+}
+for (const line of perChunk) console.log(`  ${line}`)
+console.log(`Merged ${chunkFiles.length} chunks: ${deduped.length} nodes, ${edges.length} edges`)
+console.log(`  prefixed duplicates: ${fragments.size}${folded ? ` (folded ${folded})` : ''}`)
+console.log(`  edge source_file repaired: ${repairedEdgeFiles}`)
+console.log(`  source_file paths canonicalised against the manifest: ${repairedPaths}`)
+console.log(`  illustrative-example nodes dropped: ${droppedNodes} (and ${droppedEdges} edges touching them)`)
+console.log(`  same-id duplicates dropped: ${nodes.length - deduped.length}`)
+console.log(`  edges awaiting a chunk not yet merged: ${unresolved}`)
+console.log(`  fabricated identifiers dropped: ${droppedFabNodes} (and ${droppedFabEdges} edges touching them)`)
+console.log(`  slices carrying identifiers that no chunk read: ${unreadSlices.length}`)

@@ -1,0 +1,70 @@
+[
+  {
+    "id": "FC-0001",
+    "featureKey": "agent-builder",
+    "platformDefault": true,
+    "globallyDisabled": false,
+    "tenantDesired": {
+      "TEN-BRIGHTBIKES": true,
+      "TEN-HALLIDAY": true,
+      "TEN-AZURACOMP": true,
+      "TEN-SOLMETAL": true
+    },
+    "effectiveAt": "2026-01-01T00:00:00Z",
+    "expiresAt": null,
+    "changedBy": "USR-PLAT-ENG-01",
+    "approvedBy": "USR-PLAT-ADM-01"
+  },
+  {
+    "id": "FC-0002",
+    "featureKey": "custom-report-builder",
+    "platformDefault": false,
+    "globallyDisabled": false,
+    "tenantDesired": {
+      "TEN-BRIGHTBIKES": true,
+      "TEN-HALLIDAY": true
+    },
+    "effectiveAt": "2026-01-01T00:00:00Z",
+    "expiresAt": null,
+    "changedBy": "USR-PLAT-ENG-01",
+    "approvedBy": "USR-PLAT-ADM-01"
+  },
+  {
+    "id": "FC-0003",
+    "featureKey": "training-library",
+    "platformDefault": true,
+    "globallyDisabled": false,
+    "tenantDesired": {},
+    "effectiveAt": "2026-01-01T00:00:00Z",
+    "expiresAt": null,
+    "changedBy": "USR-PLAT-ENG-01",
+    "approvedBy": "USR-PLAT-ADM-01"
+  },
+  {
+    "id": "FC-0004",
+    "featureKey": "coaching-retrieval-experimental",
+    "platformDefault": false,
+    "globallyDisabled": true,
+    "tenantDesired": {
+      "TEN-BRIGHTBIKES": true
+    },
+    "effectiveAt": "2026-08-05T00:00:00Z",
+    "expiresAt": null,
+    "changedBy": "USR-PLAT-ENG-01",
+    "approvedBy": "USR-PLAT-ADM-01"
+  },
+  {
+    "id": "FC-0005",
+    "featureKey": "predictive-maintenance-alerts",
+    "platformDefault": false,
+    "globallyDisabled": false,
+    "tenantDesired": {
+      "TEN-HALLIDAY": true,
+      "TEN-AZURACOMP": false
+    },
+    "effectiveAt": "2026-06-01T00:00:00Z",
+    "expiresAt": null,
+    "changedBy": "USR-PLAT-ENG-02",
+    "approvedBy": "USR-PLAT-ADM-02"
+  }
+]

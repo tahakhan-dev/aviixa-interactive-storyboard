@@ -1,0 +1,2171 @@
+{
+  "chunk_id": "CHK-010",
+  "source_file": "AVIIXA_Production_Product_Blueprint.md",
+  "line_start": 29714,
+  "line_end": 34689,
+  "modules": [
+    {
+      "id": "MOD-DOH-17",
+      "name": "Regulated-Industry Mode",
+      "surface": "SURF-DOH",
+      "purpose": "Apply a five-part compliance bundle as one setting, and enforce each constituent uniformly across the Hub.",
+      "roles_allowed": ["Tenant Admin", "Quality Manager", "Read-only Auditor"],
+      "key_functions": ["FUNC-DOH-17-1.1.1", "FUNC-DOH-17-1.2.1", "FUNC-DOH-17-1.2.2", "FUNC-DOH-17-1.3.1", "FUNC-DOH-17-1.3.2", "FUNC-DOH-17-2.1.1"],
+      "classification": "Statement of Work Fact",
+      "line": 29736
+    },
+    {
+      "id": "MOD-DOH-18",
+      "name": "Standard Report Data Sets (5)",
+      "surface": "SURF-DOH",
+      "purpose": "Own and compute the five date- and scope-filterable data sets the platform reports against.",
+      "roles_allowed": ["Tenant Admin", "Supervisor", "Quality Manager", "Read-only Auditor"],
+      "key_functions": ["FUNC-DOH-18-1.1.1", "FUNC-DOH-18-1.1.2", "FUNC-DOH-18-1.2.1", "FUNC-DOH-18-2.1.1", "FUNC-DOH-18-2.1.2"],
+      "classification": "Statement of Work Fact",
+      "line": 29902
+    },
+    {
+      "id": "MOD-DOH-19",
+      "name": "Parts Registry",
+      "surface": "SURF-DOH",
+      "purpose": "Hold the tenant's part master data so work instructions can reference parts and genealogy can record what was consumed.",
+      "roles_allowed": ["Tenant Admin", "Supervisor", "Quality Manager", "Read-only Auditor"],
+      "key_functions": ["FUNC-DOH-19-1.1.1", "FUNC-DOH-19-1.2.1", "FUNC-DOH-19-2.1.1", "FUNC-DOH-19-3.1.1"],
+      "classification": "Statement of Work Fact",
+      "line": 30051
+    },
+    {
+      "id": "MOD-STU-01",
+      "name": "Charter and Position",
+      "surface": "SURF-STU",
+      "purpose": "Establish and enforce the Studio's authority boundary: enable, configure, compose; never define",
+      "roles_allowed": ["Quality Manager", "Supervisor with authoring grant", "Supervisor without the grant", "Tenant Admin"],
+      "key_functions": ["FUNC-STU-01-01-A-1", "FUNC-STU-01-01-B-1", "FUNC-STU-01-01-C-1", "FUNC-STU-01-02-A-1", "FUNC-STU-01-02-B-1"],
+      "classification": "Derived Clarification",
+      "line": 31562
+    },
+    {
+      "id": "MOD-STU-02",
+      "name": "Agent Configuration",
+      "surface": "SURF-STU",
+      "purpose": "Supply each standard agent with the operating parameters it requires, carried inside authored Workflow content",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Tenant Admin"],
+      "key_functions": ["FUNC-STU-02-01-A-1", "FUNC-STU-02-01-A-2", "FUNC-STU-02-01-B-1", "FUNC-STU-02-01-C-1", "FUNC-STU-02-02-A-1", "FUNC-STU-02-02-A-2", "FUNC-STU-02-02-A-3", "FUNC-STU-02-02-B-1", "FUNC-STU-02-02-B-2", "FUNC-STU-02-02-B-3", "FUNC-STU-02-03-A-1", "FUNC-STU-02-03-B-1"],
+      "classification": "Derived Clarification",
+      "line": 31696
+    },
+    {
+      "id": "MOD-STU-03",
+      "name": "Workflow Library and Tenant Workspace",
+      "surface": "SURF-STU",
+      "purpose": "Hold, classify, filter, and expose the tenant's complete Workflow inventory with authoring status, version, and linkage",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Implementation team grant"],
+      "key_functions": ["FUNC-STU-03-01-A-1", "FUNC-STU-03-01-A-2", "FUNC-STU-03-01-A-3", "FUNC-STU-03-01-B-1", "FUNC-STU-03-02-A-1", "FUNC-STU-03-02-B-1", "FUNC-STU-03-02-C-1", "FUNC-STU-03-03-A-1", "FUNC-STU-03-03-B-1"],
+      "classification": "Derived Clarification",
+      "line": 31883
+    },
+    {
+      "id": "MOD-STU-04",
+      "name": "Workflow Builder",
+      "surface": "SURF-STU",
+      "purpose": "Set Workflow-level settings and defaults, and assemble the screen sequence and branch targets that are simultaneously the worker's path and the sequence-detection reference",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Implementation team grant"],
+      "key_functions": ["FUNC-STU-04-01-A-1", "FUNC-STU-04-01-A-2", "FUNC-STU-04-01-A-3", "FUNC-STU-04-01-A-4", "FUNC-STU-04-01-B-1", "FUNC-STU-04-01-B-2", "FUNC-STU-04-01-C-1", "FUNC-STU-04-02-A-1", "FUNC-STU-04-02-A-2", "FUNC-STU-04-02-B-1", "FUNC-STU-04-02-B-2", "FUNC-STU-04-02-C-1", "FUNC-STU-04-02-C-2", "FUNC-STU-04-03-A-1"],
+      "classification": "Derived Clarification",
+      "line": 32050
+    },
+    {
+      "id": "MOD-STU-05",
+      "name": "Screen Authoring and the Nine Configuration Sections",
+      "surface": "SURF-STU",
+      "purpose": "Configure every screen the worker meets, supplying each agent capability with the information it requires",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Implementation team grant"],
+      "key_functions": ["FUNC-STU-05-01-A-1", "FUNC-STU-05-02-A-1", "FUNC-STU-05-02-A-2", "FUNC-STU-05-02-A-3", "FUNC-STU-05-03-A-1", "FUNC-STU-05-04-A-1", "FUNC-STU-05-04-A-2", "FUNC-STU-05-05-A-1", "FUNC-STU-05-06-A-1", "FUNC-STU-05-07-A-1", "FUNC-STU-05-08-A-1", "FUNC-STU-05-08-A-2", "FUNC-STU-05-08-B-1", "FUNC-STU-05-08-B-2", "FUNC-STU-05-08-C-1", "FUNC-STU-05-09-A-1", "FUNC-STU-05-09-A-2", "FUNC-STU-05-09-A-3", "FUNC-STU-05-10-A-1"],
+      "classification": "Derived Clarification",
+      "line": 32207
+    },
+    {
+      "id": "MOD-STU-06",
+      "name": "Shared Instruction Blocks",
+      "surface": "SURF-STU",
+      "purpose": "Author instruction context once at Workflow level and apply it to any number of screens within that Workflow",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Implementation team grant"],
+      "key_functions": ["FUNC-STU-06-01-A-1", "FUNC-STU-06-01-A-2", "FUNC-STU-06-02-A-1", "FUNC-STU-06-02-A-2", "FUNC-STU-06-02-B-1", "FUNC-STU-06-03-A-1"],
+      "classification": "Derived Clarification",
+      "line": 32447
+    },
+    {
+      "id": "MOD-STU-07",
+      "name": "Content Libraries",
+      "surface": "SURF-STU",
+      "purpose": "Hold the tenant's reusable containment checklists, approved coaching assets, and escalation routing templates, referenced by pointer from screens",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant"],
+      "key_functions": ["FUNC-STU-07-01-A-1", "FUNC-STU-07-01-A-2", "FUNC-STU-07-01-B-1", "FUNC-STU-07-02-A-1", "FUNC-STU-07-02-A-2", "FUNC-STU-07-02-B-1", "FUNC-STU-07-02-B-2", "FUNC-STU-07-02-B-3", "FUNC-STU-07-02-C-1", "FUNC-STU-07-03-A-1", "FUNC-STU-07-03-A-2", "FUNC-STU-07-03-A-3", "FUNC-STU-07-03-B-1", "FUNC-STU-07-04-A-1", "FUNC-STU-07-04-B-1", "FUNC-STU-07-04-C-1"],
+      "classification": "Derived Clarification",
+      "line": 32584
+    },
+    {
+      "id": "MOD-STU-08",
+      "name": "Training Library",
+      "surface": "SURF-STU",
+      "purpose": "Author, version, and publish long-form instructional content delivered online-only and excluded from the offline work package",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant"],
+      "key_functions": ["FUNC-STU-08-01-A-1", "FUNC-STU-08-01-B-1", "FUNC-STU-08-02-A-1", "FUNC-STU-08-03-A-1", "FUNC-STU-08-03-B-1", "FUNC-STU-08-04-A-1"],
+      "classification": "Derived Clarification",
+      "line": 32806
+    },
+    {
+      "id": "MOD-STU-09",
+      "name": "Work-Instruction Difficulty Levels",
+      "surface": "SURF-STU",
+      "purpose": "Provide three reviewed renderings of the same instruction content so each worker reads at the depth that suits them, without any variation in what the platform enforces",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Implementation team grant"],
+      "key_functions": ["FUNC-STU-09-01-A-1", "FUNC-STU-09-01-B-1", "FUNC-STU-09-01-C-1", "FUNC-STU-09-02-A-1", "FUNC-STU-09-02-A-2", "FUNC-STU-09-03-A-1"],
+      "classification": "Derived Clarification",
+      "line": 32953
+    },
+    {
+      "id": "MOD-STU-10",
+      "name": "Parts-Registry Authoring Seam",
+      "surface": "SURF-STU",
+      "purpose": "Let an author reference a part that does not yet exist without leaving the authoring context or stalling on master data",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Implementation team grant"],
+      "key_functions": ["FUNC-STU-10-01-A-1", "FUNC-STU-10-01-B-1", "FUNC-STU-10-02-A-1", "FUNC-STU-10-02-A-2", "FUNC-STU-10-02-B-1", "FUNC-STU-10-02-C-1"],
+      "classification": "Derived Clarification",
+      "line": 33102
+    },
+    {
+      "id": "MOD-STU-11",
+      "name": "Approval Workflow",
+      "surface": "SURF-STU",
+      "purpose": "Enforce three-stage human sign-off with separation of duties on every piece of content that reaches the frontline",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Implementation team grant"],
+      "key_functions": ["FUNC-STU-11-01-A-1", "FUNC-STU-11-01-A-2", "FUNC-STU-11-01-B-1", "FUNC-STU-11-01-B-2", "FUNC-STU-11-01-B-3", "FUNC-STU-11-01-C-1", "FUNC-STU-11-01-C-2", "FUNC-STU-11-02-A-1", "FUNC-STU-11-02-A-2", "FUNC-STU-11-03-A-1", "FUNC-STU-11-03-A-2", "FUNC-STU-11-04-A-1", "FUNC-STU-11-05-A-1", "FUNC-STU-11-06-A-1"],
+      "classification": "Derived Clarification",
+      "line": 33259
+    },
+    {
+      "id": "MOD-STU-12",
+      "name": "Versioning and Publication",
+      "surface": "SURF-STU",
+      "purpose": "Mint, classify, describe, distribute, compare, archive, and export Workflow versions, and make the version number the audit receipt for which limits were in force",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Job Owner"],
+      "key_functions": ["FUNC-STU-12-01-A-1", "FUNC-STU-12-01-A-2", "FUNC-STU-12-01-B-1", "FUNC-STU-12-02-A-1", "FUNC-STU-12-02-B-1", "FUNC-STU-12-02-B-2", "FUNC-STU-12-02-C-1", "FUNC-STU-12-03-A-1", "FUNC-STU-12-03-B-1", "FUNC-STU-12-03-C-1", "FUNC-STU-12-03-D-1", "FUNC-STU-12-03-E-1"],
+      "classification": "Derived Clarification",
+      "line": 33447
+    },
+    {
+      "id": "MOD-STU-13",
+      "name": "Qualification Requirements",
+      "surface": "SURF-STU",
+      "purpose": "State authoritatively which certifications a Workflow and its individual screens require, at two levels, validated at three points",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Tenant Admin"],
+      "key_functions": ["FUNC-STU-13-01-A-1", "FUNC-STU-13-01-A-2", "FUNC-STU-13-01-B-1", "FUNC-STU-13-02-A-1", "FUNC-STU-13-02-B-1", "FUNC-STU-13-02-C-1", "FUNC-STU-13-03-A-1", "FUNC-STU-13-03-B-1", "FUNC-STU-13-04-A-1", "FUNC-STU-13-05-A-1"],
+      "classification": "Derived Clarification",
+      "line": 33624
+    },
+    {
+      "id": "MOD-STU-14",
+      "name": "The Offline Package",
+      "surface": "SURF-STU",
+      "purpose": "Define, build, deliver, and pin the complete self-sufficient bundle a device needs to render, evaluate, and enforce a Run alone",
+      "roles_allowed": ["Supervisor", "Worker (execution only)"],
+      "key_functions": ["FUNC-STU-14-01-A-1", "FUNC-STU-14-01-A-2", "FUNC-STU-14-01-A-3", "FUNC-STU-14-01-A-4", "FUNC-STU-14-01-B-1", "FUNC-STU-14-01-C-1", "FUNC-STU-14-02-A-1", "FUNC-STU-14-02-A-2", "FUNC-STU-14-02-B-1", "FUNC-STU-14-03-A-1", "FUNC-STU-14-03-A-2", "FUNC-STU-14-03-B-1", "FUNC-STU-14-03-B-2"],
+      "classification": "Derived Clarification",
+      "line": 33811
+    },
+    {
+      "id": "MOD-STU-15",
+      "name": "The Agent Builder",
+      "surface": "SURF-STU",
+      "purpose": "Enable atomic capabilities within entitlement and compose, evaluate, approve, deploy, and map tenant reasoning agents",
+      "roles_allowed": ["Quality Manager", "Delegated administrator with Agent Author", "Platform Engineer (platform review)"],
+      "key_functions": ["FUNC-STU-15-01-A-1", "FUNC-STU-15-01-A-2", "FUNC-STU-15-01-B-1", "FUNC-STU-15-01-B-2", "FUNC-STU-15-02-A-1", "FUNC-STU-15-02-A-2", "FUNC-STU-15-02-A-3", "FUNC-STU-15-02-B-1", "FUNC-STU-15-03-A-1", "FUNC-STU-15-03-B-1", "FUNC-STU-15-03-C-1", "FUNC-STU-15-03-D-1", "FUNC-STU-15-04-A-1"],
+      "classification": "Derived Clarification",
+      "line": 33998
+    },
+    {
+      "id": "MOD-STU-16",
+      "name": "Memory and the Two-Lane Learning Loop",
+      "surface": "SURF-STU",
+      "purpose": "Write the Studio's authored content into memory, refine selection automatically inside authored boundaries, and route any proposed change to a configured value through a single human decision",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant", "Tenant Admin"],
+      "key_functions": ["FUNC-STU-16-01-A-1", "FUNC-STU-16-01-A-2", "FUNC-STU-16-01-B-1", "FUNC-STU-16-02-A-1", "FUNC-STU-16-02-B-1", "FUNC-STU-16-02-C-1", "FUNC-STU-16-03-A-1", "FUNC-STU-16-03-A-2", "FUNC-STU-16-03-B-1", "FUNC-STU-16-03-C-1", "FUNC-STU-16-03-C-2", "FUNC-STU-16-03-D-1", "FUNC-STU-16-04-A-1", "FUNC-STU-16-04-A-2", "FUNC-STU-16-04-B-1", "FUNC-STU-16-04-C-1"],
+      "classification": "Derived Clarification",
+      "line": 34183
+    },
+    {
+      "id": "MOD-STU-17",
+      "name": "Localisation",
+      "surface": "SURF-STU",
+      "purpose": "Hold per-locale authored variants inside one Workflow and block publication in any locale whose worker-facing content is incomplete",
+      "roles_allowed": ["Quality Manager", "Supervisor with grant"],
+      "key_functions": ["FUNC-STU-17-01-A-1", "FUNC-STU-17-01-A-2", "FUNC-STU-17-01-B-1", "FUNC-STU-17-02-A-1", "FUNC-STU-17-02-A-2", "FUNC-STU-17-03-A-1", "FUNC-STU-17-03-A-2"],
+      "classification": "Derived Clarification",
+      "line": 34366
+    },
+    {
+      "id": "MOD-STU-18",
+      "name": "Permissions and Roles in the Studio",
+      "surface": "SURF-STU",
+      "purpose": "Gate every Studio capability by role and grant, and enforce a separation-of-duties floor that no tenant can widen",
+      "roles_allowed": ["Quality Manager", "Supervisor with GRANT-STU-AUTHOR", "Supervisor without the grant", "Plant Manager persona", "Tenant Admin", "GRANT-STU-IMPL"],
+      "key_functions": ["FUNC-STU-18-01-A-1", "FUNC-STU-18-01-B-1", "FUNC-STU-18-02-A-1", "FUNC-STU-18-02-B-1", "FUNC-STU-18-02-C-1", "FUNC-STU-18-03-A-1", "FUNC-STU-18-03-A-2", "FUNC-STU-18-04-A-1"],
+      "classification": "Derived Clarification",
+      "line": 34530
+    }
+  ],
+  "roles_rules": [
+    {
+      "role": "Tenant Admin",
+      "may": ["View the tenant's mode status (Read-only)", "See clearance audit in Summary review"],
+      "may_not": ["Set the Regulated-Industry mode toggle — Super Admin platform console only", "Set an individual constituent", "Disable Quality Manager review while the mode is on", "Change the Critical re-notify interval", "Trigger or reverse anonymisation"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["Regulated-Industry mode is set by platform support"],
+      "governing_decision": null,
+      "line": 29755
+    },
+    {
+      "role": "Supervisor",
+      "may": ["Query a standard data set — Allowed with conditions — own scope"],
+      "may_not": ["Author and export report formats", "Schedule a report delivery", "Enable re-send on material correction per format", "Create a sixth data set or a new data domain", "Deliver a report into a tenant system", "Request a report beyond the five sets"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["own scope"],
+      "governing_decision": null,
+      "line": 29921
+    },
+    {
+      "role": "Tenant Admin",
+      "may": ["Bulk-upload parts by comma-separated values (Allowed with conditions)", "Edit a part record", "Archive a part (Allowed with conditions)", "View the registry"],
+      "may_not": ["Create a bill of materials, recipe, stock-keeping unit or routing entity", "Set ingestion limits or storage metering — governed from the Super Admin platform console", "Type a part number on the floor (Not applicable)"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["blocked in every suspension state as new-part creation", "subject to platform ingestion limits"],
+      "governing_decision": null,
+      "line": 30070
+    },
+    {
+      "role": "Quality Manager",
+      "may": ["Resolve a sync conflict routed to human resolution"],
+      "may_not": [],
+      "surface": "SURF-CC",
+      "scope_conditions": ["Supervisors view only"],
+      "governing_decision": "DEC-SYNC-001",
+      "line": 30246
+    },
+    {
+      "role": "Tenant Admin",
+      "may": ["Open the tenant administration area", "Write any setting in the register (Allowed with conditions)", "Set personal channel preferences and mute digest sections", "View the settings register read-only"],
+      "may_not": ["Set a value looser than the platform floor — rejected, not logged", "Write a platform-side value shown here read-only"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["blocked in every suspension state as a configuration edit", "validated against the platform floor"],
+      "governing_decision": null,
+      "line": 30357
+    },
+    {
+      "role": "Root Super Admin (ROLE-PLAT-ROOT)",
+      "may": ["Access tenant Studio content through the compliance-emergency path only, dual-authorised with one Admin, time-boxed, scope declared before it opens"],
+      "may_not": ["Hold standing Studio access"],
+      "surface": "SURF-STU",
+      "scope_conditions": ["Exactly one account exists; created through the backend at platform commissioning"],
+      "governing_decision": null,
+      "line": 30809
+    },
+    {
+      "role": "Admin (ROLE-PLAT-ADMIN)",
+      "may": ["Support session read-only", "Act as the second authorisation on the compliance-emergency path"],
+      "may_not": ["Hold standing Studio access", "Author or release tenant Workflow content in any class"],
+      "surface": "SURF-STU",
+      "scope_conditions": [],
+      "governing_decision": null,
+      "line": 30810
+    },
+    {
+      "role": "Platform Engineer (ROLE-PLAT-ENG)",
+      "may": ["Support session read-only", "Registry and evaluation work in the console"],
+      "may_not": ["Hold standing Studio access"],
+      "surface": "SURF-STU",
+      "scope_conditions": ["Mutating console changes submit into the approval cycle"],
+      "governing_decision": null,
+      "line": 30811
+    },
+    {
+      "role": "Support (ROLE-PLAT-SUP)",
+      "may": ["Read-only, time-boxed support session with a tenant-visible banner"],
+      "may_not": ["Hold standing Studio access", "Make configuration changes in any surface"],
+      "surface": "SURF-STU",
+      "scope_conditions": [],
+      "governing_decision": null,
+      "line": 30812
+    },
+    {
+      "role": "Quality Manager (ROLE-TEN-QM)",
+      "may": ["Full authoring across all nine screen configuration sections, Shared Instruction Blocks, and Content Libraries which the Quality Manager owns", "manages Qualification Requirements", "Release Authority by tenant default", "holds or delegates the Agent Author capability", "learning read view"],
+      "may_not": ["Approve their own submission", "Bypass the Release Authority", "Release a Severity 1 hold from the Studio", "Define a severity level", "Author an atomic capability"],
+      "surface": "SURF-STU",
+      "scope_conditions": ["never on a submission they authored or reviewed"],
+      "governing_decision": null,
+      "line": 30821
+    },
+    {
+      "role": "Supervisor (ROLE-TEN-SUP), without the authoring grant",
+      "may": ["Read-only — published Workflow content only: screen sequences, instruction text, specification limits, for reference"],
+      "may_not": ["Read drafts or in-review versions", "Create a Workflow", "Author configuration sections"],
+      "surface": "SURF-STU",
+      "scope_conditions": [],
+      "governing_decision": null,
+      "line": 30822
+    },
+    {
+      "role": "Supervisor with the authoring grant (GRANT-STU-AUTHOR)",
+      "may": ["create Workflows", "author all nine sections", "create and apply Shared Instruction Blocks", "propose Content Library changes", "submit for review", "act as Reviewer on submissions they did not author"],
+      "may_not": ["approve or release"],
+      "surface": "SURF-STU",
+      "scope_conditions": ["only on submissions they did not author"],
+      "governing_decision": null,
+      "line": 30823
+    },
+    {
+      "role": "Tenant Admin (ROLE-TEN-ADMIN)",
+      "may": ["administers Studio capacities, assigning and revoking the authoring grant and the Agent Author delegation from the tenant administration area", "read-only access to published content"],
+      "may_not": ["hold any stage of the approval chain"],
+      "surface": "SURF-STU",
+      "scope_conditions": [],
+      "governing_decision": null,
+      "line": 30824
+    },
+    {
+      "role": "Read-only Auditor (ROLE-TEN-AUD)",
+      "may": [],
+      "may_not": [],
+      "surface": "SURF-STU",
+      "scope_conditions": ["Client Decision Required — the §5.18 table does not include this role"],
+      "governing_decision": "DEC-AUDSTU-001",
+      "line": 30825
+    },
+    {
+      "role": "Worker (ROLE-TEN-WKR)",
+      "may": [],
+      "may_not": ["Any Studio access of any kind"],
+      "surface": "SURF-STU",
+      "scope_conditions": ["Workers meet Workflow content exclusively through the Frontline Worker Application during Run execution"],
+      "governing_decision": null,
+      "line": 30826
+    },
+    {
+      "role": "Plant Manager (persona, listed as a fixed role in §5.18)",
+      "may": ["Read-only — published Workflow content"],
+      "may_not": ["access drafts or in-review versions", "edit"],
+      "surface": "SURF-STU",
+      "scope_conditions": [],
+      "governing_decision": "DEC-ROLE-001",
+      "line": 30827
+    },
+    {
+      "role": "Implementation team, during onboarding (GRANT-STU-IMPL)",
+      "may": ["full authoring and submission rights"],
+      "may_not": ["approve", "release"],
+      "surface": "SURF-STU",
+      "scope_conditions": ["all actions audited", "access revoked at the conclusion of onboarding", "revocation is an identity-layer action rather than a Studio-layer one"],
+      "governing_decision": null,
+      "line": 30828
+    },
+    {
+      "role": "Quality Manager",
+      "may": ["Create a Content Library item — the Quality Manager owns the Content Libraries", "Edit a Content Library item (edits to published items pass review)", "Archive a Content Library item", "Approve a coaching asset into the corpus", "Retire a flagged coaching asset"],
+      "may_not": ["Name an individual as an escalation recipient — templates name roles, never individuals", "Add a notification channel beyond in-app and email"],
+      "surface": "SURF-STU",
+      "scope_conditions": ["scope of review under DEC-LIBREV-001"],
+      "governing_decision": "DEC-LIBREV-001",
+      "line": 32628
+    },
+    {
+      "role": "Job Owner (a field on the Job record, not a role)",
+      "may": ["Decide adoption of a notified-class version"],
+      "may_not": ["Select the bump classification", "Validate classification against the diff"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["defaults to the creator and reassignable", "version notifications and update decisions key to it"],
+      "governing_decision": null,
+      "line": 33433
+    },
+    {
+      "role": "Tenant Admin",
+      "may": ["Maintain the tag-to-qualification-set mapping", "Set hard-block versus notify posture", "Set clearance duration (uniform at tenant level, deliberately not per user)"],
+      "may_not": ["Grant a qualification clearance", "Confirm continuation of a grandfathered assignment", "Enter or amend a worker's certification record"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["in the tenant administration area"],
+      "governing_decision": null,
+      "line": 33638
+    },
+    {
+      "role": "Supervisor and above",
+      "may": ["Grant a qualification clearance — Client Command Center action ten", "Perform an on-demand package re-pull", "Confirm continuation of a grandfathered assignment with a recorded reason", "Rebase a scheduled Run in the Delivery Operations Hub"],
+      "may_not": ["Release a Severity 1 hold"],
+      "surface": "SURF-CC",
+      "scope_conditions": ["delivered on the command channel and audited"],
+      "governing_decision": null,
+      "line": 33641
+    },
+    {
+      "role": "Read-only Auditor",
+      "may": [],
+      "may_not": ["Decide a Lane-B proposal — no Client Command Center access at all"],
+      "surface": "SURF-CC",
+      "scope_conditions": [],
+      "governing_decision": "DEC-LANEBAUTH-001",
+      "line": 34195
+    }
+  ],
+  "business_rules": [
+    {
+      "id": "unnumbered",
+      "statement": "Regulated-Industry mode is a single per-tenant toggle, set from the Super Admin platform console, bundling five constituents — each also independently settable.",
+      "enforcement_point": "Super Admin platform console; Delivery Operations Hub enforcement",
+      "applies_to": "MOD-DOH-17",
+      "is_hard_gate": true,
+      "line": 29720
+    },
+    {
+      "id": "unnumbered",
+      "statement": "Switching a tenant into Regulated-Industry mode later does not, and cannot, restore already-anonymised identities. Anonymisation is the platform's one irreversible act.",
+      "enforcement_point": "Lifecycle service; mode-status view; platform console change point",
+      "applies_to": "MOD-DOH-17, MOD-DOH-11",
+      "is_hard_gate": true,
+      "line": 29730
+    },
+    {
+      "id": "AC-DOH-17-7",
+      "statement": "An unreadable mode flag is treated as on, and the tenant is told the posture is precautionary. Stricter interpretation applies because treating a regulated tenant as unregulated is the more dangerous error.",
+      "enforcement_point": "FB-DOH-STATE-008",
+      "applies_to": "MOD-DOH-17",
+      "is_hard_gate": true,
+      "line": 29822
+    },
+    {
+      "id": "unnumbered",
+      "statement": "The Delivery Operations Hub owns the data behind the five standard report data sets; rendering, layout, saved formats and scheduled delivery are Client Command Center capabilities through the Custom Report Builder.",
+      "enforcement_point": "MOD-DOH-18 / Client Command Center Custom Report Builder",
+      "applies_to": "Reporting",
+      "is_hard_gate": false,
+      "line": 29880
+    },
+    {
+      "id": "AC-DOH-18-3",
+      "statement": "Reports are never presented as real-time; each carries its data-as-of timestamp. Late-arriving data that materially changes delivered figures is corrected in the next scheduled delivery, flagged as corrections.",
+      "enforcement_point": "FUNC-DOH-18-1.1.2",
+      "applies_to": "MOD-DOH-18",
+      "is_hard_gate": true,
+      "line": 29894
+    },
+    {
+      "id": "AC-DOH-18-5",
+      "statement": "No sixth data set, no new data domain and no outbound delivery into tenant systems is possible at V1.",
+      "enforcement_point": "FUNC-DOH-18-2.1.1, FUNC-DOH-18-2.1.2",
+      "applies_to": "MOD-DOH-18",
+      "is_hard_gate": true,
+      "line": 30013
+    },
+    {
+      "id": "unnumbered",
+      "statement": "Manufacturing-execution-domain constructs — bill of materials, recipe, stock-keeping unit, routing — are deliberately not first-class platform entities; they are captured as Data Capture entries inside workflow steps.",
+      "enforcement_point": "MOD-DOH-19 permission matrix",
+      "applies_to": "Parts Registry",
+      "is_hard_gate": true,
+      "line": 30043
+    },
+    {
+      "id": "AC-DOH-19-3",
+      "statement": "No part number is ever typed on the floor. Consumption is referenced through the work-instruction step. Identification is entirely optional per client and per part: track as much as possible, force nothing.",
+      "enforcement_point": "FUNC-DOH-19-3.1.1",
+      "applies_to": "MOD-DOH-19",
+      "is_hard_gate": true,
+      "line": 30045
+    },
+    {
+      "id": "AC-DOH-19-6",
+      "statement": "A bulk upload is all-or-nothing per file and produces a per-row error report on rejection.",
+      "enforcement_point": "FB-DOH-IMPORT-007",
+      "applies_to": "MOD-DOH-19",
+      "is_hard_gate": true,
+      "line": 30163
+    },
+    {
+      "id": "unnumbered",
+      "statement": "During a connectivity loss, mobile devices continue offline and sync on recovery — the operational edge protocol is about visibility, not stopping the floor.",
+      "enforcement_point": "Operational Edge Protocol §4.13.1",
+      "applies_to": "All surfaces",
+      "is_hard_gate": true,
+      "line": 30190
+    },
+    {
+      "id": "AC-DOH-EDGE-5",
+      "statement": "A device timestamp outside the tenant's clock-skew threshold is not trusted to order writes and always routes to human resolution in the Client Command Center conflict-review panel.",
+      "enforcement_point": "Sync-conflict handling §4.13.2",
+      "applies_to": "Offline sync",
+      "is_hard_gate": true,
+      "line": 30194
+    },
+    {
+      "id": "AC-DOH-EDGE-6",
+      "statement": "A worker logging in on an unexpected device is allowed at V1 and flagged in the audit trail; there is no hard block. Attribution follows the login, never the device.",
+      "enforcement_point": "Identity model §4.13.3",
+      "applies_to": "Frontline login",
+      "is_hard_gate": false,
+      "line": 30196
+    },
+    {
+      "id": "AC-DOH-EDGE-7",
+      "statement": "A worker correction after submission is an append-only correction record: the original is immutable, with full who, when and what-changed. On a finished run, the audited-recompute rule applies.",
+      "enforcement_point": "§4.13.4",
+      "applies_to": "Post-submission corrections",
+      "is_hard_gate": true,
+      "line": 30198
+    },
+    {
+      "id": "AC-DOH-EDGE-8",
+      "statement": "Archival is manual only at V1; auto-archival of stale entities is deferred beyond V1. No entity is auto-archived at V1.",
+      "enforcement_point": "§4.13.5",
+      "applies_to": "Stale entities",
+      "is_hard_gate": true,
+      "line": 30200
+    },
+    {
+      "id": "AC-DOH-EDGE-9",
+      "statement": "No conflict is ever resolved by discarding a version silently.",
+      "enforcement_point": "Conflict reconciliation",
+      "applies_to": "Sync conflicts",
+      "is_hard_gate": true,
+      "line": 30252
+    },
+    {
+      "id": "AC-DOH-ADMIN-2",
+      "statement": "Every value is validated against the Super Admin tenant-configuration registry: the platform rejects, rather than logs, any value looser than the platform floor. Tenants tighten; they never loosen.",
+      "enforcement_point": "Tenant administration area write path; FB-DOH-WRITE-002",
+      "applies_to": "All tenant settings",
+      "is_hard_gate": true,
+      "line": 30294
+    },
+    {
+      "id": "AC-DOH-ADMIN-8",
+      "statement": "Tenant Administration is not a sixth surface. It is the Tenant Admin's screen group inside the Delivery Operations Hub, and is never presented as a separate surface.",
+      "enforcement_point": "Navigation and surface model",
+      "applies_to": "Tenant administration area",
+      "is_hard_gate": true,
+      "line": 30296
+    },
+    {
+      "id": "AC-STU-001",
+      "statement": "No Workflow content is renderable on the Frontline Worker Application unless it belongs to a Workflow version that completed all three approval stages.",
+      "enforcement_point": "MOD-STU-11 approval chain",
+      "applies_to": "SURF-STU output",
+      "is_hard_gate": true,
+      "line": 30683
+    },
+    {
+      "id": "AC-STU-003",
+      "statement": "Every published version carries a mandatory republish description stored in the permanent version history.",
+      "enforcement_point": "MOD-STU-12",
+      "applies_to": "Versioning",
+      "is_hard_gate": true,
+      "line": 30685
+    },
+    {
+      "id": "AC-STU-004",
+      "statement": "No agent, capability, or composed behaviour authored or configured in the Studio goes live without passing its evaluation scenarios. The evaluation gate is hard, always, for every tenant, and binds every operator including the root account.",
+      "enforcement_point": "Platform evaluation harness",
+      "applies_to": "Agents and capabilities",
+      "is_hard_gate": true,
+      "line": 30686
+    },
+    {
+      "id": "AC-STU-005",
+      "statement": "No user interface control anywhere in the Studio creates, edits, or deletes an atomic capability. Tenants never author atoms; adding a capability is an engineering change in the foundation.",
+      "enforcement_point": "Service layer refusal, audited",
+      "applies_to": "Tier-2 boundary",
+      "is_hard_gate": true,
+      "line": 30780
+    },
+    {
+      "id": "AC-STU-021",
+      "statement": "Every Studio action that changes state writes its audit event in the same transaction, and fails if the audit write fails. An action that cannot be audited does not happen.",
+      "enforcement_point": "FB-STU-10",
+      "applies_to": "All Studio state changes",
+      "is_hard_gate": true,
+      "line": 31224
+    },
+    {
+      "id": "AC-STU-022",
+      "statement": "The Studio originates no command-channel command directly. The command channel carries exactly five classes: lot release, reassignment or substitution, qualification clearance, suspension, and version change.",
+      "enforcement_point": "Command channel ownership",
+      "applies_to": "SURF-STU",
+      "is_hard_gate": true,
+      "line": 31179
+    },
+    {
+      "id": "AC-STU-023",
+      "statement": "No Studio view describes a published version as in force on a device; a published version is not in force until the version-change command reaches applied on that device.",
+      "enforcement_point": "Adoption panel SB-STU-03",
+      "applies_to": "Version adoption",
+      "is_hard_gate": true,
+      "line": 31181
+    },
+    {
+      "id": "AC-STU-026",
+      "statement": "A Run never starts against a partially built or unverified work package; a partial package could omit a severity mapping and thereby omit a hold.",
+      "enforcement_point": "FB-STU-06 package integrity verification",
+      "applies_to": "MOD-STU-14",
+      "is_hard_gate": true,
+      "line": 31326
+    },
+    {
+      "id": "AC-STU-027",
+      "statement": "Severity classification and Severity 1 hold placement occur on the device at the instant of capture, including fully offline, in every test configuration.",
+      "enforcement_point": "On-device deterministic layer",
+      "applies_to": "MOD-STU-14, Frontline",
+      "is_hard_gate": true,
+      "line": 31327
+    },
+    {
+      "id": "AC-STU-032",
+      "statement": "No artificial-intelligence component in or reachable from the Studio can classify a deviation or assign a severity. Detection is rule-based and runs on the worker's device.",
+      "enforcement_point": "Deterministic boundary §3.2, §5.2",
+      "applies_to": "All agents",
+      "is_hard_gate": true,
+      "line": 31416
+    },
+    {
+      "id": "AC-STU-035",
+      "statement": "Nothing is machine-translated at run time on any surface.",
+      "enforcement_point": "MOD-STU-17",
+      "applies_to": "Localisation",
+      "is_hard_gate": true,
+      "line": 31419
+    },
+    {
+      "id": "AC-STU-042",
+      "statement": "Severity must be set explicitly on every screen that can deviate; publication is blocked otherwise, naming each unmapped screen. The platform never assumes a value.",
+      "enforcement_point": "Publication validation",
+      "applies_to": "MOD-STU-05 Section 7",
+      "is_hard_gate": true,
+      "line": 31853
+    },
+    {
+      "id": "AC-STU-043",
+      "statement": "Mapping a band to Severity 1 presents the arming confirmation and records the author's explicit confirmation; if the confirmation cannot be recorded, the mapping is not saved.",
+      "enforcement_point": "SB-STU-05 / FUNC-STU-05-08-C-1 / FB-STU-10",
+      "applies_to": "MOD-STU-05",
+      "is_hard_gate": true,
+      "line": 31854
+    },
+    {
+      "id": "AC-STU-050",
+      "statement": "Every Workflow carries exactly one Job Type; no platform behaviour is conditioned on the presence or value of a Service Type tag.",
+      "enforcement_point": "FUNC-STU-03-02-C-1, validated at save and again at publication",
+      "applies_to": "MOD-STU-03",
+      "is_hard_gate": true,
+      "line": 32015
+    },
+    {
+      "id": "AC-STU-054",
+      "statement": "A Workflow carries exactly four settings and exactly two inheritable defaults; no third inheritable default exists. Deviation severity is never a workflow default.",
+      "enforcement_point": "MOD-STU-04",
+      "applies_to": "Workflow settings",
+      "is_hard_gate": true,
+      "line": 32179
+    },
+    {
+      "id": "AC-STU-056",
+      "statement": "The published sequence-detection reference is identical to the drawn screen order and branch targets, with no separate authoring path.",
+      "enforcement_point": "FUNC-STU-04-02-A-2",
+      "applies_to": "MOD-STU-04 canvas",
+      "is_hard_gate": true,
+      "line": 32181
+    },
+    {
+      "id": "AC-STU-061",
+      "statement": "A soft proof gate never alters specification-gate behaviour in any test configuration. The specification gate is hard platform-wide and no author or tenant setting can configure it away.",
+      "enforcement_point": "MOD-STU-05 Section 4",
+      "applies_to": "Gate and proof",
+      "is_hard_gate": true,
+      "line": 32417
+    },
+    {
+      "id": "AC-STU-059",
+      "statement": "One screen in the Builder corresponds to exactly one screen on the device and one unit of execution telemetry; no sub-screen construct exists.",
+      "enforcement_point": "MOD-STU-05",
+      "applies_to": "Screen model",
+      "is_hard_gate": true,
+      "line": 32415
+    },
+    {
+      "id": "AC-STU-066",
+      "statement": "A Shared Instruction Block is scoped to exactly one Workflow and appears nowhere in the Content Libraries; cross-Workflow reference is refused at the service layer.",
+      "enforcement_point": "FUNC-STU-06-02-B-1",
+      "applies_to": "MOD-STU-06",
+      "is_hard_gate": true,
+      "line": 32558
+    },
+    {
+      "id": "AC-STU-071",
+      "statement": "Screens hold pointers to library items and never copies; an item cannot be archived while screens reference it, and the referencing screens are named.",
+      "enforcement_point": "MOD-STU-07",
+      "applies_to": "Content Libraries",
+      "is_hard_gate": true,
+      "line": 32763
+    },
+    {
+      "id": "AC-STU-073",
+      "statement": "Retrieval applies a metadata filter before semantic ranking in every configuration, so a torque clip cannot surface on a paint screen.",
+      "enforcement_point": "FUNC-STU-07-02-B-2",
+      "applies_to": "Coaching Corpus",
+      "is_hard_gate": true,
+      "line": 32765
+    },
+    {
+      "id": "AC-STU-075",
+      "statement": "An escalation routing template names roles only, and no user interface or application programming interface path permits naming an individual. Only two channels exist: in-app and email.",
+      "enforcement_point": "MOD-STU-07 Escalation Routing Templates",
+      "applies_to": "Escalation",
+      "is_hard_gate": true,
+      "line": 32767
+    },
+    {
+      "id": "AC-STU-080",
+      "statement": "No work package, in any configuration, contains a Training Library item. Viewing training content produces no run telemetry, no production record, and no qualification.",
+      "enforcement_point": "FUNC-STU-08-03-A-1, FUNC-STU-08-03-B-1",
+      "applies_to": "MOD-STU-08",
+      "is_hard_gate": true,
+      "line": 32922
+    },
+    {
+      "id": "AC-STU-084",
+      "statement": "No practice-mode capability exists in any surface. Practice mode is cut from scope; if it resurfaces it is handled as a change request.",
+      "enforcement_point": "MOD-STU-08 scope boundary",
+      "applies_to": "Platform-wide",
+      "is_hard_gate": true,
+      "line": 32926
+    },
+    {
+      "id": "AC-STU-088",
+      "statement": "Required captures, gates, specification limits, and severity mappings are byte-identical across all three difficulty levels; the level changes the depth of explanation only.",
+      "enforcement_point": "FUNC-STU-09-01-C-1",
+      "applies_to": "MOD-STU-09",
+      "is_hard_gate": true,
+      "line": 33075
+    },
+    {
+      "id": "AC-STU-089",
+      "statement": "A fully covered screen carries six reviewed renderings — three levels by two locales; the completeness check blocks publication otherwise.",
+      "enforcement_point": "FUNC-STU-09-02-A-2",
+      "applies_to": "MOD-STU-09, MOD-STU-17",
+      "is_hard_gate": true,
+      "line": 33076
+    },
+    {
+      "id": "AC-STU-092",
+      "statement": "The platform mints the part identifier; no author input influences it. The inline mini-form accepts a name and nothing else.",
+      "enforcement_point": "FUNC-STU-10-02-A-2",
+      "applies_to": "MOD-STU-10",
+      "is_hard_gate": true,
+      "line": 33216
+    },
+    {
+      "id": "AC-STU-096",
+      "statement": "A part reference is attached only after the registry confirms creation; a reference to a part that does not exist would break genealogy.",
+      "enforcement_point": "FUNC-STU-10-02-B-1",
+      "applies_to": "MOD-STU-10",
+      "is_hard_gate": true,
+      "line": 33220
+    },
+    {
+      "id": "AC-STU-097",
+      "statement": "No content reaches a published version without three recorded transitions by three distinct identities. The Reviewer cannot edit content. The Release Authority cannot be bypassed.",
+      "enforcement_point": "MOD-STU-11 chain, enforced at the service layer",
+      "applies_to": "All frontline-reaching content",
+      "is_hard_gate": true,
+      "line": 33397
+    },
+    {
+      "id": "AC-STU-100",
+      "statement": "A person holding multiple roles cannot occupy two stages on one submission; distinctness is evaluated by identity, not by role.",
+      "enforcement_point": "FUNC-STU-18-03-A-2",
+      "applies_to": "Separation of duties",
+      "is_hard_gate": true,
+      "line": 33400
+    },
+    {
+      "id": "AC-STU-106",
+      "statement": "A mis-classified patch is returned by the Reviewer; a change to limits, gates, timing, severity mappings, sequence, or screen count cannot be published as a patch.",
+      "enforcement_point": "FUNC-STU-12-01-A-2",
+      "applies_to": "MOD-STU-12",
+      "is_hard_gate": true,
+      "line": 33584
+    },
+    {
+      "id": "AC-STU-108",
+      "statement": "An in-flight Run's pinned package is never swapped by any publication; a run finishes on the workflow version it started on.",
+      "enforcement_point": "FUNC-STU-12-02-C-1, FUNC-STU-14-02-B-1",
+      "applies_to": "MOD-STU-12, MOD-STU-14",
+      "is_hard_gate": true,
+      "line": 33586
+    },
+    {
+      "id": "AC-STU-110",
+      "statement": "A version is never auto-archived; archival requires a deliberate action against a clear no-active-Jobs indicator.",
+      "enforcement_point": "FUNC-STU-12-03-D-1",
+      "applies_to": "MOD-STU-12",
+      "is_hard_gate": true,
+      "line": 33588
+    },
+    {
+      "id": "AC-STU-115",
+      "statement": "The qualification gate is the only gate whose enforcement posture a tenant may change, and it can only be made stricter than the platform floor. Specification and evaluation gates are hard and non-configurable.",
+      "enforcement_point": "MOD-STU-13",
+      "applies_to": "Gating",
+      "is_hard_gate": true,
+      "line": 33766
+    },
+    {
+      "id": "AC-STU-114",
+      "statement": "Qualification validation runs at assignment, at Run start, and at every override-carrying screen.",
+      "enforcement_point": "FEAT-STU-13-02",
+      "applies_to": "MOD-STU-13",
+      "is_hard_gate": true,
+      "line": 33765
+    },
+    {
+      "id": "AC-STU-116",
+      "statement": "A certification-requirement change grandfathers active assignments with a flag, a supervisor confirmation, and a recorded reason; it applies to Runs scheduled after the carrying version is published.",
+      "enforcement_point": "FUNC-STU-13-04-A-1",
+      "applies_to": "MOD-STU-13",
+      "is_hard_gate": true,
+      "line": 33767
+    },
+    {
+      "id": "AC-STU-118",
+      "statement": "No surface shows a clearance as effective before its command reaches applied on the device.",
+      "enforcement_point": "FUNC-STU-13-03-B-1",
+      "applies_to": "Qualification clearance",
+      "is_hard_gate": true,
+      "line": 33769
+    },
+    {
+      "id": "AC-STU-124",
+      "statement": "The server mirrors an on-device classification and never re-decides it. Server-side atoms are the mirror and confirmation path, never the trigger.",
+      "enforcement_point": "FUNC-STU-14-03-B-2",
+      "applies_to": "MOD-STU-14",
+      "is_hard_gate": true,
+      "line": 33945
+    },
+    {
+      "id": "AC-STU-131",
+      "statement": "The Agent Builder composes reasoning agents only; no path composes an action agent. Action agents ship as platform-provided templates the tenant configures.",
+      "enforcement_point": "FUNC-STU-15-02-B-1",
+      "applies_to": "MOD-STU-15",
+      "is_hard_gate": true,
+      "line": 34136
+    },
+    {
+      "id": "AC-STU-132",
+      "statement": "A composed agent reaches production only after the evaluation gate, the tenant approval chain, and platform review, in that order.",
+      "enforcement_point": "FEAT-STU-15-03",
+      "applies_to": "MOD-STU-15",
+      "is_hard_gate": true,
+      "line": 34137
+    },
+    {
+      "id": "AC-STU-136",
+      "statement": "Lane A changes no configured value in any configuration, and every Lane-A refinement is logged and reversible.",
+      "enforcement_point": "FEAT-STU-16-02",
+      "applies_to": "MOD-STU-16",
+      "is_hard_gate": true,
+      "line": 34330
+    },
+    {
+      "id": "AC-STU-137",
+      "statement": "No Lane-B proposal is ever auto-approved; the decision is human and made exactly once, in the Client Command Center.",
+      "enforcement_point": "FUNC-STU-16-03-B-1",
+      "applies_to": "MOD-STU-16",
+      "is_hard_gate": true,
+      "line": 34331
+    },
+    {
+      "id": "AC-STU-141",
+      "statement": "There is no on/off switch for learning anywhere on the platform; the approval queue is the control and Lane A changes no configured value.",
+      "enforcement_point": "FUNC-STU-16-04-A-2",
+      "applies_to": "MOD-STU-16",
+      "is_hard_gate": true,
+      "line": 34335
+    },
+    {
+      "id": "AC-STU-142",
+      "statement": "Nothing learned is shared across tenants or exported as external training data, at any privilege level.",
+      "enforcement_point": "FUNC-STU-16-04-C-1",
+      "applies_to": "MOD-STU-16",
+      "is_hard_gate": true,
+      "line": 34336
+    },
+    {
+      "id": "AC-STU-148",
+      "statement": "An incomplete locale blocks publication in that locale, with each missing element named; where the completeness check cannot run, publication is blocked entirely.",
+      "enforcement_point": "FUNC-STU-17-03-A-1, FUNC-STU-17-03-A-2",
+      "applies_to": "MOD-STU-17",
+      "is_hard_gate": true,
+      "line": 34486
+    },
+    {
+      "id": "AC-STU-154",
+      "statement": "No tenant configuration can widen the separation-of-duties floor: an author never approves their own work and the Release Authority is never bypassed.",
+      "enforcement_point": "FUNC-STU-18-03-A-1, service layer",
+      "applies_to": "MOD-STU-18",
+      "is_hard_gate": true,
+      "line": 34671
+    },
+    {
+      "id": "AC-STU-156",
+      "statement": "Where the identity layer is unreachable, the Studio fails closed to published read at most.",
+      "enforcement_point": "FUNC-STU-18-02-A-1 / FB-STU-07",
+      "applies_to": "MOD-STU-18",
+      "is_hard_gate": true,
+      "line": 34673
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-REPORT-001",
+      "question": "The identity and naming of the five standard report data sets; §4.10.5 names set 4 differently from §6.12.1.",
+      "options": ["(a) adopt the §4.10.5 name, \"Clearance (qualification-override) frequency by role\"", "(b) adopt the §6.12.1 name, \"Override frequency by role\"", "(c) adopt \"Clearance frequency by role\" with the parenthetical dropped once tenants are familiar with the term"],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "Reporting terminology is evidence in a quality audit; the identity of all five sets remains open.",
+      "line": 29892
+    },
+    {
+      "id": "DEC-SYNC-001",
+      "question": "Whether a reconnecting device uploads captures before or after pulling commands.",
+      "options": ["commands first (safety)", "captures first (data integrity)"],
+      "adopted_working_position": "reconnection runs in three phases — stop-class commands pulled and applied first, then every pending capture uploaded with nothing discarded, then enabling-class commands applied",
+      "status": "adopted working position (2026-08-14), client ratification outstanding",
+      "impact": "Determines reconnection ordering; payload detail deferred to the Frontline Functional Specification.",
+      "line": 30284
+    },
+    {
+      "id": "DEC-NAME-001",
+      "question": "Surface name divergence between the Statement of Work and the blueprint commission (Delivery Operations Hub vs Digital Operations Hub).",
+      "options": ["Delivery Operations Hub", "Digital Operations Hub"],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "Naming across all documentation and interfaces.",
+      "line": 30413
+    },
+    {
+      "id": "DEC-SITE-001",
+      "question": "Whether the Site level is mandatory or an open drafting recommendation.",
+      "options": ["mandatory", "open drafting recommendation"],
+      "adopted_working_position": "adopted 2026-08-14 as mandatory, with a default Site auto-created at tenant provisioning; both source readings preserved in the card",
+      "status": "adopted working position, ratification outstanding",
+      "impact": "Hierarchy depth floor; the Site level can never be configured away.",
+      "line": 30414
+    },
+    {
+      "id": "DEC-AREA-001",
+      "question": "Whether a Job binds to one Area as a hard constraint or to one parent node at the configured depth.",
+      "options": ["one Area hard constraint", "one parent node at the configured depth"],
+      "adopted_working_position": "adopted 2026-08-14 as one parent node per Job at the tenant's configured depth",
+      "status": "adopted working position, ratification outstanding",
+      "impact": "Job binding; field-level definition still gated on DEC-UNIT-001.",
+      "line": 30415
+    },
+    {
+      "id": "DEC-SUSP-001",
+      "question": "Whether soft suspension lifts on an operator signal or on a payment event the platform is elsewhere stated not to receive.",
+      "options": ["operator signal", "payment event"],
+      "adopted_working_position": "adopted 2026-08-14 as the explicit operator signal in the Super Admin platform console, with no payment event observed and the integration path left open and unbuilt",
+      "status": "adopted working position, ratification outstanding",
+      "impact": "Suspension lift mechanism.",
+      "line": 30416
+    },
+    {
+      "id": "DEC-FINISH-001",
+      "question": "Whether the finish window's 24-hour floor and 7-day ceiling are settled or open drafting values.",
+      "options": ["settled", "open drafting values"],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "Record-finish window bounds in the settings register.",
+      "line": 30417
+    },
+    {
+      "id": "DEC-LANEB-001",
+      "question": "Three-stage approval versus Lane B auto-publication: does an approved Lane-B patch still require Reviewer and Release Authority?",
+      "options": ["(a) the chain is absolute and a Lane-B patch must still pass Reviewer and Release Authority", "(b) the Lane-B decision by a Quality Manager in the Client Command Center is the human sign-off and substitutes for the chain"],
+      "adopted_working_position": null,
+      "status": "open — recommendation is reading (b) restricted to values that cannot alter a specification limit, a severity mapping, or a gate rule",
+      "impact": "Whether a specification-adjacent value reaches the floor with one approver.",
+      "line": 33253
+    },
+    {
+      "id": "DEC-PLUS-001",
+      "question": "The meaning of the Supervisor+ and QM+ forms across five additive, non-hierarchical roles.",
+      "options": ["additive union of the named roles", "ranked hierarchy"],
+      "adopted_working_position": "This blueprint reads the shorthand as an additive union of the named roles rather than a ranked hierarchy",
+      "status": "open — ambiguity preserved",
+      "impact": "Authority matrix interpretation across the blueprint.",
+      "line": 30832
+    },
+    {
+      "id": "DEC-ROLE-001",
+      "question": "Plant Manager and Quality Director as personas or roles; §5.18's fixed-role table includes Plant Manager while §3.5 fixes five roles.",
+      "options": ["§3.5's five fixed roles", "§5.18's inclusion of Plant Manager as a row in a fixed-role table"],
+      "adopted_working_position": "This blueprint treats Plant Manager as a persona whose Studio access is delivered by a Supervisor role without the authoring grant",
+      "status": "open — both readings stand",
+      "impact": "Role model and Studio permission matrix.",
+      "line": 34522
+    },
+    {
+      "id": "DEC-NOSHIFT-001",
+      "question": "Confirmation of the nobody-on-shift escalation default.",
+      "options": ["tenant's Quality Manager role irrespective of shift, marked as a fallback delivery"],
+      "adopted_working_position": "recommended as the tenant's Quality Manager role irrespective of shift, marked as a fallback delivery",
+      "status": "open drafting value",
+      "impact": "An authored template whose roles are all off-shift at 03:00 delivers nothing unless settled.",
+      "line": 32618
+    },
+    {
+      "id": "DEC-ANON-001",
+      "question": "Confirmation of 24-month anonymisation under the no-purge model.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "Retention and anonymisation lifecycle.",
+      "line": 30424
+    },
+    {
+      "id": "DEC-RETRIEVE-001",
+      "question": "Archived-data retrieval expectation.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "Archived data access.",
+      "line": 30425
+    },
+    {
+      "id": "DEC-DELETE-001",
+      "question": "Which compliance standards mandate deletion.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open — owed by the client",
+      "impact": "Deletion obligations.",
+      "line": 30426
+    },
+    {
+      "id": "DEC-TAX-002",
+      "question": "The canonical names and codes of the eight starter Job Types and eight starter Service Type tags, which are not stated anywhere in the Statement of Work.",
+      "options": ["(a) the client supplies the sixteen names and codes before build", "(b) the platform ships a provisional set marked provisional and the client replaces it during onboarding", "(c) the platform ships with an empty seeded set and every tenant creates its own"],
+      "adopted_working_position": "the platform-seeded catalogue ships empty at version 1, tenants create their own Job Types and Service Type tags immediately at every tier with no platform approval step, and the sixteen entries are loaded into the seeded catalogue when the client supplies them, inherited read-only and overwriting no tenant-created entry",
+      "status": "adopted working position (2026-08-14), ratification outstanding",
+      "impact": "Delivery Operations Hub filters Workflow selection by Job Type; wrong or missing list makes selection unusable at go-live.",
+      "line": 31896
+    },
+    {
+      "id": "DEC-UNIT-001",
+      "question": "The owed unit-model engineering paper, which gates the data-model appendix.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open — owed by the client",
+      "impact": "Gates the data-model appendix and DEC-AREA-001's field-level definition.",
+      "line": 30428
+    },
+    {
+      "id": "DEC-STUDIO-001",
+      "question": "The Standards and Operations Studio module count; the Statement of Work provides no canonical module count.",
+      "options": ["eighteen modules, one per numbered section of Part V", "a six-module functional grouping (rejected)", "a nine-module grouping mirroring the nine screen configuration sections (rejected)", "a twenty-two-module grouping (rejected)"],
+      "adopted_working_position": "One module per numbered section of Part V, in section order, with the section's own heading as the module name — exactly eighteen modules, MOD-STU-01 through MOD-STU-18",
+      "status": "Client Decision Required — derived, not sourced",
+      "impact": "Changes labels and navigation grouping, not any rule about who may author, review, release, or publish.",
+      "line": 30897
+    },
+    {
+      "id": "DEC-AUDSTU-001",
+      "question": "The Read-only Auditor's Studio access; the §5.18 table omits ROLE-TEN-AUD entirely.",
+      "options": ["(a) no Studio access, working entirely from the Delivery Operations Hub audit log and PDF exports", "(b) read-only Studio access limited to published versions, version history, approval logs, and diffs, with no access to drafts or in-review versions", "(c) read-only Studio access to everything including drafts"],
+      "adopted_working_position": null,
+      "status": "open — newly identified; every Read-only Auditor cell in the chapter reads Client Decision Required rather than being guessed",
+      "impact": "Auditor evidence access to approval log, screen-level diff and version history.",
+      "line": 34524
+    },
+    {
+      "id": "DEC-EMBED-001",
+      "question": "Whether Coaching Corpus content crosses the platform boundary to be embedded, under what data-processing terms, in which region, and how model deprecation is handled.",
+      "options": ["(a) embed in-region under a data-processing agreement with no retention by the model provider", "(b) embed only non-identifiable asset types and exclude video containing identifiable workers from semantic indexing", "(c) run an in-boundary embedding model, accepting a quality difference"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed",
+      "impact": "Sending video of identifiable workers to an external model is a data-processing and compliance question.",
+      "line": 32606
+    },
+    {
+      "id": "DEC-RTO-001",
+      "question": "Recovery Time Objective and Recovery Point Objective values, not specified in the Statement of Work for any surface.",
+      "options": ["a stringent pair (RTO one hour, RPO five minutes)", "a moderate pair (four hours, one hour)", "a relaxed pair (next business day, twenty-four hours)"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed",
+      "impact": "Recommendation: moderate pair for the Studio, stringent pair for the Delivery Operations Hub.",
+      "line": 31456
+    },
+    {
+      "id": "DEC-MON-001",
+      "question": "Whether the recommended Studio monitoring metrics are exposed to tenants in the Studio or held platform-side only.",
+      "options": ["exposed to tenants in the Studio", "held platform-side only"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed",
+      "impact": "Monitoring visibility.",
+      "line": 31483
+    },
+    {
+      "id": "DEC-CAPAUTH-001",
+      "question": "Who may enable a capability in the Atomic Capability area; §5.15.2 says 'an authorised user' without naming the role.",
+      "options": ["(a) the Quality Manager only", "(b) the Tenant Admin only", "(c) the Agent Author capability holder"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed; recommendation is option (b) with mandatory Quality Manager consultation recorded",
+      "impact": "Enabling/disabling a capability changes configuration surfaces across every Workflow and can block publication.",
+      "line": 33992
+    },
+    {
+      "id": "DEC-GATE-001",
+      "question": "Whether the Prevention Agent and Deviation and Containment Agent are governed by pre-authorised Studio-authored policy or by a runtime human gate.",
+      "options": ["§5.2/§3.7: pre-authorised, Studio-authored policy", "§8.3.2/§8.3.3: every action agent routes through a human gate before any effect; Prevention Agent labelled 'action, gated'"],
+      "adopted_working_position": "gating per agent in the agent record's governance-binding field: the Prevention Agent carries `authoring-time policy`, the Deviation and Containment Agent carries `runtime human gate` for proposals beyond pre-authorised containment",
+      "status": "adopted working position (2026-08-14)",
+      "impact": "The Studio must author the pre-authorised policy completely and never present it as a runtime human gate.",
+      "line": 31692
+    },
+    {
+      "id": "DEC-CONTLAUNCH-001",
+      "question": "Whether the containment checklist is launched by the device locally or by the Deviation and Containment Agent server-side.",
+      "options": ["§3.4/§7.9.1 layer b: on the device, locally and offline-capable", "§5.2.2/§5.7.1: attributed to the agent, which §7.9.1 layer c places server-side and online-only"],
+      "adopted_working_position": "Option A: the device launches the pre-authorised containment checklist locally, from the version-pinned work package, at the instant of classification, with no network required, and the Deviation and Containment Agent enriches the deviation brief afterwards and never triggers the checklist",
+      "status": "adopted working position (2026-08-14), safer reading; source disagreement recorded at section 51.11A",
+      "impact": "A checklist step requiring a server lookup cannot be a launch-time step.",
+      "line": 31721
+    },
+    {
+      "id": "DEC-STUXREF-001",
+      "question": "Cross-reference defect: §5.2.2 cites '(5.5.9)' for the Severity 1 arming disclosure but the correct section is §5.5.8.",
+      "options": ["correct the cross-reference to §5.5.8"],
+      "adopted_working_position": null,
+      "status": "open — newly identified",
+      "impact": "Downstream requirement traceability keyed on the cited section number would point at the wrong configuration section.",
+      "line": 31869
+    },
+    {
+      "id": "DEC-TAXROLE-001",
+      "question": "Which tenant role may create, edit, deprecate, and archive a custom Job Type or Service Type tag.",
+      "options": ["Quality Manager only", "Tenant Admin only in the tenant administration area", "either"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed; recommendation is Tenant Admin in the tenant administration area with the Quality Manager consulted",
+      "impact": "An uncontrolled custom Job Type list degrades Workflow selection on the floor.",
+      "line": 31914
+    },
+    {
+      "id": "DEC-ARCH-001",
+      "question": "The fate of an archived version: can it be un-archived, linked to a new Job, or is archival reversible at all?",
+      "options": ["(a) archival is reversible by the Quality Manager with an audited reason", "(b) archival is irreversible and a new version must be created from the archived content", "(c) archival is reversible only within a stated window"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed; recommendation option (a)",
+      "impact": "A tenant that archives the wrong version has no stated remedy.",
+      "line": 33443
+    },
+    {
+      "id": "DEC-CAP-001",
+      "question": "Which seven capture types exist at launch; §1.7/§7.8.3 and §5.5.3 list different sets.",
+      "options": ["§1.7/§7.8.3: measurement, scan, photo, checklist, boolean, electronic signature, free text", "§5.5.3: measurement entry, photo capture, barcode or QR scan, checkbox confirmation, digital signature, free text, dropdown selection"],
+      "adopted_working_position": "The adopted working position is the §5.5.3 set: measurement entry, photo capture, barcode or Quick Response code scan, checkbox confirmation, digital signature, free text, and dropdown selection, plus none for instruction-only screens",
+      "status": "adopted working position — Derived Clarification, never SoW Fact; ratification owner is the client's product owner with the platform architect",
+      "impact": "A Frontline player cannot render a type the contract does not name; an author could publish a screen the device cannot render.",
+      "line": 32232
+    },
+    {
+      "id": "DEC-SCAN-001",
+      "question": "The deployed scanner hardware list that a tool barcode scan depends on, owed by the client.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open — owed by the client",
+      "impact": "An authored tool-barcode requirement that no deployed scanner can read would block a screen on the floor.",
+      "line": 32251
+    },
+    {
+      "id": "DEC-LIB-001",
+      "question": "Whether a Content Library edit reaches an in-flight Run (pointer semantics) or waits for the next package build (pinning semantics).",
+      "options": ["(a) pointer semantics — resolution at the moment the checklist launches, so an in-flight Run gets the new version", "(b) pinning semantics — the package carries the checklist as resolved at build time, so an in-flight Run keeps the old version until its next package"],
+      "adopted_working_position": null,
+      "status": "open — recommendation is pinning semantics for anything that ships in the package",
+      "impact": "Two behaviours with different audit consequences for which policy was in force during a run.",
+      "line": 32591
+    },
+    {
+      "id": "DEC-LIBREV-001",
+      "question": "What the 'lightweight review' of §5.7.4 for edits to published Content Library items removes relative to the three-stage chain.",
+      "options": ["(a) the full three-stage chain with a scoped preview limited to the changed item", "(b) Author plus a single Reviewer with release authority folded into the review", "(c) library content governed by its own two-stage chain defined separately"],
+      "adopted_working_position": "Until it is decided, this blueprint treats library edits as passing the full chain and records the divergence",
+      "status": "open — newly identified; recommendation option (a)",
+      "impact": "Whether the separation-of-duties floor differs between two kinds of content that both reach the floor.",
+      "line": 32622
+    },
+    {
+      "id": "DEC-WIDIFF-001",
+      "question": "Whether the offline package carries all three difficulty levels or only the assigned worker's selected level.",
+      "options": ["(a) carry all three levels, the current package definition", "(b) carry only the assigned worker's level and require a re-pull on substitution, which fails offline", "(c) carry the assigned worker's level plus the standard level as a substitution fallback"],
+      "adopted_working_position": "Until it resolves, the package definition carries instruction content at all levels (the source's stated interim rule)",
+      "status": "open — recommendation option (c)",
+      "impact": "Package payload size versus offline mid-Run worker substitution rendering.",
+      "line": 32949
+    },
+    {
+      "id": "DEC-PARTSTUB-001",
+      "question": "The review interval for an incomplete skeletal part record.",
+      "options": ["no reminder", "a fixed platform interval", "a tenant-configurable interval"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed; recommendation a tenant-configurable interval defaulting to seven days",
+      "impact": "An accumulation of name-only stubs degrades the registry's usefulness for genealogy and reporting.",
+      "line": 33203
+    },
+    {
+      "id": "DEC-RELAUTH-001",
+      "question": "Minimum staffing for a complete approval chain and who is eligible for a per-workflow Release Authority override.",
+      "options": ["(a) require at least two holders of a Release-Authority-capable role at tenant scope, enforced at Workflow submission", "(b) permit the per-workflow override to name any authoring-grant holder who is not the Author or the Reviewer", "(c) permit the Reviewer stage to be performed by a second Quality Manager only"],
+      "adopted_working_position": null,
+      "status": "open — newly proposed; recommendation option (a) with a pre-submission staffing check",
+      "impact": "A tenant with one Quality Manager and one authoring-grant holder can author and review but cannot release — a silent operational deadlock.",
+      "line": 33255
+    },
+    {
+      "id": "DEC-PKGFIELD-001",
+      "question": "The authoritative field-by-field assignment of which values are package-borne versus server-only, which Part VII does not enumerate.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open — Client Decision Required; decision owner the platform architect",
+      "impact": "Without it an approved Lane-B value cannot be routed deterministically to the patch-publication path or the immediate-application path.",
+      "line": 33807
+    },
+    {
+      "id": "DEC-STORE-001",
+      "question": "Device storage-full behaviour, explicitly deferred to the Frontline functional specification.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open — explicitly deferred; no behaviour invented",
+      "impact": "Package coaching-asset omission behaviour under storage pressure.",
+      "line": 33850
+    },
+    {
+      "id": "DEC-AGENTLC-001",
+      "question": "Deprecation, disablement, rollback of a deployed composed agent, and the fate of its in-flight runs.",
+      "options": ["(a) a tenant-side disable control on the composed agent with immediate effect and an audited reason", "(b) disablement only through the platform console", "(c) a versioned composed-agent lifecycle mirroring Workflow versioning with rollback to a prior composition"],
+      "adopted_working_position": null,
+      "status": "open — recommendation option (a) for disablement plus option (c) for versioning",
+      "impact": "A misbehaving composed reasoning agent has no stated off switch short of the platform-wide emergency pause.",
+      "line": 33994
+    },
+    {
+      "id": "DEC-LANEBAUTH-001",
+      "question": "Who decides a Lane-B proposal: §5.16.3 says Quality Engineer or Quality Manager; §3.8 and the closed action set say Quality Manager and above.",
+      "options": ["(a) Quality Manager and above only", "(b) the authoring grant confers Lane-B decision authority", "(c) Quality Manager only for package-borne values and authoring-grant holders for server-only values"],
+      "adopted_working_position": null,
+      "status": "open — newly identified; recommendation option (a)",
+      "impact": "Widening Lane-B authority to the Supervisor role changes who can alter operating values on the floor.",
+      "line": 34175
+    },
+    {
+      "id": "DEC-TAX-003",
+      "question": "The taxonomy versioning approach, confirmed by the platform team alongside DEC-TAX-002.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "How replacement of provisional taxonomy names is versioned.",
+      "line": 31914
+    },
+    {
+      "id": "DEC-CERT-001",
+      "question": "Referenced alongside DEC-EMBED-001 as a decision owned by the client's platform team with legal counsel.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open — referenced only",
+      "impact": "Compliance certification posture.",
+      "line": 32606
+    }
+  ],
+  "objects": [
+    {
+      "id": "OBJ-DOH-PART",
+      "name": "Part",
+      "authoritative_owner_surface": "SURF-DOH",
+      "states": ["active", "archived"],
+      "key_relationships": ["referenced by work-instruction steps", "feeds one-level as-built genealogy in MOD-DOH-06", "inline-add seam from SURF-STU"],
+      "line": 30060
+    },
+    {
+      "id": "OBJ-STU-WORKFLOW",
+      "name": "Workflow",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Draft", "In Review", "Published", "Archived"],
+      "key_relationships": ["carries exactly one Job Type", "optional Service Type tag", "linked to Jobs and Runs by the Delivery Operations Hub"],
+      "line": 31124
+    },
+    {
+      "id": "OBJ-STU-VERSION",
+      "name": "Published Workflow version",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Published", "Superseded", "Archived"],
+      "key_relationships": ["semantic version vMAJOR.MINOR.PATCH", "linked to Jobs and Runs", "instantiated as a work package"],
+      "line": 31125
+    },
+    {
+      "id": "OBJ-STU-SCREEN",
+      "name": "Screen",
+      "authoritative_owner_surface": "SURF-STU, within a Workflow version",
+      "states": ["Configured", "Incomplete", "Published within a version"],
+      "key_relationships": ["one screen = one device screen = one unit of execution telemetry", "holds pointers to OBJ-STU-CHECKLIST, OBJ-STU-ROUTING, OBJ-STU-ASSET, OBJ-STU-BLOCK, OBJ-STU-QUALREQ"],
+      "line": 31126
+    },
+    {
+      "id": "OBJ-STU-BLOCK",
+      "name": "Shared Instruction Block",
+      "authoritative_owner_surface": "SURF-STU, scoped to one Workflow",
+      "states": ["Draft", "Applied", "Published within a version"],
+      "key_relationships": ["applied to any number of screens within its Workflow", "never a Content Library item"],
+      "line": 31127
+    },
+    {
+      "id": "OBJ-STU-CHECKLIST",
+      "name": "Containment checklist",
+      "authoritative_owner_surface": "SURF-STU Content Libraries",
+      "states": ["Draft", "Published", "Archived"],
+      "key_relationships": ["tagged by severity-level applicability and optional Service Type tag", "attached per band in Section 7", "ships in the work package"],
+      "line": 31128
+    },
+    {
+      "id": "OBJ-STU-ASSET",
+      "name": "Coaching asset",
+      "authoritative_owner_surface": "SURF-STU Coaching Corpus",
+      "states": ["Uploaded", "Approved", "Indexed", "Flagged for review", "Retired"],
+      "key_relationships": ["multimodal semantic index", "curated defaults per screen per locale", "Lane-A effectiveness signal"],
+      "line": 31129
+    },
+    {
+      "id": "OBJ-STU-ROUTING",
+      "name": "Escalation routing template",
+      "authoritative_owner_surface": "SURF-STU Content Libraries",
+      "states": ["Draft", "Published", "Archived"],
+      "key_relationships": ["one rule per severity level", "roles resolved to people on shift by the Delivery Operations Hub at run time", "never packaged"],
+      "line": 31130
+    },
+    {
+      "id": "OBJ-STU-TRAINING",
+      "name": "Training Library item",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Draft", "In Review", "Published", "Archived"],
+      "key_relationships": ["excluded from every work package", "online-only delivery through the Frontline Training Library Viewer"],
+      "line": 31131
+    },
+    {
+      "id": "OBJ-STU-QUALREQ",
+      "name": "Qualification requirement, baseline or override",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Draft", "Published within a version"],
+      "key_relationships": ["evaluates per assignment to Satisfied, Unsatisfied-blocked, Unsatisfied-notified, Cleared by a granted clearance, or Grandfathered-and-flagged"],
+      "line": 31132
+    },
+    {
+      "id": "OBJ-STU-SUBMISSION",
+      "name": "Approval submission",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Submitted", "Returned with comments", "Advanced", "Released", "Withdrawn"],
+      "key_relationships": ["three-stage chain: Author, Reviewer, Release Authority"],
+      "line": 31133
+    },
+    {
+      "id": "OBJ-STU-PACKAGE",
+      "name": "Work package definition",
+      "authoritative_owner_surface": "SURF-STU, instantiated per Run",
+      "states": ["Defined", "Built", "Delivered", "Pinned", "Superseded"],
+      "key_relationships": ["a package failing integrity verification is Quarantined and never Delivered", "pinned per Run and never re-based"],
+      "line": 31134
+    },
+    {
+      "id": "OBJ-STU-AGENTCFG",
+      "name": "Standard agent configuration, carried in Workflow content",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Configured", "Published within a version"],
+      "key_relationships": ["inherits the Workflow version lifecycle"],
+      "line": 31135
+    },
+    {
+      "id": "OBJ-STU-COMPOSED",
+      "name": "Composed reasoning agent",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Composed", "Evaluation pending", "Evaluation passed", "In approval", "Platform review", "Deployed"],
+      "key_relationships": ["runs on the same orchestrator and reads the same typed memory as the standard agents", "tier-gated to Growth and Enterprise"],
+      "line": 31136
+    },
+    {
+      "id": "OBJ-STU-CAPSTATE",
+      "name": "Capability enablement state",
+      "authoritative_owner_surface": "SURF-STU, within entitlement",
+      "states": ["Enabled", "Disabled", "Not entitled"],
+      "key_relationships": ["switches configuration surfaces on and off in the Workflow Builder"],
+      "line": 31137
+    },
+    {
+      "id": "OBJ-STU-LOCALE",
+      "name": "Per-locale authored variant",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["Authored", "Drafted by artificial intelligence", "Reviewed", "Complete", "Incomplete"],
+      "key_relationships": ["publish-time locale-completeness check", "held inside one Workflow, never parallel per-language Workflow versions"],
+      "line": 31138
+    }
+  ],
+  "workflows": [
+    {
+      "id": "unnumbered",
+      "name": "Regulated-Industry mode happy path",
+      "primary_actor": "Client platform team (Super Admin platform console)",
+      "trigger": "The client's platform team sets the Regulated-Industry mode toggle for the tenant",
+      "surfaces_touched": ["SURF-SA", "SURF-DOH"],
+      "terminal_states": ["mode on with all five constituents applied and transition recorded in tenant_state_history and the audit log"],
+      "line": 29765
+    },
+    {
+      "id": "unnumbered",
+      "name": "Standard report data set request through the Custom Report Builder",
+      "primary_actor": "Requester (Tenant Admin or Quality Manager)",
+      "trigger": "A requester opens the Custom Report Builder in the Client Command Center and selects one of the five data sets",
+      "surfaces_touched": ["SURF-CC", "SURF-DOH"],
+      "terminal_states": ["delivered on demand or scheduled as Excel or comma-separated values with a data-as-of timestamp"],
+      "line": 29932
+    },
+    {
+      "id": "unnumbered",
+      "name": "Parts registry bulk load and step reference",
+      "primary_actor": "Tenant Admin (Priya)",
+      "trigger": "Priya uploads the tenant's part list as a comma-separated-values file during onboarding",
+      "surfaces_touched": ["SURF-DOH", "SURF-STU", "SURF-FL"],
+      "terminal_states": ["consumption recorded for the one-level as-built genealogy"],
+      "line": 30081
+    },
+    {
+      "id": "unnumbered",
+      "name": "The full operational edge sequence, end to end",
+      "primary_actor": "Delivery Operations Hub / devices",
+      "trigger": "Connectivity at a Site fails",
+      "surfaces_touched": ["SURF-FL", "SURF-DOH", "SURF-CC"],
+      "terminal_states": ["conflicts resolved last-write-wins or routed to human resolution; post-submission corrections appended with audited recompute"],
+      "line": 30204
+    },
+    {
+      "id": "unnumbered",
+      "name": "Setting a tenant configuration value",
+      "primary_actor": "Tenant Admin (Priya)",
+      "trigger": "Priya opens the tenant administration area and selects a setting",
+      "surfaces_touched": ["SURF-DOH", "SURF-SA"],
+      "terminal_states": ["accepted value written with its audit entry in the same transaction", "looser-than-floor value rejected with nothing written"],
+      "line": 30300
+    },
+    {
+      "id": "unnumbered",
+      "name": "The upstream path from authoring to floor (fifteen steps)",
+      "primary_actor": "Authoring-grant holder",
+      "trigger": "An authoring-grant holder creates or opens a Workflow in the Workflow Library",
+      "surfaces_touched": ["SURF-STU", "SURF-DOH", "SURF-FL", "SURF-CC"],
+      "terminal_states": ["Lane-A refinements self-tune inside Studio-defined boundaries; Lane-B proposals return to a human decision and auto-publish a patch version"],
+      "line": 30617
+    },
+    {
+      "id": "unnumbered",
+      "name": "How a new capability reaches a tenant's authoring surface (ten steps)",
+      "primary_actor": "Platform engineer",
+      "trigger": "A platform engineer identifies the need for a new atomic capability",
+      "surfaces_touched": ["SURF-SA", "SURF-STU"],
+      "terminal_states": ["Authors configure the new surface on the screens where it is relevant; no tenant-side engineering work is required"],
+      "line": 30714
+    },
+    {
+      "id": "unnumbered",
+      "name": "A typical authoring session's navigation path",
+      "primary_actor": "Authoring-grant holder",
+      "trigger": "Sign in and select the Standards and Operations Studio",
+      "surfaces_touched": ["SURF-STU"],
+      "terminal_states": ["After release, open Version Control for the diff, the linkage view, and the export"],
+      "line": 31018
+    },
+    {
+      "id": "unnumbered",
+      "name": "A publication crossing an offline device",
+      "primary_actor": "Release Authority (Elena)",
+      "trigger": "Elena releases v2.2.0 in the Studio",
+      "surfaces_touched": ["SURF-STU", "SURF-DOH", "SURF-FL"],
+      "terminal_states": ["Reconciliation compares Runs against pinned versions and reports any Run whose pinned version differs from the version its Job now nominates"],
+      "line": 31262
+    },
+    {
+      "id": "unnumbered",
+      "name": "Three-stage approval chain happy path",
+      "primary_actor": "Author (authoring-grant holder)",
+      "trigger": "The Author completes the Workflow and submits it",
+      "surfaces_touched": ["SURF-STU"],
+      "terminal_states": ["Released — a new version is created and the transition is permanently recorded", "Withdrawn by the Author before review began"],
+      "line": 33324
+    },
+    {
+      "id": "unnumbered",
+      "name": "Composing and deploying a reasoning agent",
+      "primary_actor": "Agent Author capability holder",
+      "trigger": "An authorised user enables the capabilities the operation needs, within entitlement",
+      "surfaces_touched": ["SURF-STU", "SURF-SA"],
+      "terminal_states": ["Deployed within the tenant workspace", "returned to Composed on evaluation failure, chain return, or platform review decline"],
+      "line": 34063
+    },
+    {
+      "id": "unnumbered",
+      "name": "Work package build, delivery, pinning and offline execution",
+      "primary_actor": "Package build service / Frontline device",
+      "trigger": "A Run is assigned in the Delivery Operations Hub",
+      "surfaces_touched": ["SURF-DOH", "SURF-FL", "SURF-CC"],
+      "terminal_states": ["At sync, escalations delivered, server-side records written, classifications mirrored", "Quarantined package: Run cannot start on that device"],
+      "line": 33869
+    },
+    {
+      "id": "unnumbered",
+      "name": "Two-lane learning loop",
+      "primary_actor": "Platform / Quality Manager",
+      "trigger": "A Workflow version is published; procedural and semantic memory are written; runs execute and outcome signals accumulate",
+      "surfaces_touched": ["SURF-STU", "SURF-CC", "SURF-FL"],
+      "terminal_states": ["package-borne value auto-publishes a patch", "server-only value applies immediately", "proposal rejected and recorded", "proposal stale-flagged at 30 days"],
+      "line": 34249
+    }
+  ],
+  "screens": [
+    {"id": "SB-DOH-029", "name": "The mode-status panel", "surface": "SURF-DOH", "module_id": "MOD-DOH-17", "line": 29839},
+    {"id": "SB-DOH-030", "name": "The data-set picker", "surface": "SURF-CC", "module_id": "MOD-DOH-18", "line": 29999},
+    {"id": "SB-DOH-031", "name": "The parts registry screen", "surface": "SURF-DOH", "module_id": "MOD-DOH-19", "line": 30148},
+    {"id": "SB-DOH-032", "name": "The connectivity banner and the freshness marker", "surface": "SURF-DOH", "module_id": "Operational Edge Protocol", "line": 30236},
+    {"id": "SB-DOH-033", "name": "A setting row", "surface": "SURF-DOH", "module_id": "Tenant Administration Area", "line": 30364},
+    {"id": "SB-STU-01", "name": "Entering the Studio", "surface": "SURF-STU", "module_id": "MOD-STU-01", "line": 30666},
+    {"id": "SB-STU-02", "name": "The Atomic Capability area", "surface": "SURF-STU", "module_id": "MOD-STU-15", "line": 30751},
+    {"id": "SB-STU-03", "name": "The adoption panel after publication", "surface": "SURF-STU", "module_id": "MOD-STU-12", "line": 31304},
+    {"id": "SB-STU-04", "name": "Unavailable configuration section line", "surface": "SURF-STU", "module_id": "MOD-STU-01", "line": 31640},
+    {"id": "SB-STU-05", "name": "The severity-arming confirmation", "surface": "SURF-STU", "module_id": "MOD-STU-02", "line": 31814},
+    {"id": "SB-STU-06", "name": "The Library", "surface": "SURF-STU", "module_id": "MOD-STU-03", "line": 31976},
+    {"id": "SB-STU-07", "name": "The canvas", "surface": "SURF-STU", "module_id": "MOD-STU-04", "line": 32144},
+    {"id": "SB-STU-08", "name": "The configuration panel", "surface": "SURF-STU", "module_id": "MOD-STU-05", "line": 32379},
+    {"id": "SB-STU-09", "name": "The block editor", "surface": "SURF-STU", "module_id": "MOD-STU-06", "line": 32523},
+    {"id": "SB-STU-10", "name": "The Content Libraries", "surface": "SURF-STU", "module_id": "MOD-STU-07", "line": 32725},
+    {"id": "SB-STU-11", "name": "The Training Library", "surface": "SURF-STU", "module_id": "MOD-STU-08", "line": 32887},
+    {"id": "SB-STU-12", "name": "The difficulty-level editor", "surface": "SURF-STU", "module_id": "MOD-STU-09", "line": 33038},
+    {"id": "SB-STU-13", "name": "The mini-form", "surface": "SURF-STU", "module_id": "MOD-STU-10", "line": 33178},
+    {"id": "SB-STU-14", "name": "The Approval Queue and the review preview", "surface": "SURF-STU", "module_id": "MOD-STU-11", "line": 33357},
+    {"id": "SB-STU-15", "name": "Version Control", "surface": "SURF-STU", "module_id": "MOD-STU-12", "line": 33546},
+    {"id": "SB-STU-16", "name": "Qualification Requirements", "surface": "SURF-STU", "module_id": "MOD-STU-13", "line": 33725},
+    {"id": "SB-STU-17", "name": "The package contents view", "surface": "SURF-STU", "module_id": "MOD-STU-14", "line": 33905},
+    {"id": "SB-STU-18", "name": "The Agent Builder", "surface": "SURF-STU", "module_id": "MOD-STU-15", "line": 34096},
+    {"id": "SB-STU-19", "name": "The learning read view", "surface": "SURF-STU", "module_id": "MOD-STU-16", "line": 34293},
+    {"id": "SB-STU-20", "name": "Localisation Coverage", "surface": "SURF-STU", "module_id": "MOD-STU-17", "line": 34447},
+    {"id": "SB-STU-21", "name": "The capability panel", "surface": "SURF-STU", "module_id": "MOD-STU-18", "line": 34631},
+    {"id": "SCR-STU-LIBRARY", "name": "Workflow Library", "surface": "SURF-STU", "module_id": "MOD-STU-03", "line": 31069},
+    {"id": "SCR-STU-NEWWF", "name": "New Workflow", "surface": "SURF-STU", "module_id": "MOD-STU-03", "line": 31070},
+    {"id": "SCR-STU-CANVAS", "name": "Workflow Builder canvas", "surface": "SURF-STU", "module_id": "MOD-STU-04", "line": 31071},
+    {"id": "SCR-STU-PANEL", "name": "Screen configuration panel", "surface": "SURF-STU", "module_id": "MOD-STU-05", "line": 31072},
+    {"id": "SCR-STU-BLOCK", "name": "Shared Instruction Block editor", "surface": "SURF-STU", "module_id": "MOD-STU-06", "line": 31073},
+    {"id": "SCR-STU-CHECKLIST", "name": "Containment Checklist Library", "surface": "SURF-STU", "module_id": "MOD-STU-07", "line": 31074},
+    {"id": "SCR-STU-CORPUS", "name": "Coaching Corpus", "surface": "SURF-STU", "module_id": "MOD-STU-07", "line": 31075},
+    {"id": "SCR-STU-ROUTING", "name": "Escalation Routing Templates", "surface": "SURF-STU", "module_id": "MOD-STU-07", "line": 31076},
+    {"id": "SCR-STU-TRAINING", "name": "Training Library", "surface": "SURF-STU", "module_id": "MOD-STU-08", "line": 31077},
+    {"id": "SCR-STU-QUAL", "name": "Qualification Requirements", "surface": "SURF-STU", "module_id": "MOD-STU-13", "line": 31078},
+    {"id": "SCR-STU-QUEUE", "name": "Approval Queue", "surface": "SURF-STU", "module_id": "MOD-STU-11", "line": 31079},
+    {"id": "SCR-STU-PREVIEW", "name": "Screen-by-screen review preview", "surface": "SURF-STU", "module_id": "MOD-STU-11", "line": 31080},
+    {"id": "SCR-STU-VERSION", "name": "Version Control", "surface": "SURF-STU", "module_id": "MOD-STU-12", "line": 31081},
+    {"id": "SCR-STU-DIFF", "name": "Screen-level diff", "surface": "SURF-STU", "module_id": "MOD-STU-12", "line": 31082},
+    {"id": "SCR-STU-LINKAGE", "name": "Job and Run linkage view", "surface": "SURF-STU", "module_id": "MOD-STU-12", "line": 31083},
+    {"id": "SCR-STU-CAPS", "name": "Atomic Capabilities", "surface": "SURF-STU", "module_id": "MOD-STU-15", "line": 31084},
+    {"id": "SCR-STU-AGENT", "name": "Agent Builder", "surface": "SURF-STU", "module_id": "MOD-STU-15", "line": 31085},
+    {"id": "SCR-STU-LEARN", "name": "Learning read view", "surface": "SURF-STU", "module_id": "MOD-STU-16", "line": 31086},
+    {"id": "SCR-STU-LOCALE", "name": "Localisation Coverage", "surface": "SURF-STU", "module_id": "MOD-STU-17", "line": 31087},
+    {"id": "SCR-STU-PARTADD", "name": "Inline part mini-form", "surface": "SURF-STU", "module_id": "MOD-STU-10", "line": 31088},
+    {"id": "SCR-STU-DRAFTAI", "name": "Pre-approval editing surface", "surface": "SURF-STU", "module_id": "MOD-STU-11", "line": 31089}
+  ],
+  "state_vocabularies": [
+    {
+      "vocabulary_name": "Regulated-Industry mode states",
+      "ordered_states": ["off", "on"],
+      "owning_concept": "MOD-DOH-17 mode",
+      "line": 29745
+    },
+    {
+      "vocabulary_name": "Regulated-Industry constituent states",
+      "ordered_states": ["off", "on", "forced_on_by_mode"],
+      "owning_concept": "MOD-DOH-17 each constituent",
+      "line": 29745
+    },
+    {
+      "vocabulary_name": "Notification states exercised (NOTIF-DOH-17-1)",
+      "ordered_states": ["created", "eligible", "queued", "sent", "delivered", "opened", "read", "acknowledged"],
+      "owning_concept": "Notification lifecycle",
+      "line": 29832
+    },
+    {
+      "vocabulary_name": "Standard report data set states",
+      "ordered_states": ["computed", "computing", "stale_pending_recompute", "corrected"],
+      "owning_concept": "MOD-DOH-18 Data set",
+      "line": 29911
+    },
+    {
+      "vocabulary_name": "Notification states exercised (NOTIF-DOH-18-1)",
+      "ordered_states": ["created", "eligible", "queued", "sent", "provider-accepted", "delivered", "opened", "read"],
+      "owning_concept": "Notification lifecycle with provider acceptance",
+      "line": 29991
+    },
+    {
+      "vocabulary_name": "Part states",
+      "ordered_states": ["active", "archived"],
+      "owning_concept": "OBJ-DOH-PART",
+      "line": 30060
+    },
+    {
+      "vocabulary_name": "Studio connectivity state machine",
+      "ordered_states": ["Connected", "Degraded", "ReadOnlyCache", "Suspended"],
+      "owning_concept": "Standards and Operations Studio session",
+      "line": 30840
+    },
+    {
+      "vocabulary_name": "Workflow lifecycle",
+      "ordered_states": ["Draft", "In Review", "Published", "Archived"],
+      "owning_concept": "OBJ-STU-WORKFLOW",
+      "line": 31124
+    },
+    {
+      "vocabulary_name": "Published Workflow version lifecycle",
+      "ordered_states": ["Published", "Superseded", "Archived"],
+      "owning_concept": "OBJ-STU-VERSION",
+      "line": 31125
+    },
+    {
+      "vocabulary_name": "Screen lifecycle",
+      "ordered_states": ["Configured", "Incomplete", "Published within a version"],
+      "owning_concept": "OBJ-STU-SCREEN",
+      "line": 31126
+    },
+    {
+      "vocabulary_name": "Shared Instruction Block lifecycle",
+      "ordered_states": ["Draft", "Applied", "Published within a version"],
+      "owning_concept": "OBJ-STU-BLOCK",
+      "line": 31127
+    },
+    {
+      "vocabulary_name": "Containment checklist lifecycle",
+      "ordered_states": ["Draft", "Published", "Archived"],
+      "owning_concept": "OBJ-STU-CHECKLIST",
+      "line": 31128
+    },
+    {
+      "vocabulary_name": "Coaching asset lifecycle",
+      "ordered_states": ["Uploaded", "Approved", "Indexed", "Flagged for review", "Retired"],
+      "owning_concept": "OBJ-STU-ASSET",
+      "line": 31129
+    },
+    {
+      "vocabulary_name": "Escalation routing template lifecycle",
+      "ordered_states": ["Draft", "Published", "Archived"],
+      "owning_concept": "OBJ-STU-ROUTING",
+      "line": 31130
+    },
+    {
+      "vocabulary_name": "Training Library item lifecycle",
+      "ordered_states": ["Draft", "In Review", "Published", "Archived"],
+      "owning_concept": "OBJ-STU-TRAINING",
+      "line": 31131
+    },
+    {
+      "vocabulary_name": "Qualification requirement lifecycle",
+      "ordered_states": ["Draft", "Published within a version"],
+      "owning_concept": "OBJ-STU-QUALREQ",
+      "line": 31132
+    },
+    {
+      "vocabulary_name": "Approval submission lifecycle",
+      "ordered_states": ["Submitted", "Returned with comments", "Advanced", "Released", "Withdrawn"],
+      "owning_concept": "OBJ-STU-SUBMISSION",
+      "line": 31133
+    },
+    {
+      "vocabulary_name": "Work package definition lifecycle",
+      "ordered_states": ["Defined", "Built", "Delivered", "Pinned", "Superseded"],
+      "owning_concept": "OBJ-STU-PACKAGE",
+      "line": 31134
+    },
+    {
+      "vocabulary_name": "Standard agent configuration lifecycle",
+      "ordered_states": ["Configured", "Published within a version"],
+      "owning_concept": "OBJ-STU-AGENTCFG",
+      "line": 31135
+    },
+    {
+      "vocabulary_name": "Composed reasoning agent lifecycle",
+      "ordered_states": ["Composed", "Evaluation pending", "Evaluation passed", "In approval", "Platform review", "Deployed"],
+      "owning_concept": "OBJ-STU-COMPOSED",
+      "line": 31136
+    },
+    {
+      "vocabulary_name": "Capability enablement state",
+      "ordered_states": ["Enabled", "Disabled", "Not entitled"],
+      "owning_concept": "OBJ-STU-CAPSTATE",
+      "line": 31137
+    },
+    {
+      "vocabulary_name": "Per-locale authored variant lifecycle",
+      "ordered_states": ["Authored", "Drafted by artificial intelligence", "Reviewed", "Complete", "Incomplete"],
+      "owning_concept": "OBJ-STU-LOCALE",
+      "line": 31138
+    },
+    {
+      "vocabulary_name": "Command states",
+      "ordered_states": ["created", "authorized", "queued", "available for delivery", "delivered", "downloaded", "validated", "applied", "acknowledged", "rejected", "failed", "expired", "cancelled", "superseded", "reconciled"],
+      "owning_concept": "Command channel",
+      "line": 31181
+    },
+    {
+      "vocabulary_name": "Studio fallback ladder shape",
+      "ordered_states": ["primary path", "safe retry or resume", "approved alternate dependency", "last-known-good approved mode", "deterministic or manual workflow", "authorised human escalation", "controlled hold or safe stop", "recovery and reconciliation"],
+      "owning_concept": "FB-STU-* contracts",
+      "line": 31439
+    },
+    {
+      "vocabulary_name": "Safety priority order deciding between competing fallbacks",
+      "ordered_states": ["worker safety", "tenant isolation", "security", "authorization", "qualification", "specification and evaluation controls", "approval and release authority", "data integrity", "auditability", "controlled continuity", "clear user communication", "recovery and reconciliation"],
+      "owning_concept": "Studio fallback ladder",
+      "line": 31439
+    },
+    {
+      "vocabulary_name": "Approval submission state machine",
+      "ordered_states": ["Drafting", "Submitted", "UnderReview", "Returned", "AwaitingRelease", "Released", "Withdrawn"],
+      "owning_concept": "MOD-STU-11 approval chain",
+      "line": 33335
+    },
+    {
+      "vocabulary_name": "Adoption per Job states",
+      "ordered_states": ["Notified", "Decided-adopt", "Decided-defer", "Outdated"],
+      "owning_concept": "MOD-STU-12 adoption",
+      "line": 33479
+    },
+    {
+      "vocabulary_name": "Semantic version bump classes",
+      "ordered_states": ["PATCH", "MINOR", "MAJOR"],
+      "owning_concept": "vMAJOR.MINOR.PATCH republish classification",
+      "line": 33427
+    },
+    {
+      "vocabulary_name": "Qualification requirement evaluation states against an assignment",
+      "ordered_states": ["Satisfied", "Unsatisfied-blocked", "Unsatisfied-notified", "Cleared by a granted clearance", "Grandfathered-and-flagged"],
+      "owning_concept": "MOD-STU-13",
+      "line": 33655
+    },
+    {
+      "vocabulary_name": "Capture upload states at reconnection",
+      "ordered_states": ["committed locally", "queued", "uploading", "uploaded", "server received", "validated", "accepted", "officially recorded", "reflected in summaries", "reconciled"],
+      "owning_concept": "MOD-STU-14 reconnect behaviour",
+      "line": 33913
+    },
+    {
+      "vocabulary_name": "The five typed memory stores",
+      "ordered_states": ["working memory", "episodic", "semantic", "procedural", "profile"],
+      "owning_concept": "Tenant manufacturing memory",
+      "line": 34162
+    },
+    {
+      "vocabulary_name": "Lane-B proposal states",
+      "ordered_states": ["Proposed", "Stale-flagged at 30 days", "Approved", "Rejected", "Published as a patch", "Applied immediately for a server-only value"],
+      "owning_concept": "MOD-STU-16 Lane B",
+      "line": 34212
+    },
+    {
+      "vocabulary_name": "Grant states",
+      "ordered_states": ["Assigned", "Active", "Revoked", "Expired"],
+      "owning_concept": "MOD-STU-18 grants",
+      "line": 34573
+    },
+    {
+      "vocabulary_name": "Skeletal part record states",
+      "ordered_states": ["Skeletal", "Complete"],
+      "owning_concept": "MOD-STU-10 parts seam",
+      "line": 33129
+    },
+    {
+      "vocabulary_name": "Difficulty level per locale states",
+      "ordered_states": ["Authored", "Drafted by artificial intelligence", "Edited", "Reviewed", "Published within a version"],
+      "owning_concept": "MOD-STU-09",
+      "line": 32981
+    },
+    {
+      "vocabulary_name": "Reasoning orchestrator loop",
+      "ordered_states": ["plan", "act", "observe", "reflect", "replan"],
+      "owning_concept": "Single reasoning orchestrator",
+      "line": 31686
+    },
+    {
+      "vocabulary_name": "The five constituents of Regulated-Industry mode",
+      "ordered_states": ["Quality Manager review of Summaries forced on", "Retention posture at its regulated maximum", "Clearance audit surfaced prominently in review", "Critical re-notify tightened from 4 hours to 1 hour", "No personal-data anonymisation, ever"],
+      "owning_concept": "MOD-DOH-17 bundle",
+      "line": 29724
+    },
+    {
+      "vocabulary_name": "The five standard report data sets",
+      "ordered_states": ["Worker utilisation by Area", "Run completion rate by Job", "Workflow-version usage", "Clearance (qualification-override) frequency by role", "Tier-allocation consumption trend"],
+      "owning_concept": "MOD-DOH-18",
+      "line": 29884
+    },
+    {
+      "vocabulary_name": "The nine screen configuration sections",
+      "ordered_states": ["Screen content", "Input type", "Timing", "Gate and proof", "Specification limits", "Coaching content", "Deviation rules and severity mapping", "Tool and equipment", "Qualification override"],
+      "owning_concept": "MOD-STU-05 configuration panel",
+      "line": 32218
+    },
+    {
+      "vocabulary_name": "The seven launch capture types (adopted §5.5.3 set, DEC-CAP-001)",
+      "ordered_states": ["measurement entry", "photo capture", "barcode or QR scan", "checkbox confirmation", "digital signature", "free text", "dropdown selection"],
+      "owning_concept": "MOD-STU-05 Section 2 Input type",
+      "line": 32230
+    },
+    {
+      "vocabulary_name": "The seven capture types per §1.7 and §7.8.3 (contradicting set)",
+      "ordered_states": ["measurement", "scan", "photo", "checklist", "boolean", "electronic signature", "free text"],
+      "owning_concept": "Platform canon capture types",
+      "line": 32232
+    },
+    {
+      "vocabulary_name": "The five package content classes",
+      "ordered_states": ["all screen content including instruction text at the difficulty levels in the Run's locale", "specification limits and gate rules", "the screen severity mappings together with the severity-catalog definitions and tenant action bundles", "the platform deviation-capture forms", "the designated coaching defaults and short-form coaching assets"],
+      "owning_concept": "MOD-STU-14 work package",
+      "line": 33793
+    },
+    {
+      "vocabulary_name": "The three deterministic detection mechanisms",
+      "ordered_states": ["Time deviation", "Sequence deviation", "Specification or evidence deviation"],
+      "owning_concept": "MOD-STU-02 detection",
+      "line": 31715
+    },
+    {
+      "vocabulary_name": "The three difficulty levels",
+      "ordered_states": ["simple", "standard", "expanded"],
+      "owning_concept": "MOD-STU-09",
+      "line": 32945
+    },
+    {
+      "vocabulary_name": "The three-stage approval chain",
+      "ordered_states": ["Author", "Reviewer", "Release Authority"],
+      "owning_concept": "MOD-STU-11",
+      "line": 33241
+    },
+    {
+      "vocabulary_name": "The four-tier authority model",
+      "ordered_states": ["Tier 1 defines (the Super Admin platform console)", "Tier 2 configures (the Studio)", "Tier 3 runs (the Client Command Center)", "the floor executes (the Frontline Worker Application) against the record of truth (the Delivery Operations Hub)"],
+      "owning_concept": "Platform authority model §1.2",
+      "line": 30521
+    },
+    {
+      "vocabulary_name": "The five command-channel classes",
+      "ordered_states": ["lot release", "reassignment or substitution", "qualification clearance", "suspension", "version change"],
+      "owning_concept": "Command channel §7.2.2",
+      "line": 31179
+    },
+    {
+      "vocabulary_name": "Deviation notification progression (MOD-STU-02)",
+      "ordered_states": ["created", "eligible", "queued", "sent", "provider-accepted", "delivered", "opened", "read", "acknowledged", "escalated", "resolved"],
+      "owning_concept": "Escalation notification lifecycle",
+      "line": 31837
+    },
+    {
+      "vocabulary_name": "Approval queue notification progression",
+      "ordered_states": ["created", "eligible", "queued", "sent", "provider-accepted", "delivered", "opened", "read", "acknowledged", "claimed", "acted"],
+      "owning_concept": "Approval-chain notification lifecycle",
+      "line": 33379
+    }
+  ],
+  "numeric_facts": [
+    {"fact": "Regulated-Industry mode bundles exactly five constituents, each also independently settable", "value": "5", "unit": "constituents", "applies_to": "MOD-DOH-17", "line": 29720},
+    {"fact": "Critical re-notify tightened from 4 hours to 1 hour in Regulated-Industry mode", "value": "4 hours -> 1 hour", "unit": "hours", "applies_to": "MOD-DOH-10 escalation interval", "line": 29727},
+    {"fact": "The 24-month anonymisation never runs for a Regulated-Industry tenant", "value": "24", "unit": "months", "applies_to": "Personal-data anonymisation", "line": 29728},
+    {"fact": "Standard tenant Critical re-notification interval", "value": "4", "unit": "hours", "applies_to": "Bright Bikes standard tenant", "line": 29841},
+    {"fact": "Worker personal data anonymises after archival for standard commercial tenants", "value": "24", "unit": "months", "applies_to": "Standard tenants", "line": 29841},
+    {"fact": "Exactly five standard report data sets exist, all owned and computed by the Hub", "value": "5", "unit": "data sets", "applies_to": "MOD-DOH-18", "line": 30009},
+    {"fact": "MOD-DOH-18 consumes from seven other Hub modules", "value": "7", "unit": "modules", "applies_to": "MOD-DOH-18 interconnections", "line": 29913},
+    {"fact": "Scheduled report delivery example time", "value": "06:00", "unit": "time of day", "applies_to": "Report scheduling", "line": 29896},
+    {"fact": "Bright Bikes uploads parts during onboarding", "value": "1,240", "unit": "parts", "applies_to": "Illustrative Example — parts registry", "line": 30150},
+    {"fact": "Site connectivity loss: internal alert to client platform operations", "value": "30", "unit": "minutes", "applies_to": "Operational edge protocol graded response", "line": 30192},
+    {"fact": "Site connectivity loss: warning banner to the Tenant Admin", "value": "60", "unit": "minutes", "applies_to": "Operational edge protocol graded response", "line": 30192},
+    {"fact": "Site connectivity loss: escalation to platform on-call", "value": "2 hours (120 minutes)", "unit": "hours/minutes", "applies_to": "Operational edge protocol graded response", "line": 30192},
+    {"fact": "Clock-skew threshold default", "value": "approximately 5 minutes", "unit": "minutes", "applies_to": "Sync-conflict handling", "line": 30194},
+    {"fact": "Clock-skew threshold platform ceiling", "value": "60", "unit": "minutes", "applies_to": "Sync-conflict handling", "line": 30194},
+    {"fact": "Illustrative untrusted device clock skew in the example", "value": "47", "unit": "minutes fast", "applies_to": "Illustrative Example — conflict routing", "line": 30238},
+    {"fact": "Qualification-gate posture platform default", "value": "Strict blocking", "unit": "posture", "applies_to": "Settings register", "line": 30333},
+    {"fact": "Qualification-gate posture floor", "value": "notify-only", "unit": "posture", "applies_to": "Settings register", "line": 30333},
+    {"fact": "Record-finish window platform default", "value": "48", "unit": "hours", "applies_to": "Settings register", "line": 30337},
+    {"fact": "Record-finish window floor and ceiling", "value": "floor 24 hours, ceiling 7 days", "unit": "hours/days", "applies_to": "Settings register, DEC-FINISH-001", "line": 30337},
+    {"fact": "Offline credential and clearance trust window default", "value": "approximately 24 hours", "unit": "hours", "applies_to": "Settings register", "line": 30339},
+    {"fact": "Offline credential and clearance trust window ceiling", "value": "72", "unit": "hours", "applies_to": "Settings register", "line": 30339},
+    {"fact": "Per-shift digest delivery time default", "value": "06:00", "unit": "time of day", "applies_to": "Settings register", "line": 30342},
+    {"fact": "Digest composition: all four sections", "value": "4", "unit": "sections", "applies_to": "certification expiries, review-queue aging, open anomalies, allocation position", "line": 30341},
+    {"fact": "Bright Bikes illustrative run-extension cap", "value": "30 minutes beyond shift end", "unit": "minutes", "applies_to": "Illustrative Example — settings register", "line": 30343},
+    {"fact": "Bright Bikes illustrative hierarchy depth", "value": "Three levels: Site, Area, Location", "unit": "levels", "applies_to": "Illustrative Example — settings register", "line": 30344},
+    {"fact": "Bright Bikes illustrative shift definition", "value": "SHIFT-DAY 06:00 to 14:00", "unit": "time range", "applies_to": "Illustrative Example — settings register", "line": 30345},
+    {"fact": "Usage-ladder thresholds visible but not writable by the tenant", "value": "80, 100 and 125 percent", "unit": "percent", "applies_to": "Tier and allocation ceilings", "line": 30351},
+    {"fact": "Nine open decisions touch the Delivery Operations Hub surface", "value": "9", "unit": "open decisions", "applies_to": "Chapter 19 coverage claim", "line": 30407},
+    {"fact": "Sixteen Client Decision Required identifiers listed in the chapter open items register", "value": "16", "unit": "identifiers", "applies_to": "Chapter 19 register diagram", "line": 30487},
+    {"fact": "Seven TBD — Client Decision Required entries across the fallback register in 19.2 for RTO/RPO", "value": "7", "unit": "entries", "applies_to": "Recovery objectives", "line": 30430},
+    {"fact": "Part V describes the Studio's scope in eighteen numbered sections (§5.1 through §5.18)", "value": "18", "unit": "sections", "applies_to": "DEC-STUDIO-001 derivation", "line": 30897},
+    {"fact": "The derivation rule yields exactly eighteen Studio modules, MOD-STU-01 through MOD-STU-18", "value": "18", "unit": "modules", "applies_to": "Studio module inventory", "line": 30899},
+    {"fact": "Rejected alternative A — a six-module functional grouping", "value": "6", "unit": "modules", "applies_to": "Rejected Studio grouping", "line": 30905},
+    {"fact": "Rejected alternative B — a nine-module grouping mirroring the nine screen configuration sections", "value": "9", "unit": "modules", "applies_to": "Rejected Studio grouping", "line": 30906},
+    {"fact": "Rejected alternative C — a twenty-two-module grouping", "value": "22", "unit": "modules", "applies_to": "Rejected Studio grouping", "line": 30907},
+    {"fact": "Eleven of the eighteen Part V sections have no home in a nine-way screen-section split", "value": "11 of 18", "unit": "sections", "applies_to": "Rejection rationale", "line": 30906},
+    {"fact": "Support session default time box", "value": "two hours", "unit": "hours", "applies_to": "Normal support session access class", "line": 30805},
+    {"fact": "Ten Studio fallback contracts, FB-STU-01 through FB-STU-10", "value": "10", "unit": "contracts", "applies_to": "Studio fallback ladder", "line": 31441},
+    {"fact": "Proposed stringent RTO/RPO pair", "value": "RTO one hour, RPO five minutes", "unit": "hours/minutes", "applies_to": "DEC-RTO-001 option", "line": 31456},
+    {"fact": "Proposed moderate RTO/RPO pair", "value": "four hours, one hour", "unit": "hours", "applies_to": "DEC-RTO-001 option", "line": 31456},
+    {"fact": "Proposed relaxed RTO/RPO pair", "value": "next business day, twenty-four hours", "unit": "days/hours", "applies_to": "DEC-RTO-001 option", "line": 31456},
+    {"fact": "Launch seeds three standard agents", "value": "3", "unit": "agents", "applies_to": "Prevention Agent, Deviation and Containment Agent, Shift Handoff Agent", "line": 31686},
+    {"fact": "Shift Handoff Agent runs a configurable period before shift end", "value": "defaulting to about 30 minutes", "unit": "minutes", "applies_to": "MOD-STU-02 Shift Handoff Agent", "line": 31723},
+    {"fact": "Eight starter Job Types and eight starter Service Type tags seeded by the platform", "value": "8 and 8 (16 total)", "unit": "taxonomy entries", "applies_to": "MOD-STU-03 taxonomy, DEC-TAX-002", "line": 31890},
+    {"fact": "Platform-seeded taxonomy catalogue ships empty at version 1 under the adopted working position", "value": "0", "unit": "seeded entries", "applies_to": "DEC-TAX-002 adopted working position", "line": 31892},
+    {"fact": "Each Workflow carries four settings set before screen authoring begins", "value": "4", "unit": "settings", "applies_to": "MOD-STU-04: name, Job Type, optional Service Type tag, locale coverage", "line": 32040},
+    {"fact": "Each Workflow carries exactly two inheritable defaults", "value": "2", "unit": "defaults", "applies_to": "default escalation routing template and default coaching trigger percentage", "line": 32040},
+    {"fact": "Screen configuration panel is organised into nine sections", "value": "9", "unit": "sections", "applies_to": "MOD-STU-05", "line": 32203},
+    {"fact": "Seven capture types are available at launch, plus none for instruction-only screens", "value": "7 (+none)", "unit": "capture types", "applies_to": "MOD-STU-05 Section 2, DEC-CAP-001", "line": 32230},
+    {"fact": "A fully covered screen's instruction content exists in six authored renderings — three levels by two locales", "value": "6 (3 x 2)", "unit": "renderings", "applies_to": "MOD-STU-09, MOD-STU-17", "line": 32947},
+    {"fact": "Three difficulty levels per screen", "value": "3", "unit": "levels", "applies_to": "simple, standard, expanded", "line": 32945},
+    {"fact": "Two languages at launch — English and Spanish", "value": "2", "unit": "locales", "applies_to": "MOD-STU-17 localisation", "line": 34357},
+    {"fact": "Two notification channels only at V1 — in-app and email", "value": "2", "unit": "channels", "applies_to": "MOD-STU-07 Escalation Routing Templates", "line": 32613},
+    {"fact": "Default one-shift update window before the prior version is flagged outdated", "value": "one shift (configurable)", "unit": "shift", "applies_to": "MOD-STU-12 notified-class adoption", "line": 33431},
+    {"fact": "Qualification validation runs three times", "value": "3", "unit": "validation points", "applies_to": "MOD-STU-13: at assignment, at Run start, at an override-carrying screen", "line": 33614},
+    {"fact": "Qualification requirements operate at two levels", "value": "2", "unit": "levels", "applies_to": "Workflow baseline and screen-level overrides", "line": 33610},
+    {"fact": "Qualification clearance is Client Command Center action number ten", "value": "10", "unit": "action number", "applies_to": "Closed action set of ten operational actions", "line": 33616},
+    {"fact": "Working atom count", "value": "roughly ten to fifteen, with success at fifteen to twenty-five and no fixed target", "unit": "atomic capabilities", "applies_to": "MOD-STU-15 registry", "line": 33971},
+    {"fact": "Agent Author capability is tier-gated to Growth and Enterprise", "value": "Growth and Enterprise", "unit": "commercial tiers", "applies_to": "MOD-STU-15 compose authority", "line": 33988},
+    {"fact": "Five typed memory stores", "value": "5", "unit": "stores", "applies_to": "working, episodic, semantic, procedural, profile", "line": 34162},
+    {"fact": "Undecided Lane-B proposals age visibly with a stale flag and never expire silently", "value": "30", "unit": "days", "applies_to": "MOD-STU-16 Lane B", "line": 34171},
+    {"fact": "Full orchestrator reasoning traces retained platform-internal", "value": "24", "unit": "months", "applies_to": "MOD-STU-15 security", "line": 34125},
+    {"fact": "Delivery Operations Hub Quality Manager review queue aging highlights", "value": "24, 48 and 72 hours", "unit": "hours", "applies_to": "Review-queue ageing vocabulary recommended for the Studio", "line": 33385},
+    {"fact": "Wheel bolt torque specification limits", "value": "44 to 47", "unit": "Newton metres", "applies_to": "Illustrative Example — DWG-A441", "line": 30551},
+    {"fact": "Illustrative Severity 2 capture reading", "value": "41.0 Newton metres, 6.8 per cent below the lower limit", "unit": "Newton metres / percent", "applies_to": "Illustrative Example — RB-0007", "line": 31306},
+    {"fact": "Illustrative Severity 1 capture reading", "value": "38.0 Newton metres, 13.6 per cent below the lower limit", "unit": "Newton metres / percent", "applies_to": "Illustrative Example — RB-0011", "line": 31306},
+    {"fact": "Illustrative severity bands authored on screen 3", "value": "0 to 10 per cent outside the limits maps to Severity 2; beyond 10 per cent maps to Severity 1", "unit": "percent", "applies_to": "Illustrative Example — Bright Bikes", "line": 31816},
+    {"fact": "Illustrative screen 3 timing", "value": "maximum 120 seconds, trigger at the Workflow default of 80 per cent so coaching fires at 96 seconds", "unit": "seconds / percent", "applies_to": "Illustrative Example — Bright Bikes", "line": 31816},
+    {"fact": "Illustrative Lane-B coaching trigger proposal", "value": "80 per cent changed to 75 per cent", "unit": "percent", "applies_to": "Illustrative Example — MOD-STU-16", "line": 34295},
+    {"fact": "Illustrative Workflow screen count", "value": "eleven", "unit": "screens", "applies_to": "Assembly — Wheel Bolt Torque Verification draft", "line": 32146},
+    {"fact": "Illustrative orientation video length", "value": "twelve", "unit": "minutes", "applies_to": "Illustrative Example — Training Library", "line": 32889},
+    {"fact": "Illustrative failed upload row position", "value": "row 900 of 1,240", "unit": "rows", "applies_to": "TEST-DOH-19-F1", "line": 32176},
+    {"fact": "Illustrative package coaching clip count", "value": "four short coaching clips included; one longer clip omitted for storage", "unit": "clips", "applies_to": "Illustrative Example — MOD-STU-14", "line": 33907}
+  ],
+  "contradictions": [
+    {
+      "description": "§4.10.5 names report set 4 'Clearance (qualification-override) frequency by role'; §6.12.1 names the same set 'Override frequency by role'. §4.10.5 also marks all five identities open while stating count and ownership as fixed.",
+      "conflicting_values": ["Clearance (qualification-override) frequency by role", "Override frequency by role", "count and ownership fixed vs identity open"],
+      "governing_decision": "DEC-REPORT-001",
+      "line": 29892
+    },
+    {
+      "description": "The Statement of Work's Studio permission table (§5.18) is headed 'Fixed role' and includes Plant Manager, which §3.5 states is not a role and fixes exactly five roles.",
+      "conflicting_values": ["§3.5's five fixed roles", "§5.18's Plant Manager row in a fixed-role table"],
+      "governing_decision": "DEC-ROLE-001",
+      "line": 30816
+    },
+    {
+      "description": "The §5.18 Studio permission table omits the Read-only Auditor (ROLE-TEN-AUD) entirely, so the source states nothing about that role's Studio access.",
+      "conflicting_values": ["no Studio access", "read-only access to published versions/history/approval logs/diffs", "read-only access to everything including drafts"],
+      "governing_decision": "DEC-AUDSTU-001",
+      "line": 30817
+    },
+    {
+      "description": "The Statement of Work uses Supervisor+ and Quality Manager+ without defining an ordering across five additive, non-hierarchical roles.",
+      "conflicting_values": ["additive union of the named roles", "ranked hierarchy"],
+      "governing_decision": "DEC-PLUS-001",
+      "line": 30832
+    },
+    {
+      "description": "§5.2/§3.7 govern the Prevention and Deviation Agents by pre-authorised Studio-authored policy; §8.3.2 states every action agent routes through a human gate and §8.3.3 labels the Prevention Agent 'action, gated'.",
+      "conflicting_values": ["pre-authorised, Studio-authored policy", "runtime human gate before any effect"],
+      "governing_decision": "DEC-GATE-001",
+      "line": 31692
+    },
+    {
+      "description": "§3.4 and §7.9.1 layer b place the containment checklist launch on the device, locally and offline-capable; §5.2.2 and §5.7.1 attribute the launch to the agent, which §7.9.1 layer c places server-side and online-only.",
+      "conflicting_values": ["device launches locally from the pinned package", "the Deviation and Containment Agent launches server-side"],
+      "governing_decision": "DEC-CONTLAUNCH-001",
+      "line": 31721
+    },
+    {
+      "description": "Source cross-reference defect: §5.2.2 cites '(5.5.9)' for the Severity 1 arming disclosure, but §5.5.1's table and §5.11's numbering place Deviation Rules and Severity Mapping at §5.5.8, with §5.5.9 being Tool and Equipment.",
+      "conflicting_values": ["§5.5.9", "§5.5.8"],
+      "governing_decision": "DEC-STUXREF-001",
+      "line": 31869
+    },
+    {
+      "description": "DEC-TAX-002 option (c), an empty seeded set with every tenant creating its own, contradicts §5.3.2's statement that the platform seeds eight Job Types and eight Service Type tags.",
+      "conflicting_values": ["platform seeds eight and eight", "seeded catalogue ships empty at version 1"],
+      "governing_decision": "DEC-TAX-002",
+      "line": 31896
+    },
+    {
+      "description": "Both the platform canon and the Studio state seven capture types at launch, but the two sets differ: §1.7/§7.8.3 list checklist and boolean; §5.5.3 lists checkbox confirmation and dropdown selection.",
+      "conflicting_values": ["measurement, scan, photo, checklist, boolean, electronic signature, free text", "measurement entry, photo capture, barcode or QR scan, checkbox confirmation, digital signature, free text, dropdown selection"],
+      "governing_decision": "DEC-CAP-001",
+      "line": 32232
+    },
+    {
+      "description": "§5.7 states a library edit propagates immediately to every referencing screen; §5.14 and Part II state a Run's work package is pinned at assignment and never re-based. The in-flight interaction is not stated.",
+      "conflicting_values": ["pointer semantics — resolution at launch time", "pinning semantics — package carries the checklist as resolved at build time"],
+      "governing_decision": "DEC-LIB-001",
+      "line": 32591
+    },
+    {
+      "description": "§5.7.4 introduces a 'lightweight review' for edits to published Content Library items; §5.11.1 states no Workflow content reaches the frontline without explicit human sign-off at each of the three stages and §5.8 requires 'the same approval chain'.",
+      "conflicting_values": ["lightweight review", "full three-stage chain at each stage"],
+      "governing_decision": "DEC-LIBREV-001",
+      "line": 32622
+    },
+    {
+      "description": "§5.11.1 requires human sign-off at each of three stages; §5.16.3 and §6.7.4 have an approved Lane-B proposal auto-publish a patch version with 'no second approval, no ceremony', and §5.12.1 lists a Lane-B-approved value as a PATCH class change.",
+      "conflicting_values": ["three-stage chain absolute", "single Lane-B human decision substitutes for the chain"],
+      "governing_decision": "DEC-LANEB-001",
+      "line": 33253
+    },
+    {
+      "description": "§5.16.3 states a Quality Engineer or Quality Manager decides a Lane-B proposal; §3.8 and the Client Command Center closed action set state the learned-change decision is Quality Manager and above.",
+      "conflicting_values": ["Quality Engineer or Quality Manager", "Quality Manager and above only"],
+      "governing_decision": "DEC-LANEBAUTH-001",
+      "line": 34175
+    },
+    {
+      "description": "The discovery-stage description of offline deviations being 'processed at sync, with severity-band evaluation running on the captured value at that point' is explicitly superseded by Part V: evaluation happens at capture; only escalation delivery happens at sync.",
+      "conflicting_values": ["evaluation at sync (superseded)", "evaluation at capture, delivery at sync (superseding)"],
+      "governing_decision": null,
+      "line": 31256
+    },
+    {
+      "description": "§5.15.2 says 'an authorised user' enables capabilities without naming a role, while §5.15.4 names the Agent Author capability specifically for compose authority.",
+      "conflicting_values": ["Quality Manager only", "Tenant Admin only", "Agent Author capability holder"],
+      "governing_decision": "DEC-CAPAUTH-001",
+      "line": 33992
+    },
+    {
+      "description": "The submission, review and approval path for a composed agent is stated, but deprecation, disablement, rollback of a deployed composed agent and the fate of its in-flight runs are not.",
+      "conflicting_values": ["tenant-side disable control", "disablement only through the platform console", "versioned composed-agent lifecycle with rollback"],
+      "governing_decision": "DEC-AGENTLC-001",
+      "line": 33994
+    },
+    {
+      "description": "§5.3.2 grants custom Job Type and Service Type creation to 'tenants' without naming a role, leaving the authorship of a taxonomy that shapes Delivery Operations Hub Workflow-selection filtering unassigned.",
+      "conflicting_values": ["Quality Manager only", "Tenant Admin only", "either"],
+      "governing_decision": "DEC-TAXROLE-001",
+      "line": 31914
+    },
+    {
+      "description": "§6.7.4 states the authoritative package-borne versus server-only field assignment is carried in the Part VII package contract; Part VII does not enumerate it.",
+      "conflicting_values": ["assignment carried in Part VII", "Part VII does not enumerate it"],
+      "governing_decision": "DEC-PKGFIELD-001",
+      "line": 33807
+    },
+    {
+      "description": "§5.9 leaves open whether the offline package carries all three difficulty levels or only the assigned worker's selected level; the interim rule carries all levels.",
+      "conflicting_values": ["all three levels", "only the assigned worker's level", "assigned level plus standard as a substitution fallback"],
+      "governing_decision": "DEC-WIDIFF-001",
+      "line": 32949
+    },
+    {
+      "description": "The Statement of Work states prior versions are permanently readable and archival is deliberate and manual, but does not state whether an archived version can be un-archived or linked to a new Job.",
+      "conflicting_values": ["reversible by the Quality Manager with an audited reason", "irreversible", "reversible only within a stated window"],
+      "governing_decision": "DEC-ARCH-001",
+      "line": 33443
+    },
+    {
+      "description": "The chapter names the operational system of record the Delivery Operations Hub (SoW §1.2, Part IV heading); the blueprint commission refers to it as the 'Digital Operations Hub'.",
+      "conflicting_values": ["Delivery Operations Hub", "Digital Operations Hub"],
+      "governing_decision": "DEC-NAME-001",
+      "line": 30525
+    },
+    {
+      "description": "The three-stage chain requires three distinct people, and Release Authority defaults to the Quality Manager, but no minimum staffing is stated, producing a silent operational deadlock for a tenant with one Quality Manager and one authoring-grant holder.",
+      "conflicting_values": ["separation of duties satisfied by any second holder of the approving role (§3.5)", "no stated minimum staffing"],
+      "governing_decision": "DEC-RELAUTH-001",
+      "line": 33255
+    }
+  ],
+  "controls": [
+    {"label": "Resolve All", "surface": "SURF-CC", "module_id": "Conflict-review panel", "allowed_roles": ["Quality Manager"], "effect": "Accepts the most recent version of each conflict", "line": 30194},
+    {"label": "End-session", "surface": "SURF-DOH", "module_id": "Platform access classes", "allowed_roles": ["Tenant"], "effect": "Tenant terminates a platform support session", "line": 30805},
+    {"label": "Upload", "surface": "SURF-DOH", "module_id": "MOD-DOH-19", "allowed_roles": ["Tenant Admin"], "effect": "Opens the bulk parts-upload dialogue naming the ingestion limit", "line": 30148},
+    {"label": "Preview Sequence", "surface": "SURF-STU", "module_id": "MOD-STU-04", "allowed_roles": ["Quality Manager", "Supervisor with grant"], "effect": "Walks the canvas graph in worker order", "line": 32144},
+    {"label": "New Workflow", "surface": "SURF-STU", "module_id": "MOD-STU-03", "allowed_roles": ["Quality Manager", "Supervisor with grant", "Implementation team grant"], "effect": "Creates a Workflow; disabled with a stated reason for read-only roles", "line": 31976},
+    {"label": "Return with comments", "surface": "SURF-STU", "module_id": "MOD-STU-11", "allowed_roles": ["Reviewer (not the Author)"], "effect": "Returns the submission to the Author", "line": 33357},
+    {"label": "Advance", "surface": "SURF-STU", "module_id": "MOD-STU-11", "allowed_roles": ["Reviewer (not the Author)"], "effect": "Advances the submission to the Release Authority; disabled if reviewer is the Author", "line": 33357},
+    {"label": "Release", "surface": "SURF-STU", "module_id": "MOD-STU-11", "allowed_roles": ["Release Authority"], "effect": "Signs off against the diff, creating a new version", "line": 33357},
+    {"label": "Decline", "surface": "SURF-STU", "module_id": "MOD-STU-11", "allowed_roles": ["Release Authority"], "effect": "Returns to the Author; mandatory reason field", "line": 33357},
+    {"label": "Archive", "surface": "SURF-STU", "module_id": "MOD-STU-12", "allowed_roles": ["Quality Manager"], "effect": "Manual archival; disabled with reason while active Jobs exist", "line": 33546},
+    {"label": "Export", "surface": "SURF-STU", "module_id": "MOD-STU-12", "allowed_roles": ["Quality Manager", "Supervisor with grant", "read-only roles"], "effect": "Produces the read-only portable-document-format document", "line": 33546},
+    {"label": "Add", "surface": "SURF-STU", "module_id": "MOD-STU-10", "allowed_roles": ["Quality Manager", "Supervisor with grant"], "effect": "Creates a skeletal part record from the name-only mini-form", "line": 33178},
+    {"label": "Cancel", "surface": "SURF-STU", "module_id": "MOD-STU-10", "allowed_roles": ["Quality Manager", "Supervisor with grant"], "effect": "Abandons the inline part add", "line": 33178},
+    {"label": "Review", "surface": "SURF-STU", "module_id": "MOD-STU-16", "allowed_roles": ["Quality Manager"], "effect": "Opens a low-performing coaching asset for review", "line": 34293},
+    {"label": "Retire", "surface": "SURF-STU", "module_id": "MOD-STU-16", "allowed_roles": ["Quality Manager"], "effect": "Retires a flagged coaching asset", "line": 34293},
+    {"label": "Assign", "surface": "SURF-DOH", "module_id": "MOD-STU-18 grant administration", "allowed_roles": ["Tenant Admin"], "effect": "Assigns GRANT-STU-AUTHOR or GRANT-STU-AGENT", "line": 34631},
+    {"label": "Revoke", "surface": "SURF-DOH", "module_id": "MOD-STU-18 grant administration", "allowed_roles": ["Tenant Admin"], "effect": "Revokes a Studio grant at the identity layer", "line": 34631},
+    {"label": "New Agent", "surface": "SURF-STU", "module_id": "MOD-STU-15", "allowed_roles": ["Agent Author capability holder"], "effect": "Steps through name, capability selection, configuration, trigger, mapping", "line": 34096},
+    {"label": "Published filter", "surface": "SURF-STU", "module_id": "MOD-STU-03", "allowed_roles": ["all who may open the Library"], "effect": "Default Library filter applied on open", "line": 31877},
+    {"label": "Enable / Disable capability", "surface": "SURF-STU", "module_id": "MOD-STU-15", "allowed_roles": ["Client Decision Required — DEC-CAPAUTH-001"], "effect": "Switches a configuration surface on or off in the Builder", "line": 30751}
+  ],
+  "failures_fallbacks": [
+    {"id": "FB-DOH-STATE-008", "trigger": "The Regulated-Industry mode flag cannot be read", "first_fallback": "The last known value with its age", "fallback_failure": "Stricter interpretation: treat the tenant as being in Regulated-Industry mode", "terminal_safe_state": "The mode applied as on, with the mode-status panel stating the posture is precautionary pending confirmation", "recovery": "A fresh state read; reconciliation replays tenant_state_history and asserts the applied posture matched the true posture for every minute of the outage", "line": 29843},
+    {"id": "FB-DOH-COMPUTE-006", "trigger": "A standard report data set cannot compute", "first_fallback": "A bounded retry", "fallback_failure": "Presenting the last successfully computed result with its data-as-of timestamp and an explicit pending state, never as current; then presenting the underlying records", "terminal_safe_state": "The report is unavailable and says so; no operational behaviour depends on a report", "recovery": "Recomputation; reconciliation compares against last delivered figures and flags material differences as corrections", "line": 30003},
+    {"id": "FB-DOH-IMPORT-007", "trigger": "A bulk parts upload fails validation", "first_fallback": "Rejection of the whole file with a downloadable per-row, per-column error report and no partial import", "fallback_failure": "Manual single-record entry through the registry screen; then the Studio inline-add seam", "terminal_safe_state": "No records are created and the tenant's existing registry is untouched", "recovery": "A corrected re-upload; reconciliation asserts the part-count delta equals the accepted row count exactly", "line": 30152},
+    {"id": "unnumbered (edge protocol)", "trigger": "The conflict-resolution path fails: conflicts arrive but cannot be resolved or routed", "first_fallback": "Hold every affected write in a quarantine state rather than applying either version", "fallback_failure": "Human escalation to the Quality Manager, who holds the resolve authority; then the run's Summary is marked uncomputed under FB-DOH-COMPUTE-006", "terminal_safe_state": "Quarantined data, an uncomputed Summary and a run held visibly in the review queue — nothing lost, nothing guessed", "recovery": "Human resolution; reconciliation asserts every conflict event has either an automatic or a human resolution record", "line": 30252},
+    {"id": "FB-DOH-WRITE-002", "trigger": "The Super Admin tenant-configuration registry is unreachable so a value's floor cannot be validated", "first_fallback": "A bounded retry", "fallback_failure": "Refuse the write; then the tenant administration area enters read-only with an explanatory banner", "terminal_safe_state": "Every setting keeps its last validated value, which is by definition at or stricter than the floor", "recovery": "Registry restoration; reconciliation re-validates every current tenant setting and reports any value looser than its floor", "line": 30368},
+    {"id": "FB-STU-01", "trigger": "Studio session connectivity loss or save failure", "first_fallback": "Explicit disconnected state, local draft buffer, submit disabled, no save claimed", "fallback_failure": "The browser session ends or the local draft buffer is lost", "terminal_safe_state": "Last durably persisted draft revision; published versions untouched; no partial draft enters the approval chain", "recovery": "Field-level accept-or-discard reconciliation with no silent merge, written to the tenant audit log in the same transaction", "line": 31445},
+    {"id": "FB-STU-02", "trigger": "Publication transaction failure", "first_fallback": "Bounded idempotent retry re-using the submission identifier", "fallback_failure": "Retry exhausted", "terminal_safe_state": "No version number minted; prior published version remains in force", "recovery": "Reconcile minted version numbers against audit entries; a version number is never re-used", "line": 31446},
+    {"id": "FB-STU-03", "trigger": "Approval-chain participant unavailable", "first_fallback": "Submission waits in the Approval Queue with an ageing indicator", "fallback_failure": "No participant becomes available", "terminal_safe_state": "Content stays unpublished; the floor continues on the prior version", "recovery": "Chain staffing restored", "line": 31447},
+    {"id": "FB-STU-04", "trigger": "Content Library or semantic index unavailable", "first_fallback": "Existing pointers retained, section read-only, library named", "fallback_failure": "Pointer cannot be verified", "terminal_safe_state": "No pointer cleared; submission blocked for affected screens", "recovery": "Pointer re-validation before submission is re-enabled; archived-item pointers named for replacement", "line": 31448},
+    {"id": "FB-STU-05", "trigger": "Artificial-intelligence assistance unavailable", "first_fallback": "Manual authoring path fully open; specific assistance named as unavailable; no silent retry", "fallback_failure": "The assistance remains unavailable for the session", "terminal_safe_state": "Content authored manually; curated coaching defaults carry coaching", "recovery": "Index rebuilt by backfill for assets approved during the outage; the learning view reports the backlog explicitly", "line": 31449},
+    {"id": "FB-STU-06", "trigger": "Work-package build or delivery failure", "first_fallback": "Bounded idempotent rebuild, then supervisor on-demand re-pull", "fallback_failure": "The re-pull fails", "terminal_safe_state": "Run cannot start on that device; the device says so plainly; a Run never starts against a partial package", "recovery": "Successful re-pull; reconciliation confirms the package hash matches the definition, any mismatch quarantines rather than executes", "line": 31450},
+    {"id": "FB-STU-07", "trigger": "Upstream dependency unavailable: registry, entitlements, severity catalog, parts, workers", "first_fallback": "Last-retrieved state shown with its retrieval timestamp, labelled last retrieved", "fallback_failure": "No prior state available for this session", "terminal_safe_state": "Dependent configuration surfaces frozen read-only; publication blocked", "recovery": "Re-read registry and entitlement set; re-evaluate every open draft's capability dependencies before permitting submission", "line": 31451},
+    {"id": "FB-STU-08", "trigger": "Evaluation harness or platform review unavailable for a composed agent", "first_fallback": "Composed agent held at its current governance stage with the stage named", "fallback_failure": "Harness remains unreachable", "terminal_safe_state": "Agent not deployed; the evaluation gate is never bypassed", "recovery": "Re-submission produces a recorded outcome; no state was inferred during the outage", "line": 31452},
+    {"id": "FB-STU-09", "trigger": "Validation service unavailable: locale completeness, qualification cross-check, capability dependency", "first_fallback": "Publication blocked, failing closed, with the specific check named", "fallback_failure": "Check remains unavailable", "terminal_safe_state": "Nothing published; prior version remains in force", "recovery": "Coverage grid recomputed; every changed element listed by element and locale", "line": 31453},
+    {"id": "FB-STU-10", "trigger": "Audit write failure", "first_fallback": "Bounded idempotent retry of the whole transaction", "fallback_failure": "Surface the failure with the action explicitly marked as not performed", "terminal_safe_state": "Action does not happen; state unchanged; user told the action was not performed; no version number minted", "recovery": "Re-attempt on user command only; reconciliation compares minted version numbers against audit entries", "line": 31454},
+    {"id": "unnumbered (charter level)", "trigger": "The Studio surface is unreachable or its persistence layer rejects writes", "first_fallback": "Authors held in a read-only degraded view of already-published content; drafts protected by the FB-STU-01 local draft buffer", "fallback_failure": "The read-only view cannot render because the content service itself is down", "terminal_safe_state": "Authoring is suspended. Every already-published Workflow version remains in force. Every already-built work package remains pinned. Runs continue.", "recovery": "Authors resume from the last durably saved draft revision; the platform reports the exact draft revision restored and the exact edits not recovered", "line": 30672},
+    {"id": "unnumbered (package integrity)", "trigger": "A built work package fails integrity verification", "first_fallback": "Quarantine — the suspect item is set aside where it cannot be used but is not destroyed", "fallback_failure": "n/a", "terminal_safe_state": "The package is Quarantined and never Delivered; the Run cannot start on that device with the failing element named", "recovery": "Rebuild and hash reconciliation against the package definition for the pinned version", "line": 33839}
+  ],
+  "fixtures_cast": [
+    {"name": "Bright Bikes", "kind": "tenant", "role_or_type": "Standard commercial tenant, Growth tier, not in Regulated-Industry mode", "line": 29841},
+    {"name": "Priya", "kind": "person", "role_or_type": "Tenant Admin", "line": 30081},
+    {"name": "Elena", "kind": "person", "role_or_type": "Quality Manager and Bright Bikes' Release Authority", "line": 29841},
+    {"name": "Sam", "kind": "person", "role_or_type": "Supervisor at Riverside Plant holding the Studio authoring grant (quality engineer)", "line": 30551},
+    {"name": "Maya", "kind": "person", "role_or_type": "Frontline Worker", "line": 29841},
+    {"name": "Ahmed", "kind": "person", "role_or_type": "Substitute worker; wrong-device login example; expanded difficulty level", "line": 30238},
+    {"name": "Omar", "kind": "person", "role_or_type": "Read-only Auditor", "line": 30856},
+    {"name": "Daniel", "kind": "person", "role_or_type": "Platform Engineer", "line": 30753},
+    {"name": "Noah", "kind": "person", "role_or_type": "Admin (platform), approves registrations", "line": 30753},
+    {"name": "Riverside Plant (SITE-RIVERSIDE)", "kind": "site", "role_or_type": "Bright Bikes site", "line": 30668},
+    {"name": "Assembly Line A", "kind": "area", "role_or_type": "Area within Riverside Plant", "line": 30238},
+    {"name": "TAB-014", "kind": "device", "role_or_type": "Frontline tablet", "line": 29841},
+    {"name": "RUN-2026-08-14-A", "kind": "run", "role_or_type": "Maya's in-flight Run pinned to v2.1.0", "line": 29841},
+    {"name": "JOB-REDBIKE", "kind": "job", "role_or_type": "Job linked to the wheel bolt torque workflow", "line": 30551},
+    {"name": "LOT-WB-2291", "kind": "lot", "role_or_type": "Wheel bolt lot frozen by the Severity 1 hold", "line": 30238},
+    {"name": "RB-0007", "kind": "unit", "role_or_type": "Red Bicycle Seven — Severity 2 capture at 41.0 Nm", "line": 31306},
+    {"name": "RB-0011", "kind": "unit", "role_or_type": "Unit with the Severity 1 capture at 38.0 Nm", "line": 30238},
+    {"name": "Assembly — Wheel Bolt Torque Verification", "kind": "workflow", "role_or_type": "Workflow at v2.1.0 revised to v2.2.0", "line": 30551},
+    {"name": "DWG-A441", "kind": "drawing", "role_or_type": "Drawing reference for the 44 to 47 Newton metre torque specification", "line": 30551},
+    {"name": "SHIFT-DAY", "kind": "shift", "role_or_type": "Bright Bikes shift 06:00 to 14:00 with a 06:00 digest", "line": 30345},
+    {"name": "Torque Wrench Operator Certification", "kind": "certification", "role_or_type": "Workflow qualification baseline certification", "line": 32889},
+    {"name": "Pneumatic Tool Certification", "kind": "certification", "role_or_type": "Screen-level qualification override on screens 3 through 10", "line": 32381},
+    {"name": "Bolt Torque Procedure", "kind": "shared instruction block", "role_or_type": "Shared Instruction Block applied to screens 3 through 10", "line": 32525},
+    {"name": "Torque Out-of-Tolerance Response", "kind": "containment checklist", "role_or_type": "Containment checklist referenced from Section 7", "line": 32727},
+    {"name": "Wheel Station Safety and Torque Basics", "kind": "training item", "role_or_type": "Twelve-minute orientation video in English and Spanish", "line": 32889},
+    {"name": "Weekly Torque Trend Brief", "kind": "composed reasoning agent", "role_or_type": "Composed from three enabled capabilities, mapped weekly", "line": 34098},
+    {"name": "Gemini Embedding 2.0", "kind": "external model", "role_or_type": "Multimodal embedding model building the Coaching Corpus index", "line": 31191},
+    {"name": "Prevention Agent", "kind": "agent", "role_or_type": "Action agent governed by pre-authorised Studio-authored policy", "line": 31707},
+    {"name": "Deviation and Containment Agent", "kind": "agent", "role_or_type": "Action agent, human-gated where it proposes beyond pre-authorised containment", "line": 31708},
+    {"name": "Shift Handoff Agent", "kind": "agent", "role_or_type": "Reasoning agent, no governance gate", "line": 31709},
+    {"name": "Vision Reasoning Agent", "kind": "agent", "role_or_type": "Ships in a later release with the vision atoms", "line": 31686}
+  ]
+}

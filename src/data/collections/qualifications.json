@@ -1,0 +1,418 @@
+[
+  {
+    "id": "QUAL-BB-01",
+    "workerId": "WRK-BB-WKR-01",
+    "certificationType": "Torque Wrench Operator Certification",
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "certificationDate": "2026-02-10T08:00:00Z",
+    "entryDate": "2026-02-10T08:00:00Z",
+    "expiryDate": "2027-02-10T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-02",
+    "workerId": "WRK-BB-WKR-02",
+    "certificationType": "Torque Wrench Operator Certification",
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "certificationDate": "2025-08-28T08:00:00Z",
+    "entryDate": "2025-08-28T08:00:00Z",
+    "expiryDate": "2026-08-28T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expiring"
+  },
+  {
+    "id": "QUAL-BB-03",
+    "workerId": "WRK-BB-WKR-03",
+    "certificationType": "Weld Inspection Certification",
+    "areaIds": [
+      "AREA-BB-WELDING"
+    ],
+    "certificationDate": "2026-01-05T08:00:00Z",
+    "entryDate": "2026-01-05T08:00:00Z",
+    "expiryDate": "2027-05-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-04",
+    "workerId": "WRK-BB-WKR-04",
+    "certificationType": "Paint Booth Respirator Certification",
+    "areaIds": [
+      "AREA-BB-PAINT"
+    ],
+    "certificationDate": "2025-06-01T08:00:00Z",
+    "entryDate": "2025-06-01T08:00:00Z",
+    "expiryDate": "2026-06-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expired"
+  },
+  {
+    "id": "QUAL-BB-05",
+    "workerId": "WRK-BB-WKR-05",
+    "certificationType": "Wheel Truing Certification",
+    "areaIds": [
+      "AREA-BB-WHEELBUILD"
+    ],
+    "certificationDate": "2026-03-15T08:00:00Z",
+    "entryDate": "2026-03-15T08:00:00Z",
+    "expiryDate": "2027-03-15T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-06",
+    "workerId": "WRK-BB-WKR-06",
+    "certificationType": "CNC Machining Certification",
+    "areaIds": [
+      "AREA-BB-MACHINING"
+    ],
+    "certificationDate": "2026-01-10T08:00:00Z",
+    "entryDate": "2026-01-10T08:00:00Z",
+    "expiryDate": null,
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-07",
+    "workerId": "WRK-BB-WKR-07",
+    "certificationType": "Powered Industrial Truck Certification",
+    "areaIds": [
+      "AREA-BB-PACKOUT"
+    ],
+    "certificationDate": "2026-01-20T08:00:00Z",
+    "entryDate": "2026-01-20T08:00:00Z",
+    "expiryDate": "2027-01-20T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-08",
+    "workerId": "WRK-BB-WKR-08",
+    "certificationType": "Powered Industrial Truck Certification",
+    "areaIds": [
+      "AREA-BB-RECEIVING"
+    ],
+    "certificationDate": "2025-09-05T08:00:00Z",
+    "entryDate": "2025-09-05T08:00:00Z",
+    "expiryDate": "2026-09-05T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expiring"
+  },
+  {
+    "id": "QUAL-BB-10",
+    "workerId": "WRK-BB-WKR-10",
+    "certificationType": "Weld Inspection Certification",
+    "areaIds": [
+      "AREA-BB-WELDING"
+    ],
+    "certificationDate": "2025-05-15T08:00:00Z",
+    "entryDate": "2025-05-15T08:00:00Z",
+    "expiryDate": "2026-05-15T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expired"
+  },
+  {
+    "id": "QUAL-BB-11",
+    "workerId": "WRK-BB-WKR-11",
+    "certificationType": "Paint Booth Respirator Certification",
+    "areaIds": [
+      "AREA-BB-PAINT"
+    ],
+    "certificationDate": "2026-04-01T08:00:00Z",
+    "entryDate": "2026-04-01T08:00:00Z",
+    "expiryDate": "2027-04-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-12",
+    "workerId": "WRK-BB-WKR-12",
+    "certificationType": "Wheel Truing Certification",
+    "areaIds": [
+      "AREA-BB-WHEELBUILD"
+    ],
+    "certificationDate": "2025-07-01T08:00:00Z",
+    "entryDate": "2025-07-01T08:00:00Z",
+    "expiryDate": "2026-07-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expired"
+  },
+  {
+    "id": "QUAL-BB-13",
+    "workerId": "WRK-BB-WKR-13",
+    "certificationType": "CNC Machining Certification",
+    "areaIds": [
+      "AREA-BB-MACHINING"
+    ],
+    "certificationDate": "2025-09-10T08:00:00Z",
+    "entryDate": "2025-09-10T08:00:00Z",
+    "expiryDate": "2026-09-10T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expiring"
+  },
+  {
+    "id": "QUAL-BB-14",
+    "workerId": "WRK-BB-WKR-14",
+    "certificationType": "Torque Wrench Operator Certification",
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "certificationDate": "2026-06-20T08:00:00Z",
+    "entryDate": "2026-06-20T08:00:00Z",
+    "expiryDate": "2027-06-20T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-15",
+    "workerId": "WRK-BB-WKR-15",
+    "certificationType": "Weld Inspection Certification",
+    "areaIds": [
+      "AREA-BB-WELDING"
+    ],
+    "certificationDate": "2026-02-01T08:00:00Z",
+    "entryDate": "2026-02-01T08:00:00Z",
+    "expiryDate": "2027-02-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-16",
+    "workerId": "WRK-BB-WKR-16",
+    "certificationType": "Paint Booth Respirator Certification",
+    "areaIds": [
+      "AREA-BB-PAINT"
+    ],
+    "certificationDate": "2025-08-10T08:00:00Z",
+    "entryDate": "2025-08-10T08:00:00Z",
+    "expiryDate": "2026-08-10T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expired"
+  },
+  {
+    "id": "QUAL-BB-17",
+    "workerId": "WRK-BB-WKR-17",
+    "certificationType": "Powered Industrial Truck Certification",
+    "areaIds": [
+      "AREA-BB-PACKOUT"
+    ],
+    "certificationDate": "2026-05-30T08:00:00Z",
+    "entryDate": "2026-05-30T08:00:00Z",
+    "expiryDate": "2027-05-30T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-19A",
+    "workerId": "WRK-BB-WKR-19",
+    "certificationType": "Torque Wrench Operator Certification",
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "certificationDate": "2025-07-01T08:00:00Z",
+    "entryDate": "2025-07-01T08:00:00Z",
+    "expiryDate": "2026-07-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "recertified"
+  },
+  {
+    "id": "QUAL-BB-19B",
+    "workerId": "WRK-BB-WKR-19",
+    "certificationType": "Torque Wrench Operator Certification",
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "certificationDate": "2026-07-05T08:00:00Z",
+    "entryDate": "2026-07-05T08:00:00Z",
+    "expiryDate": "2027-07-05T08:00:00Z",
+    "recertifiedFromId": "QUAL-BB-19A",
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-BB-20",
+    "workerId": "WRK-BB-WKR-20",
+    "certificationType": "Wheel Truing Certification",
+    "areaIds": [
+      "AREA-BB-WHEELBUILD"
+    ],
+    "certificationDate": "2026-08-01T08:00:00Z",
+    "entryDate": "2026-08-01T08:00:00Z",
+    "expiryDate": "2027-08-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-NF-01",
+    "workerId": "WRK-NF-WKR-01",
+    "certificationType": "Forging Safety Certification",
+    "areaIds": [
+      "AREA-NF-FORGE"
+    ],
+    "certificationDate": "2026-01-01T08:00:00Z",
+    "entryDate": "2026-01-01T08:00:00Z",
+    "expiryDate": "2027-01-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-NF-03",
+    "workerId": "WRK-NF-WKR-03",
+    "certificationType": "Forging Safety Certification",
+    "areaIds": [
+      "AREA-NF-FORGE"
+    ],
+    "certificationDate": "2025-09-01T08:00:00Z",
+    "entryDate": "2025-09-01T08:00:00Z",
+    "expiryDate": "2026-09-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expiring"
+  },
+  {
+    "id": "QUAL-CW-01",
+    "workerId": "WRK-CW-WKR-01",
+    "certificationType": "Fabrication Safety Certification",
+    "areaIds": [
+      "AREA-CW-FAB"
+    ],
+    "certificationDate": "2026-03-01T08:00:00Z",
+    "entryDate": "2026-03-01T08:00:00Z",
+    "expiryDate": "2027-03-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-HD-01",
+    "workerId": "WRK-HD-WKR-01",
+    "certificationType": "Precision CNC Certification",
+    "areaIds": [
+      "AREA-HD-MACH"
+    ],
+    "certificationDate": "2026-02-01T08:00:00Z",
+    "entryDate": "2026-02-01T08:00:00Z",
+    "expiryDate": "2027-02-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-HD-03",
+    "workerId": "WRK-HD-WKR-03",
+    "certificationType": "Precision CNC Certification",
+    "areaIds": [
+      "AREA-HD-MACH"
+    ],
+    "certificationDate": "2025-04-01T08:00:00Z",
+    "entryDate": "2025-04-01T08:00:00Z",
+    "expiryDate": "2026-04-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "expired"
+  },
+  {
+    "id": "QUAL-SG-01",
+    "workerId": "WRK-SG-WKR-01",
+    "certificationType": "Gear Assembly Certification",
+    "areaIds": [
+      "AREA-SG-ASSY"
+    ],
+    "certificationDate": "2026-01-15T08:00:00Z",
+    "entryDate": "2026-01-15T08:00:00Z",
+    "expiryDate": "2027-01-15T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-MR-01",
+    "workerId": "WRK-MR-WKR-01",
+    "certificationType": "Cleanroom Gowning Certification",
+    "areaIds": [
+      "AREA-MR-CLEAN"
+    ],
+    "certificationDate": "2026-01-01T08:00:00Z",
+    "entryDate": "2026-01-01T08:00:00Z",
+    "expiryDate": "2027-01-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-DW-01",
+    "workerId": "WRK-DW-WKR-01",
+    "certificationType": "Machining Safety Certification",
+    "areaIds": [
+      "AREA-DW-MACH"
+    ],
+    "certificationDate": "2026-04-01T08:00:00Z",
+    "entryDate": "2026-04-01T08:00:00Z",
+    "expiryDate": "2027-04-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-PW-01",
+    "workerId": "WRK-PW-WKR-01",
+    "certificationType": "Steel Fabrication Certification",
+    "areaIds": [
+      "AREA-PW-FAB"
+    ],
+    "certificationDate": "2026-05-01T08:00:00Z",
+    "entryDate": "2026-05-01T08:00:00Z",
+    "expiryDate": "2027-05-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-SM-01",
+    "workerId": "WRK-SM-WKR-01",
+    "certificationType": "Certificación de Ensamblaje",
+    "areaIds": [
+      "AREA-SM-ENSAM"
+    ],
+    "certificationDate": "2026-03-01T08:00:00Z",
+    "entryDate": "2026-03-01T08:00:00Z",
+    "expiryDate": "2027-03-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-HW-01",
+    "workerId": "WRK-HW-WKR-01",
+    "certificationType": "Weld Inspection Certification",
+    "areaIds": [
+      "AREA-HW-WELD"
+    ],
+    "certificationDate": "2026-02-15T08:00:00Z",
+    "entryDate": "2026-02-15T08:00:00Z",
+    "expiryDate": "2027-02-15T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-AC-01",
+    "workerId": "WRK-AC-WKR-01",
+    "certificationType": "Certificación de Ensamblaje de Componentes",
+    "areaIds": [
+      "AREA-AC-ENSAM"
+    ],
+    "certificationDate": "2026-01-10T08:00:00Z",
+    "entryDate": "2026-01-10T08:00:00Z",
+    "expiryDate": "2027-01-10T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  },
+  {
+    "id": "QUAL-KD-01",
+    "workerId": "WRK-KD-WKR-01",
+    "certificationType": "Precision Assembly Certification",
+    "areaIds": [
+      "AREA-KD-ASSY"
+    ],
+    "certificationDate": "2026-06-01T08:00:00Z",
+    "entryDate": "2026-06-01T08:00:00Z",
+    "expiryDate": "2027-06-01T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  }
+]

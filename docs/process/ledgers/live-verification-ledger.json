@@ -1,0 +1,1983 @@
+{
+  "schema_version": "1.0.0",
+  "ledger": "live-verification-ledger",
+  "governing_sections": [
+    "master prompt \u00a72.3 (live verification, no test cases)",
+    "master prompt \u00a78 (release evidence)",
+    "docs/superpowers/plans/2026-08-26-runway.md, Task 19",
+    "docs/process/live-verification-procedure.md (the call sequence every row's evidence must follow)"
+  ],
+  "scope_note": "Created by Task 19, the final task of the 2026-08-26 runway, as the release-evidence apparatus that survives the whole-project deletion of every test suite under tests/ (APP-020, ~324 suites, effective immediately after this task). Every earlier task's live-in-Chrome verification lives only as prose inside .superpowers/sdd/2026-08-26-runway/task-*-report.md; this ledger is the first STRUCTURED record of that class of evidence and is deliberately seeded with ZERO rows rather than backfilled from those reports. Two reasons, stated rather than left implicit: (1) backfilling would mean writing 'screenshots'/'consoleErrors'/'externalRequests' values this task did not itself observe through the procedure in live-verification-procedure.md -- that is exactly the shape of unearned precision this project's own audits (fix-P-round5-absence-claims.md, fix-U-round6-coverage-and-disclosure.md) have repeatedly found and corrected elsewhere, and Task 19 will not reintroduce it in the one document whose whole job is to be trustworthy evidence; (2) the honest starting position matters more than a flattering one -- running scripts/ledger-reconcile.mjs against zero rows reports the entire fourteen-registry census (5015 rows at this build) as uncovered, and that number belongs in the record exactly as measured, not minimised by a handful of retrofitted rows chosen to look like progress. Every row from here forward is added by the \u00a724.2 workflow unit that performs the live verification it describes, following docs/process/live-verification-procedure.md exactly, at the time that unit actually runs the Chrome MCP sequence -- never reconstructed afterward from memory or from a report's prose summary.\n\nROW SHAPE, verbatim from the runway plan's Task 19 interface (`LiveVerificationRow`): id, pathId, role, surface, connectivity, clockStamp, steps, expected, observed, screenshots, consoleErrors, externalRequests, verdict, defect, candidateId, stamp.\n\nONE DEPARTURE FROM THAT INTERFACE, and why (unit-01 final whole-branch review, IMPORTANT 4). `screenshots` was a list of bare repository-relative paths. It is now a list of `{path, bytes, sha256}` objects. The captures themselves are gitignored -- correctly, at 134MB for the unit-01 folder -- but the reason the .gitignore gave for excluding them was borrowed from the `docs/screenshots/*.png` rule above it, whose justification is that `pnpm screenshots` rebuilds those images in about ninety seconds. It does not transfer: these are a manual browser-driving session no script reproduces, so on a fresh clone every path this ledger cited dangled with nothing to check a replacement against. Hashing is the attestation pattern both manifests in docs/process/ledgers/ already use, and it is what makes a reference survive bytes that travel separately. The 33 distinct files cited here total 21,153,106 bytes; every hash was computed from the bytes on disk at the time of this change, none is stubbed, and scripts/ledger-reconcile.mjs reads only `pathId` and `verdict` -- it never read `screenshots`, so no script needed updating for this.\n\nPATH ID FORMAT: `${registrySlug}:${id}`, where `registrySlug` is one of the fourteen filenames in registries/generated/*.json without its extension (modules, features, sub-features, functions, workflows, business-use-cases, business-objects, events, commands, notifications, offline-scenarios, ai-storyboards, scheduled-work, actionable-controls) and `id` is that row's own `id` field verbatim. The slug prefix is required, not decorative: registry row ids are NOT unique across the fourteen registries (e.g. `SB-001` is a real, distinct id in both `workflows.json` and `ai-storyboards.json`) -- scripts/ledger-reconcile.mjs's own header explains the collision this prevents. `scripts/ledger-reconcile.mjs` reconciles this ledger's `pathId` column against that same census in both directions: registry rows with no ledger row (the backlog), and ledger rows naming a path no registry contains (a data-integrity defect, fails that script's exit code).\n\nVERDICT VALUES: 'pass' (observed matched expected, externalRequests empty), 'fail' (observed did not match, or externalRequests is non-empty -- ANY entry in externalRequests is a Critical defect per Task 19's brief, regardless of what else passed), 'blocked' (the step sequence could not be completed for a reason recorded in `defect`, e.g. a decision-blocked control per the coverage dashboard's own status vocabulary).\n\nEXTERNAL-NETWORK ROWS ARE NOT THIS LEDGER'S JOB TO CATCH STRUCTURALLY: `scripts/scan-no-external-network.mjs` is the compile-level, always-run gate for that (fetch/XHR/WebSocket/EventSource/sendBeacon/remote URL/`/api` path/telemetry sink, across src/, app/ and out/). `externalRequests` on a ledger row is the LIVE-BROWSER complement to that static scan -- what the Chrome MCP network panel actually observed during one recorded session -- not a substitute for it.\n\nUNIT-01 CLOSURE (Task 12, 2026-08-29, candidate 79cbd4f130865253bccc967973ba04d89cc05927): the first entries filled, all driven fresh against `pnpm serve:out` on the current bytes rather than transcribed from any task report. Scope: the platform-bootstrap-and-tenant-provisioning spine end to end, each of the shipped screens in its main state, the sign-out control, and the variant/failure paths (sign-in refusals, tenant-create denial, segregation of duties, second-root refusal, critical-class no-control, invitation expired/tenant-blocked). One row (LV-0010) is recorded `blocked`: the full cross-surface accept-then-activate continuity cannot be driven in one document under this build's current architecture (no in-app link connects the Hub and Super Admin surfaces; any navigation between them is a hard page load; `boot()` never rehydrates from IndexedDB) -- reproduced live at LV-0009 rather than only cited from Task 8's report. This is not exhaustive: it is the regression set the unit's own rule requires (every path sharing a changed screen, component, repository method or state machine), not every one of the 5015 census rows.\n\nFIX ROUND 1 (2026-08-29) CORRECTIONS, recorded here rather than only in the task report so a reader of this ledger alone sees them: (1) LV-0015 (root sign-in stopping at the step-up panel) now correctly cites `workflows:WF-ROLE-004` (\"First root sign-in and the enforced-invariant acknowledgement\") -- it previously cited `WF-ROLE-037` (\"Refusing creation of a second Root Super Admin\"), which LV-0018 correctly cites instead. The two ids were transposed in the first pass. (2) LV-0001, LV-0007 and LV-0011 through LV-0014 (ordinary Admin sign-in, sign-out, and four non-root refusal arms) now cite `modules:MOD-SA-01` rather than `WF-ROLE-004`. No row in any of the fourteen registries represents ordinary Super Admin sign-in/sign-out as such -- confirmed by searching all fourteen files for sign-in/authentication/credential-shaped labels -- so `modules:MOD-SA-01` (the destination module every one of these rows is reaching, leaving, or being refused entry to) is the most defensible real id available, not a semantic exact match. `ledger-reconcile.mjs`'s Section B checks pathId EXISTENCE only, not whether the cited id's own label matches what a row actually demonstrates, so this mismatch could not have been caught by that gate -- recorded here as the residual limit of the reconciliation check itself. (3) The tour RUNNER -- the fifteen-tour, 135-step player built and reworked in tasks 10 and 11 (the overlay, spotlight, menu and playback controls) -- has NO row in this ledger. Every LV-row that corresponds to a tour's SUBJECT was driven by replicating that tour's scripted steps directly against real product controls, not by invoking the tour-runner UI itself; the runner mechanism remains undriven by any live-verification row.\n\nUNIT-02 CLOSURE (Task 9, 2026-08-29, candidate unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a): 29 rows added (LV-0031 through LV-0059), 28 pass, 1 blocked, all driven fresh against pnpm serve:out on the final unit-02 bytes -- none is a transcription of any prior task report prose. Scope: this unit's five rebuilt screens (Location Configuration, Shift Management, Permissions/Roles/Access, Worker Lifecycle and Qualifications, Devices) in their main states; the shared checkSiteReference/checkAreaReference/checkLocationReference cross-tenant refusal (all five screens' doors route through it); every real write door this unit added (createSite via the generic door, createAreaUnderSite, createLocationUnderArea, createShift, createTenantUser, assignTenantRole, createWorker, recordQualification, enrollDevice, reassignDevice), each driven to a real success; the corrective task's role-floor narrowing (Location/Shift to Tenant Admin only) and Task 4's Quality-Manager write exclusion, both confirmed still enforced; Task 3's SoD rule (only Tenant Admin may grant any tenant role) and its whole-module Unavailable rendering for Supervisor/Quality Manager; Task 7's own live discovery (a Supervisor can createWorker but not the createTenantUser its first leg calls) reproduced live; Task 6's two cross-links (Location to Shift Management, Worker to Devices); and all 16 of this unit's guided tours' SUBJECTS (not the tour-runner mechanism itself, which -- as unit-01's own closure already disclosed -- carries no pathId and remains undriven by any ledger row here or in unit 1). LV-0059 is the one blocked row: a real scoped Supervisor/Quality Manager session (28 such role-grants exist in the seed) cannot be driven live because no sign-in path in this build populates siteScope/areaScope from role-grants.json -- Task 1's own finding, re-disclosed on screen by every later task and confirmed unchanged on these final bytes; recorded blocked with its reason exactly as unit-01's LV-0010 was, never as a silent gap. Three previously-fixed \u00a78.6.2 locator-rendering defects (Task 1's Critical 2 on Location Configuration's timezone line, Task 3's Critical 1 on the Permissions SoD disclosure, and Task 8's confirmation that its own second instance was the same defect class) were each re-checked live on the served export and confirmed still fixed.",
+  "columns": [
+    "id",
+    "pathId",
+    "role",
+    "surface",
+    "connectivity",
+    "clockStamp",
+    "steps",
+    "expected",
+    "observed",
+    "screenshots",
+    "consoleErrors",
+    "externalRequests",
+    "verdict",
+    "defect",
+    "candidateId",
+    "stamp"
+  ],
+  "entries": [
+    {
+      "id": "LV-0001",
+      "pathId": "modules:MOD-SA-01",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated to /super-admin/sign-in/",
+        "typed helena.voss@platform.aviixa.example into the email field",
+        "typed a non-empty password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "A valid Admin credential signs in and lands on the Platform Overview and Health dashboard.",
+      "observed": "URL changed to /super-admin/platform-overview-and-health/, header read 'Signed in as Helena Voss' with a 'Sign out' control.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png",
+          "bytes": 315928,
+          "sha256": "23243dc8abdf8fea5416e7271bff073d500c6efa48fed97e68d22ee71bbff341"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:50:47Z"
+    },
+    {
+      "id": "LV-0002",
+      "pathId": "modules:MOD-SA-01",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued from LV-0001, same document)",
+        "read the Platform Health tile row and the Tenants-needing-attention table"
+      ],
+      "expected": "The dashboard renders live-computed tiles from the seeded collections (29 tenants, active/pilot counts, platform users, devices, AI requests) and an honest 'Unknown' for the uncomputable critical-approvals tile.",
+      "observed": "Tenants 29, Active tenants 8, Active pilots 5, Needs attention 16, Platform users 7, Devices enrolled 25, AI requests 13, 'Open critical-class approvals: Unknown' with the stated reason. Attention table lists 16 tenants with lifecycle badges and days-in-state.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png",
+          "bytes": 315928,
+          "sha256": "23243dc8abdf8fea5416e7271bff073d500c6efa48fed97e68d22ee71bbff341"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:50:47Z"
+    },
+    {
+      "id": "LV-0003",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued from LV-0002)",
+        "clicked the 'Tenants, Lifecycle and Pilots' nav link"
+      ],
+      "expected": "The tenant list renders all 29 seeded tenants, paginated, with a real 'Create tenant' control enabled for this role.",
+      "observed": "URL /super-admin/tenants-lifecycle-and-pilots/, table shows tenant rows with lifecycle/tier/pilot columns, 'Create tenant' control present and enabled for Admin.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-09-tenants-list.png",
+          "bytes": 207878,
+          "sha256": "8e37ee508d2a45867789679d8ed9f3eb470c73bfe5d37f57a9988245932470d0"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:51:46Z"
+    },
+    {
+      "id": "LV-0004",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked 'Create tenant'",
+        "left the Tenant name field empty",
+        "attempted to click 'Next'"
+      ],
+      "expected": "The wizard blocks advancement on an empty required field (schema rejection, R3).",
+      "observed": "'Next' rendered aria-disabled=true and did not advance; click action timed out against the disabled control.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png",
+          "bytes": 120856,
+          "sha256": "3833c9c5726b0d8f246ceb60c9852bb8a9ff928ff1be76f873f3f05b32c608e1"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:52:06Z"
+    },
+    {
+      "id": "LV-0005",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) typed a tenant name",
+        "checked 'This is a pilot tenant' without setting an expiry date",
+        "attempted to click 'Next'"
+      ],
+      "expected": "A pilot tenant requires an expiry date before the wizard advances (second schema-rejection case, R3).",
+      "observed": "'Next' rendered disabled a second time until the Pilot expiry date field was filled.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png",
+          "bytes": 120856,
+          "sha256": "3833c9c5726b0d8f246ceb60c9852bb8a9ff928ff1be76f873f3f05b32c608e1"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:52:06Z"
+    },
+    {
+      "id": "LV-0006",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "filled name, tier, pilot expiry, administrator name and email across the wizard's four steps",
+        "opened the review confirmation and confirmed it",
+        "clicked Finish"
+      ],
+      "expected": "A real repository.create('tenants', ...) write commits; the app navigates to the new tenant's detail page at ?tenant=<generated-id>, which is not in the static export's generateStaticParams (created-in-session rendering path).",
+      "observed": "Navigated to /super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-TASK12VERIFICATI-1, success toast 'Task 12 Verification Tenant was created. Invited \u2014 not yet operating until its administrator accepts.', lifecycle pill 'Invited', 'Activate' rendered disabled with reason 'Activation is not available until Verification Admin accepts the invitation and completes identity proof.', pilot expiry rendered 'Yes Expires Jun 1, 2026.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/wizard-review-step.png",
+          "bytes": 136100,
+          "sha256": "3a4b39e1294135a8c0686ba268137cf3fba001c75793228a43efac5b7411f19f"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-09-wizard-created-detail-invited.png",
+          "bytes": 170801,
+          "sha256": "6eb0c192e6c201295aae9e91fd6d289867bd0e9ff0078faddbbdb5992e082f37"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:53:11Z"
+    },
+    {
+      "id": "LV-0007",
+      "pathId": "modules:MOD-SA-01",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued, still on the new tenant's detail page)",
+        "clicked the AppShell 'Sign out' control"
+      ],
+      "expected": "Sign-out clears the session and redirects to sign-in, preserving the exact prior route as a `next=` return parameter (task 10 fix).",
+      "observed": "Redirected to /super-admin/sign-in/?next=%2Fsuper-admin%2Ftenants-lifecycle-and-pilots%2Fdetail%2F%3Ftenant%3DTEN-TASK12VERIFICATI-1.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/spine-sign-out-redirect.png",
+          "bytes": 56958,
+          "sha256": "ce40cdab8baa75a7cee5c2b2fff5324786cafdb83314c6042945976bfc160ab6"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:53:33Z"
+    },
+    {
+      "id": "LV-0008",
+      "pathId": "workflows:unnumbered@L75557",
+      "role": "Tenant Admin (invited)",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated (fresh document) to /hub/accept-invitation/?tenant=TEN-IRONCLAD",
+        "clicked 'Accept invitation'"
+      ],
+      "expected": "The invited administrator's acceptance moves their user row from invited to active and signs them in on the Hub, per \u00a715.1/WF-ROLE-004-adjacent acceptance workflow. Acceptance itself does not activate the tenant (Task 6's design, disclosed on screen).",
+      "observed": "Landed signed-in as 'Nadia Ferreira' in the Delivery Operations Hub; status message read 'Signed in as Nadia Ferreira \u2014 Tenant Admin. Your workspace becomes fully active once the platform team activates it from the Super Admin console; until then you can see it here but it is not yet operating.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-before.png",
+          "bytes": 63152,
+          "sha256": "9b0f390d026b4e44de8eda436e444f15bd91c1b3080f1532ea9c86b9638c1188"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-after.png",
+          "bytes": 105533,
+          "sha256": "b7da8c273cdaeb942448e3731953c643d85dee6886fe7db373108cb2c0025f22"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:54:01Z"
+    },
+    {
+      "id": "LV-0009",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(fresh document, cleared IndexedDB first) navigated to /super-admin/sign-in/, signed in as helena.voss, confirmed TEN-IRONCLAD reads 'Invited', Activate disabled with 'Activation is not available until Nadia Ferreira accepts the invitation...'",
+        "(fresh document) navigated to /hub/accept-invitation/?tenant=TEN-IRONCLAD, clicked Accept -- landed signed in as Nadia Ferreira, Tenant Admin",
+        "(fresh document, hard navigation) navigated to /super-admin/sign-in/, signed in as helena.voss, navigated to /super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-IRONCLAD"
+      ],
+      "expected": "Task 10 regression re-drive of this sweep's own Task 5 (persistence rehydration, G): Nadia's acceptance, committed in one document, should now be visible from a separate document/store instance, because boot() rehydrates from the last durable IndexedDB snapshot instead of always rebuilding from the seed.",
+      "observed": "Ironclad Fasteners' detail page, reached via a fresh hard navigation and a fresh sign-in, showed the 'Activate' control ENABLED (not the prior disabled state with the pre-acceptance reason text) -- Nadia's acceptance from the earlier document crossed the hard-navigation boundary. Clicked Activate, confirmed in the dialog: 'Ironclad Fasteners is now Active.' The write-only persistence defect this row originally recorded (2026-08-29T02:54:54Z) is fixed.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0009-persistence-fixed-ironclad-post-hardnav.png",
+          "bytes": 160751,
+          "sha256": "4923f71e5fa932a5e4f8bd96c10d29bf33bee7c41476198a82c9886ba8cec103"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:30:00Z"
+    },
+    {
+      "id": "LV-0010",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Admin / Tenant Admin",
+      "surface": "Super Admin Platform Console + Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "same drive as LV-0009's re-drive: Hub accept-invitation (fresh document) -> Super Admin sign-in + tenant detail (fresh document, hard navigation) -> clicked Activate -> confirmed"
+      ],
+      "expected": "Task 10 regression re-drive of this sweep's own Task 5 (persistence, G) and Task 7 (support-access door and Hub<->Super Admin navigation, I): the full accept-then-activate spine, previously blocked because boot() never rehydrated, should now be drivable across the two documents (a hard navigation between SURF-DOH and SURF-SA remains required -- no in-app soft link connects them -- but the STATE now survives that boundary).",
+      "observed": "Landed on Ironclad Fasteners' detail page after the hard navigation with Activate already enabled (Nadia's acceptance persisted); clicked Activate, confirmed in the dialog, and the tenant reads 'Ironclad Fasteners is now Active.' The full create->accept->activate spine is now drivable end to end across documents on this build. The original blocker's second half (no in-app soft-nav LINK between Hub and Super Admin) is unchanged and not what this fix addressed -- Task 7's own new door/navigation is a different, Support-session-specific cross-surface path, verified separately as this task's new ledger row.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0010-full-spine-ironclad-now-active.png",
+          "bytes": 167459,
+          "sha256": "bd3b16ec6655448c84b2b96fe7481410783f422c18d3e2c6608e4175de27a288"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": "PASSES AGAINST A REVISED CRITERION, disclosed here rather than left implicit in the verdict alone. The BASE row (task 12, unit 1's own closure) recorded `blocked` on the original criterion: the full accept-then-activate spine drivable in ONE CONTINUOUS DOCUMENT, which requires an in-app soft-navigation link between SURF-DOH and SURF-SA. That link still does not exist -- confirmed unchanged in this same re-drive, stated in `observed` above. What this re-drive actually demonstrates, and what the `pass` verdict is earned against, is a NARROWER, real criterion: state written in one document (Hub) survives a hard navigation into a second, separate document (Super Admin), because Task 5's persistence rehydration now restores from IndexedDB on `boot()`. The hard-navigation requirement itself is unchanged and unaddressed by this fix -- the original bar (one continuous document) remains unmet. Building the missing in-app link is new-feature scope (a new navigation affordance, route and access-control surface between two surfaces), not a defect this closure sweep's own tasks touch; named as a fifth ruled-open item in both units' amended verification records and RESUME.md rather than silently folded into this pass.",
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:31:00Z"
+    },
+    {
+      "id": "LV-0011",
+      "pathId": "modules:MOD-SA-01",
+      "role": "removed account",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed peter.dijk@vantageindustrial.example (status: removed) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "R2: a removed account folds into the SAME generic outcome as an unknown address, to avoid disclosing that the account once existed.",
+      "observed": "Banner 'There is a problem \u2014 The email or password you entered is incorrect.' identical wording to an unknown address.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/signin-removed-generic.png",
+          "bytes": 68585,
+          "sha256": "9ecf55a1531c84864f73b7b01de4468eb5959ca98c25989f992deecbd6e34bd2"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:56:58Z"
+    },
+    {
+      "id": "LV-0012",
+      "pathId": "modules:MOD-SA-01",
+      "role": "invited account",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed nadia.ferreira@ironcladfasteners.example (status: invited) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "An invited account (never set a password) is told to accept its invitation rather than shown a generic credentials error (R2).",
+      "observed": "Status message 'Invitation not yet accepted \u2014 nadia.ferreira@ironcladfasteners.example has an open invitation to this platform that has not been accepted yet...'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/signin-invitation-pending.png",
+          "bytes": 86770,
+          "sha256": "55b4aa9e8c7758ccccb16d742c7c534252ea5aeb4e3f91fc086505e7e6daf62e"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:57:10Z"
+    },
+    {
+      "id": "LV-0013",
+      "pathId": "modules:MOD-SA-01",
+      "role": "suspended account",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed camille.dubois@brightbikes.example (status: suspended, tenant active) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "A suspended user inside an active tenant is refused with the account-suspended reason.",
+      "observed": "Alert 'Account suspended \u2014 Account suspended by a platform administrator.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/signin-account-suspended.png",
+          "bytes": 69213,
+          "sha256": "b5d2396c44d455f51ae70333c93841f796601c4b2ce10f1db8ac1cb538a72f46"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:57:21Z"
+    },
+    {
+      "id": "LV-0014",
+      "pathId": "modules:MOD-SA-01",
+      "role": "active user, suspended tenant",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed callum.reid@northforgemetal.example (active user, tenant TEN-NORTHFORGE soft-suspended) and a password",
+        "clicked 'Sign in'"
+      ],
+      "expected": "An active account whose tenant is suspended is refused and told which of the two is the actual problem.",
+      "observed": "Alert 'Tenant account suspended \u2014 This account is fine, but its organisation's account is currently soft suspended (lifecycle: soft-suspended). Contact your platform administrator.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/signin-tenant-suspended.png",
+          "bytes": 78335,
+          "sha256": "4ebbf1fef7d6fffa92d668f3a5e76afc35d88de2d9634101d88c848c8e09b5ab"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:57:38Z"
+    },
+    {
+      "id": "LV-0015",
+      "pathId": "workflows:WF-ROLE-004",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "typed root.admin@platform.aviixa.example and a password",
+        "clicked 'Sign in'",
+        "clicked 'Confirm' on the platform floor register step-up panel"
+      ],
+      "expected": "Root sign-in never lands directly; it stops at a step-up panel (six enforced invariants) before landing (WF-ROLE-004, \u00a77.5).",
+      "observed": "After sign-in, remained on /super-admin/sign-in/ showing the step-up panel; after confirming, landed on /super-admin/platform-overview-and-health/ as Root Super Admin.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/signin-root-stepup-required.png",
+          "bytes": 111277,
+          "sha256": "6d86059f719fe2ed9768d2daedd69bd7093705cc5c02bb25bf7aa274f366e5c0"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:57:56Z"
+    },
+    {
+      "id": "LV-0016",
+      "pathId": "modules:MOD-SA-08",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked 'Console Users, Roles and Change Approvals' nav link"
+      ],
+      "expected": "The approvals queue renders seeded pending/decided change requests with class chips (Critical/Engineering) and platform user rows.",
+      "observed": "Screen rendered the approvals queue and platform users table with 7 platform accounts.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-08-console-users-root-main.png",
+          "bytes": 1862697,
+          "sha256": "1e7ab6da47040dbc8eefa175894fbf44b8fe49cd98a49323bc847fa036e00e56"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:58:15Z"
+    },
+    {
+      "id": "LV-0017",
+      "pathId": "workflows:UC-HO-02",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) opened approval request AR-0002, an engineering-class change the root itself proposed"
+      ],
+      "expected": "Maker-checker: the platform allows no one, including the root, to decide a change they proposed themselves (\u00a715.1).",
+      "observed": "'Approve' and 'Return' both rendered disabled with reason 'The same person cannot both make and approve this change.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-sod-ar0002-root-own-proposal.png",
+          "bytes": 1877911,
+          "sha256": "0f48dfb0ced9841464c51272a71786367f6d8620c3c5c3e403c090d811d8562a"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T02:58:27Z"
+    },
+    {
+      "id": "LV-0018",
+      "pathId": "workflows:WF-ROLE-037",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked 'Invite console user'",
+        "named a candidate 'Backup Root Candidate' / backup.root@platform.aviixa.example",
+        "selected the 'Root Super Admin' role",
+        "clicked 'Send invitation'"
+      ],
+      "expected": "Exactly one Root Super Admin account can ever exist; no console path, including this invitation, can create a second.",
+      "observed": "Dialog rendered the refusal 'Exactly one Root Super Admin account exists on this platform. It is created only by the backend at platform commissioning, and no console path \u2014 including this invitation \u2014 can create a second.' Platform users table remained 'Showing 1-7 of 7' (unchanged) confirming no row was created.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-second-root-denied-result.png",
+          "bytes": 1885269,
+          "sha256": "d230e661fe42abc6f2ead0c9bd2f8039e0fb17b529b77deee109e44dc1c84f4c"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:00:15Z"
+    },
+    {
+      "id": "LV-0019",
+      "pathId": "ai-storyboards:SB-HO-004",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as helena.voss@platform.aviixa.example",
+        "opened approval request AR-0003, a critical-class compliance suspension"
+      ],
+      "expected": "For a critical-class change, a non-root viewer sees NO Approve/Return control at all (structurally absent, not merely disabled) \u2014 only the sentence naming why.",
+      "observed": "No 'Approve' or 'Return' button rendered anywhere in the decision panel; only the paragraph 'Critical class \u2014 root approval required.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/workflows-critical-no-control-ar0003-admin.png",
+          "bytes": 1885485,
+          "sha256": "949154795b6760a9e81e6e843136caf9fa8c4816b4b76909e5f647c11e2b500b"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:01:24Z"
+    },
+    {
+      "id": "LV-0020",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Platform Engineer",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as kwame.adjei@platform.aviixa.example (Platform Engineer)",
+        "opened the tenant list"
+      ],
+      "expected": "Tenant creation is reserved for Root Super Admin and Admin; the Platform Engineer sees 'Create tenant' visible but disabled with the reason stated.",
+      "observed": "'Create tenant' rendered disabled with 'The current role does not carry a grant for this action. Tenant creation is held by the Root Super Admin and the Admin...'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-create-denied-platform-engineer.png",
+          "bytes": 225583,
+          "sha256": "a4d2219c7fd39f8509649a14f8f4fce39731940c0dd9ffd0640901b4ffcc464a"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:02:10Z"
+    },
+    {
+      "id": "LV-0021",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Platform Engineer",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated directly to /super-admin/tenants-lifecycle-and-pilots/create/ (bypassing the list's disabled control)",
+        "filled all four wizard steps with a candidate tenant and administrator",
+        "confirmed the review step and clicked Finish"
+      ],
+      "expected": "Navigating straight to the create route does not bypass the rule; the wizard itself re-checks who is asking before it writes anything (write-time authorization, not just render-time UI).",
+      "observed": "The Finish click produced 'This action is not permitted \u2014 The current role does not carry a grant for this action.' The wizard stayed on step 4/Review; no navigation to a detail page occurred, i.e. no tenant was created.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-create-route-direct-nav-denied.png",
+          "bytes": 121209,
+          "sha256": "0e88411d63b64794384df826fc774093757449ce751b17c14f3ff21fa7c590de"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-create-denied-wizard-finish-refused.png",
+          "bytes": 145250,
+          "sha256": "e901a932e865602dae9af5ded25cb914fb8e8606754de6448a6d0f4d60e310fd"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:03:28Z"
+    },
+    {
+      "id": "LV-0022",
+      "pathId": "workflows:unnumbered@L75557",
+      "role": "unauthenticated invitation link",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/accept-invitation/?tenant=TEN-REDROCKMFG"
+      ],
+      "expected": "An invitation older than the platform's expiry window (TRN-ACC-01, ~7 days) reads as expired rather than accepting silently or erroring.",
+      "observed": "Heading 'This invitation has expired' and body 'It was issued on Feb 22, 2026 for Red Rock Manufacturing. Ask your platform administrator to re-issue it.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/invitation-expired-redrockmfg.png",
+          "bytes": 48642,
+          "sha256": "b326e891698dfbb0c9869f9b12bce5412fdbc250a6533aa818c27c9f6c8da069"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:06:09Z"
+    },
+    {
+      "id": "LV-0023",
+      "pathId": "workflows:unnumbered@L75557",
+      "role": "unauthenticated invitation link",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/accept-invitation/?tenant=TEN-GRANITEHOLLOW (tenant lifecycle: compliance suspended)"
+      ],
+      "expected": "An invitation to a currently-suspended tenant cannot be accepted while the suspension holds.",
+      "observed": "Heading 'This workspace is not available' and body \"Granite Hollow Tooling's account is currently compliance suspended. Contact your platform administrator.\"",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/invitation-tenant-blocked-granitehollow.png",
+          "bytes": 49412,
+          "sha256": "c99c4f8e8fb8084b6eac00c8aadd5ab6225334c159031961b056373fba473ad3"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:06:22Z"
+    },
+    {
+      "id": "LV-0024",
+      "pathId": "modules:MOD-SA-10",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as helena.voss@platform.aviixa.example",
+        "opened Tenant Metrics and Aggregates",
+        "selected Bright Bikes in the tenant chooser (default selection)"
+      ],
+      "expected": "All fifteen named measures render for the selected tenant (\u00a715.2 vocabulary: counts, rates, statuses only), each with an as-of stamp and an honest unknown/partial/complete completeness marker rather than a fabricated zero.",
+      "observed": "Fifteen tiles rendered: Errors and agent-run failures (Partial, explained), Active workflows 5, Active agents (Partial, explained), Tokens consumed 983 'to date', Runs 75 'Complete', Deviations 15 'Complete', Worker-Shift consumption 164/month 'Complete', Sync health (Partial, explained), Hold-propagation lag (Unknown, explained), Clearance volumes 5 'Complete', Adoption-timing lag (Unknown, explained), Eval posture (Unknown, not tenant-attributed), Learning-proposal lifecycle (Unknown, explained), Notification/escalation health 0 fallbacks 'Complete', Override patterns 4 clustering groups 'Complete'.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-10-tenant-metrics-main.png",
+          "bytes": 694621,
+          "sha256": "3bb5000ecd38a8f1b53005a18cbe7202b8598c8e77fe35ac52d48e32104f1381"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:06:49Z"
+    },
+    {
+      "id": "LV-0025",
+      "pathId": "ai-storyboards:SB-SA-10",
+      "role": "Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked the 'Anonymised comparative' tab"
+      ],
+      "expected": "master prompt \u00a715.2: cross-tenant comparison is anonymised as an enforced invariant in the shape of the data, never by omitting a label at render time; a tenant with no runs is excluded from the deviation-rate bands rather than counted as 0%.",
+      "observed": "No tenant name appeared anywhere in the tab; the screen's own disclosure states anonymisation happens before the numbers are computed and is presentational rather than informational (the per-tenant tab already publishes the same counts by name). 'Eval pass rate \u2014 platform-wide 63%'; deviation-rate bands with the caption '12 of 29 tenants have a recorded run and a deviation rate to place in a band; the rest ... are counted in neither band.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-metrics-anonymised-comparative.png",
+          "bytes": 390601,
+          "sha256": "6ce7b225beb998d9bf5f40f5ffe3cf927c910b4b8a593451c5f9ed22182311cb"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:07:03Z"
+    },
+    {
+      "id": "LV-0026",
+      "pathId": "workflows:WF-ROLE-010",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued from LV-0028/29/30, same document, still signed in as Root Super Admin; clicked the 'Console Users, Roles and Change Approvals' nav link)",
+        "clicked 'Invite console user'",
+        "named a candidate 'Task 12 Verification Support' / task12.verification.support@platform.aviixa.example",
+        "selected the 'Support' role",
+        "clicked 'Send invitation'"
+      ],
+      "expected": "inviteConsoleUser's SUCCESSFUL path: a legitimate platform-role invitation (Support, proposed by Root) commits a real new users row.",
+      "observed": "Dialog read 'Task 12 Verification Support was invited.'; the platform users table went from 'Showing 1-7 of 7' to 'Showing 1-8 of 8' with the new row's status 'Invited'.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/console-users-invite-success.png",
+          "bytes": 1897601,
+          "sha256": "8094263739c30db4e10ff4e73db170e119a55930742b10a509b6de322290c8f9"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:36:41Z"
+    },
+    {
+      "id": "LV-0027",
+      "pathId": "workflows:WF-ROLE-015",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) opened approval request AR-0001, an engineering-class atom-enablement change proposed by Kwame Adjei (Platform Engineer) -- NOT the signed-in actor",
+        "clicked 'Approve'",
+        "confirmed the resulting alert dialog's own 'Approve' button"
+      ],
+      "expected": "decideApprovalRequest's SUCCESSFUL path -- the maker-checker happy path, task 7's entire subject: a legitimate second approver (not the proposer) can approve an engineering-class request and it applies.",
+      "observed": "AR-0001's state moved from 'Pending' to 'Applied' in the queue table; the drawer read 'Atom enablement was approved and applied.' The two rows already in the ledger for this door (LV-0017 segregation-of-duties disabled, LV-0018 second-root refused) only exercised refusals; this is the first successful decideApprovalRequest write in the ledger. pathId note: WF-ROLE-015's own label names an Admin approver; this row's actor was Root Super Admin, who the same decisionGate branch also admits as an eligible second approver for an engineering-class request (confirmed against the code's own decisionApproverRoles) -- the workflow SHAPE (a legitimate second approver clears an engineering-class change) is identical, only the specific role differs from the label's example.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/approvals-ar0001-before-approve.png",
+          "bytes": 1900852,
+          "sha256": "7fa6d956b24fe8e8c0dff991d92ef609daa733861f9a3a6fb7fa5db64a092704"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/approvals-ar0001-after-approve.png",
+          "bytes": 1893903,
+          "sha256": "3d7f983f8cd4e96b0ba174a9f4a0a1ee103ec94fbaf9115e4f00f474bca02f19"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/approvals-ar0001-approved-confirmed.png",
+          "bytes": 1903369,
+          "sha256": "952dcfb80a948ff28833f11be0b3e945cb5272aeb1b3bf6c697cc1f0aedbe8db"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:38:05Z"
+    },
+    {
+      "id": "LV-0028",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) navigated to the Bright Bikes tenant detail page",
+        "clicked the 'People' tab"
+      ],
+      "expected": "Task 6's People tab renders a tenant's real user roster with role and status, and names the First Tenant Admin.",
+      "observed": "'First Tenant Admin: Dana Whitfield -- accepted the invitation'; table listed 28 real Bright Bikes users (Tenant Admins, Supervisors, Quality Managers, Read-only Auditors, Workers) each with a role and an 'Active' status, paginated 'Showing 1-20 of 28'.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-overview.png",
+          "bytes": 152591,
+          "sha256": "4b7ce0404bf9e732e622eae3190b62e5b74b753eb60e45122dbef3d4e5b3fb8a"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-people.png",
+          "bytes": 221873,
+          "sha256": "4a0dd8214473899005109039eebb21d1ce31d82f7536e055c3de51afa577c63b"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:35:12Z"
+    },
+    {
+      "id": "LV-0029",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked the 'Entitlements' tab"
+      ],
+      "expected": "Task 6's Entitlements tab renders the platform floor (tier + platform default) beside this tenant's own recorded opt-in/opt-out, read-only.",
+      "observed": "Four features listed (Agent Builder, Custom Report Builder, Training Library, Worker-Shift allocation) each showing 'Platform floor' vs 'Tenant's desired value', including an honest 'Not recorded -- the platform default applies' and 'Not applicable -- no per-tenant toggle exists for this feature' rather than a fabricated value.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-entitlements.png",
+          "bytes": 168166,
+          "sha256": "f27de6b89dbf41787048694ba462b043c0ef5afe6bf9d862fe9d4d89e34da783"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:35:22Z"
+    },
+    {
+      "id": "LV-0030",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Root Super Admin",
+      "surface": "Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "(continued) clicked the 'Audit' tab"
+      ],
+      "expected": "Task 6's Audit tab renders this tenant's real audit trail as a Timeline, grouped by correlation id where one exists, for a tenant with substantial history (Bright Bikes).",
+      "observed": "Timeline rendered real actor names, roles, event types (e.g. platform-access.support-session-opened, clearance.granted, hold.placed/released, device.enrollment) and platform-time stamps, spanning from Oct 1, 2025 to Aug 16, 2026, with events genuinely grouped under headings like 'Correlation COR-BB-SEV1-2026-08-15' where a correlation id exists. No pagination truncation observed -- the full history rendered.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-audit.png",
+          "bytes": 2082438,
+          "sha256": "1099abd8fb00a0f6969a9712fe6e201115770a20950e53999f64e0ad486e80ab"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
+      "stamp": "2026-08-29T03:35:38Z"
+    },
+    {
+      "id": "LV-0031",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as dana.whitfield@brightbikes.example",
+        "navigated to /hub/location-configuration/"
+      ],
+      "expected": "Location Configuration main state renders the tenant's real Sites with Create site enabled for Tenant Admin, and Archive disabled with the active-children reason stated for any Site holding live Areas.",
+      "observed": "Sites table showed 24 real seeded rows across 3 pages; 'Create site' rendered enabled; Riverside Plant's Archive button rendered disabled with 'Has 12 active: Assembly Line A, Welding & Fabrication, ...' stated in the row.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-02-tenant-admin-sites-main.png",
+          "bytes": 360613,
+          "sha256": "38192d89c40717c8b5df79ebb2d36d8f9f12771c4300419bf13ee10fe0b613ff"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:06:39Z"
+    },
+    {
+      "id": "LV-0032",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "clicked 'Create site'",
+        "filled Site name/Address/Contact email, left timezone at America/Chicago",
+        "clicked 'Create site' (submit)"
+      ],
+      "expected": "createSite (repository.create('sites', ...), Task 1's Site door) commits a real write and the new Site appears in the roster.",
+      "observed": "Dialog showed 'Saved.'; toast read 'Unit02 Live-Verify Test Site was created.'; no console errors; no non-localhost network requests.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-02-create-site-success.png",
+          "bytes": 364168,
+          "sha256": "6b100727827fe6243f4a06683e507ccd8b8384dff4057e3c250352a81c02612b"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:06:53Z"
+    },
+    {
+      "id": "LV-0033",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "opened Riverside Plant's Areas tier"
+      ],
+      "expected": "The Areas-tier heading renders the Site's inherited timezone in plain prose with no blueprint line locator \u2014 Task 1's fix round 1 Critical 2 finding (L27124/AC-SCOPE-034 L2612 rendered as page text) stays fixed on these final bytes.",
+      "observed": "Heading read 'Timezone (inherited from Riverside Plant, Site-only): America/Chicago' \u2014 no L-number, no AC-SCOPE identifier, no citation string anywhere in the rendered text.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-02-areas-tier-timezone-inherited.png",
+          "bytes": 145602,
+          "sha256": "1e2877f65497995c3501d1c371321c7558b01e8e6d9e14a645f41f2978682ce4"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:07:19Z"
+    },
+    {
+      "id": "LV-0034",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as dana.whitfield@brightbikes.example with next=/hub/location-configuration/?site=SITE-NF-MAIN",
+        "navigated to /hub/location-configuration/?site=SITE-NF-MAIN (a Site id belonging to Northforge Metalworks, a different tenant)"
+      ],
+      "expected": "TOUR-LOCATION-CROSS-TENANT-001's subject: checkSiteReference refuses a cross-tenant Site id before anything renders \u2014 the screen shows a refusal, never the foreign tenant's real Site data.",
+      "observed": "Screen rendered 'This could not be opened' / 'The \"sites\" row \"SITE-NF-MAIN\" does not belong to tenant \"TEN-BRIGHTBIKES\".' with a 'Back to Sites' control; no Northforge data leaked.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-02-cross-tenant-site-refused.png",
+          "bytes": 104095,
+          "sha256": "5754fc9941b01d24fa518bb1700324ad86b820e0e1a5c17bedb0e7c0e27a4502"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:11:50Z"
+    },
+    {
+      "id": "LV-0035",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Supervisor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as marco.ellis@brightbikes.example",
+        "navigated to /hub/location-configuration/"
+      ],
+      "expected": "TOUR-LOCATION-DENIED-001's subject: the corrective task's role-floor narrowing (createAreaUnderSite/createLocationUnderArea/archiveLocationTierEntity to Tenant Admin only) holds \u2014 Create site renders present but disabled with the reason stated.",
+      "observed": "'Create site' rendered disabled with 'Only the Tenant Admin may create or archive a Site, Area or Location \u2014 the Location Configuration module's own roles-and-permissions table prohibits every other role.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-02-supervisor-create-site-disabled.png",
+          "bytes": 327266,
+          "sha256": "c173d3ecd3d686288618691266d2a565f4becb7bf5be2d5b7827b4063e8c7ec2"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:12:55Z"
+    },
+    {
+      "id": "LV-0036",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as dana.whitfield@brightbikes.example (Bright Bikes Tenant Admin, active) with ?next=/hub/location-configuration/?site=SITE-BB-NORTHGATE",
+        "clicked 'Create area'",
+        "typed 'Battery Pack Assembly'",
+        "clicked 'Create area' (submit)"
+      ],
+      "expected": "Task 10 re-drive on the corrected seed (RG-0001 siteIds cleared to []): TOUR-LOCATION-HIERARCHY-001's second leg, createAreaUnderSite, commits a real write under an existing Site outside Riverside, for a now-genuinely-unscoped Tenant Admin.",
+      "observed": "Signed in fresh (cleared IndexedDB snapshot first, to boot from the corrected seed rather than a stale persisted one). Northgate Components Plant's Areas tier showed its seeded Wheel Build and Precision Machining areas (previously invisible under the site-scoping bug). 'Saved.' toast; new row AREA-1 'Battery Pack Assembly' appeared, 3 areas total. No refusal, no scope-filtered emptiness.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0036-create-area-northgate-success.png",
+          "bytes": 162079,
+          "sha256": "28369cc08b1143a8e73b0650a60ae2d3eeb2d9572b5bfa2be87958b422d4d3e3"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:20:00Z"
+    },
+    {
+      "id": "LV-0037",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "(same session) opened Wheel Build's Locations tier (?site=SITE-BB-NORTHGATE&area=AREA-BB-WHEELBUILD)",
+        "clicked 'Create location'",
+        "typed 'Spoke Tensioning Station 3' and 'Wheel Truing Certification'",
+        "clicked 'Create location' (submit)"
+      ],
+      "expected": "Task 10 re-drive on the corrected seed: TOUR-LOCATION-HIERARCHY-001's third leg, createLocationUnderArea, commits a real write under Wheel Build (SITE-BB-NORTHGATE), reachable for a genuinely-unscoped Tenant Admin.",
+      "observed": "Wheel Build's Locations tier was reachable and showed its 3 seeded locations (Truing Stand 1/2, Spoke Lacing Station) -- previously unreachable/filtered under the site-scoping bug. 'Saved.' toast; new row LOC-3 'Spoke Tensioning Station 3' appeared, 4 locations total.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0037-create-location-wheelbuild-success.png",
+          "bytes": 182832,
+          "sha256": "eaa1f2975b206788a248b77a58f98b17fa2d525360a2fb28a48a8a77b143c12f"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:21:00Z"
+    },
+    {
+      "id": "LV-0038",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/shift-management/"
+      ],
+      "expected": "Shift Management main state renders the tenant's real Shifts (25 rows) with Create shift enabled for Tenant Admin, Edit/Archive live per row.",
+      "observed": "Shifts table showed 25 real seeded rows; 'Create shift' rendered enabled; each active Shift row carried live Edit/Archive controls.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-03-tenant-admin-shifts-main.png",
+          "bytes": 236272,
+          "sha256": "4d1afa93d8384ed068a1e0be95d464f9e71b8a8de1dd1910716e819bac7bda6c"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:07:45Z"
+    },
+    {
+      "id": "LV-0039",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "clicked 'Create shift'",
+        "chose Riverside Plant, named 'Overlap Test Shift', set 07:00-15:00 (overlapping the seeded Day Shift 06:00-14:00)",
+        "clicked 'Create shift' (submit)"
+      ],
+      "expected": "TOUR-SHIFT-OVERLAP-001's subject: AC-51-13's no-overlap rule refuses the write and names the conflicting Shift.",
+      "observed": "'This action is not permitted' / 'Day Shift (SHIFT-BB-DAY) already runs 06:00-14:00 at this Site, and the times entered would overlap it.' with a note naming the conflicting Shift and a 'View Day Shift' control.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-03-shift-overlap-refused.png",
+          "bytes": 278504,
+          "sha256": "15f00fc86a9874c7affdd0e1be7ce0f01bd8cb5951084e8503a5aab09de4f261"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:08:08Z"
+    },
+    {
+      "id": "LV-0040",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "corrected the times to 14:00-17:30 (non-overlapping)",
+        "clicked 'Create shift' (submit)"
+      ],
+      "expected": "TOUR-SHIFT-CREATE-001's subject: createShift commits a real write when no overlap exists.",
+      "observed": "Toast read 'Overlap Test Shift was created.'; no console errors; no non-localhost network requests.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-03-create-shift-success.png",
+          "bytes": 244431,
+          "sha256": "d23014976cdc8264a3acec8b44c31084ec10b88d133f565dd52be7aeecd4a373"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:08:39Z"
+    },
+    {
+      "id": "LV-0041",
+      "pathId": "modules:MOD-DOH-09",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/permissions-roles-and-access/"
+      ],
+      "expected": "Permissions main state renders the tenant's real users and role grants (28 rows) with Invite user enabled for Tenant Admin.",
+      "observed": "Tenant users table showed 28 real seeded rows across 3 pages with real emails, roles and 'Granted by' actors; 'Invite user' rendered enabled.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-09-tenant-admin-users-main.png",
+          "bytes": 243342,
+          "sha256": "c1475c21c57e3b08c00f4a964cf68b41d92246acbc2a2d2bc3ca1b40399f9071"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:08:56Z"
+    },
+    {
+      "id": "LV-0042",
+      "pathId": "modules:MOD-DOH-09",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "clicked 'Invite user'",
+        "typed 'Unit02 LiveVerify Person' / liveverify.person@brightbikes.example, role Supervisor",
+        "clicked 'Send invitation'"
+      ],
+      "expected": "TOUR-PERMISSIONS-PEOPLE-001's first leg: createTenantUser (Task 3's own new door) commits a real write, structurally required since users is 'platform'-authority.",
+      "observed": "Dialog showed 'Saved.'; toast read 'Unit02 LiveVerify Person was invited.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-09-invite-user-success.png",
+          "bytes": 230666,
+          "sha256": "874329ada20f78c6c185dc313d2f60f9b6bd35a2083c7d65b65985c5db0b9ce2"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:09:08Z"
+    },
+    {
+      "id": "LV-0043",
+      "pathId": "modules:MOD-DOH-09",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "clicked 'Assign role' for Marco Ellis (already Supervisor)",
+        "left 'Worker' selected",
+        "clicked 'Assign role' (submit)"
+      ],
+      "expected": "TOUR-PERMISSIONS-PEOPLE-001's second leg: assignTenantRole commits a real, additive role grant.",
+      "observed": "Dialog's own prose updated from 'Currently holds: Supervisor.' to 'Currently holds: Supervisor, Worker.'; roster row's Role cell now read 'Supervisor, Worker'.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-09-assign-role-success.png",
+          "bytes": 243572,
+          "sha256": "d686791e57bd306ac1d853ad3350c6aab05423ee5b7dc2b9ab32cc901f931233"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:09:22Z"
+    },
+    {
+      "id": "LV-0044",
+      "pathId": "modules:MOD-DOH-09",
+      "role": "Quality Manager",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as felix.brandt@brightbikes.example",
+        "navigated to /hub/permissions-roles-and-access/"
+      ],
+      "expected": "TOUR-PERMISSIONS-SOD-001's subject: MTX-TEN-02a's MOD-DOH-09 row marks Supervisor and Quality Manager 'Unavailable' for the whole module \u2014 Task 3's Critical 2 fix (VIEW_REQUEST no longer includes them) holds; the whole screen renders Unavailable, not a degraded roster view.",
+      "observed": "Page rendered only 'The current role does not carry a grant for this action.' \u2014 no roster table, no Invite/Assign controls, no partial data.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-09-qm-whole-module-unavailable.png",
+          "bytes": 89459,
+          "sha256": "349676edefd51184dfad3cbd084c3166b4e4e158537400d981ace14998c8edd0"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:15:12Z"
+    },
+    {
+      "id": "LV-0045",
+      "pathId": "modules:MOD-DOH-09",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed back in as dana.whitfield@brightbikes.example",
+        "navigated to /hub/permissions-roles-and-access/",
+        "clicked the 'Who may grant a tenant role, and why' disclosure"
+      ],
+      "expected": "Task 3's fix round 1 Critical 1 finding (PermissionsScreen.tsx rendering 'frozen source line 22015'/'line 18976' as visible page text) stays fixed on these final bytes \u2014 the disclosure defers its citation to the file's own header rather than spelling out a line number.",
+      "observed": "Disclosure text read '...A narrower default...(Citations: see this file's own header, Step 2.)' \u2014 no bare 'line NNNNN' or 'L22015'/'L18976' string anywhere in the rendered prose.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-09-sod-disclosure-no-locator.png",
+          "bytes": 286058,
+          "sha256": "5b1b038a3dd63e069c483a99e9dc1fa07541f57a39d38a0f8cb9dadc704b527d"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:17:47Z"
+    },
+    {
+      "id": "LV-0046",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/worker-lifecycle-and-qualifications/"
+      ],
+      "expected": "Worker Lifecycle main state renders the tenant's real Worker records (20 rows) with Add worker enabled for Tenant Admin.",
+      "observed": "Workers table showed real seeded rows with Site/Area scope and Qualification counts; 'Add worker' rendered enabled.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-tenant-admin-workers-main.png",
+          "bytes": 202741,
+          "sha256": "7569c3f253d983ed1d13abd69a15268bbca1783e09692c25fc0c1aa1a2db6df3"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:09:31Z"
+    },
+    {
+      "id": "LV-0047",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "clicked 'Add worker'",
+        "chose 'Invite a new worker'",
+        "typed 'Unit02 LiveVerify Worker' / liveverify.worker@brightbikes.example",
+        "clicked 'Create account and continue'",
+        "left the worker-record fields at their defaults",
+        "clicked 'Create worker record'"
+      ],
+      "expected": "TOUR-WORKER-ADD-001's subject: createWorker's two-write sequence (account via Task 3's door, then the worker record) commits for real.",
+      "observed": "Toast read \"Unit02 LiveVerify Worker's account was created. Now add their worker record.\"; landed on the new worker's detail page (WRK-16) with Worker id, Linked user id USR-TEN-BRIGHTBIKES-12, and 'invited' account status all real.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-add-worker-success.png",
+          "bytes": 145834,
+          "sha256": "62fd30f1f9317135c95a1d341799928be1168b80d2c5989debc36d54a72ffd84"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:09:58Z"
+    },
+    {
+      "id": "LV-0048",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "opened WRK-16's Qualifications tab",
+        "clicked 'Enter qualification'",
+        "checked Assembly Line A, typed 'Forklift Operation', dates 2026-01-15/2026-01-16/2027-01-15",
+        "clicked 'Enter qualification' (submit)"
+      ],
+      "expected": "TOUR-WORKER-QUALIFICATION-001's subject: recordQualification commits a real write.",
+      "observed": "Qualifications count changed from '0 qualification(s) on record.' to '1 qualification(s) on record.' with the new row in the table.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-record-qualification-success.png",
+          "bytes": 147605,
+          "sha256": "316edd1c8337c5c3e2fd7b1745453395b6314d96bbf3a3fe7ca1b63842982c4c"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:10:16Z"
+    },
+    {
+      "id": "LV-0049",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Quality Manager",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as priya.raghunathan@brightbikes.example",
+        "navigated to /hub/worker-lifecycle-and-qualifications/",
+        "opened Alice Okonkwo's own record, Qualifications tab"
+      ],
+      "expected": "TOUR-WORKER-QM-DENIED-001's subject: the corrective role floor (createWorker/recordQualification narrowed to Tenant Admin/Supervisor, Task 4's dispatch) holds \u2014 Add worker and Enter qualification both render present but disabled with their reasons stated; reads stay open.",
+      "observed": "'Add worker' rendered disabled: 'Only the Tenant Admin or a Supervisor may create or edit a worker record...'; on Alice's own record 'Enter qualification' rendered disabled: '...self-attestation is not permitted, and the Quality Manager and Read-only Auditor are prohibited by the same table.' Her one real qualification remained visible (read access unaffected).",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-qm-add-worker-disabled.png",
+          "bytes": 212955,
+          "sha256": "5011301f74d831c1573647d053fdfef1c6e56ee4a7b789300c7322ffc03996fb"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-qm-enter-qualification-disabled.png",
+          "bytes": 159833,
+          "sha256": "f48eb7785330d853cdbe1f90fb49a88a4680aec6a1d16a7b65c667d04cafda29"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:14:49Z"
+    },
+    {
+      "id": "LV-0050",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Supervisor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as marco.ellis@brightbikes.example",
+        "navigated to /hub/worker-lifecycle-and-qualifications/",
+        "clicked 'Add worker'",
+        "chose 'Attach an existing account'",
+        "typed a Northforge Metalworks user id 'USR-NF-WKR-01' directly",
+        "clicked 'Continue'",
+        "selected Locale Spanish",
+        "clicked 'Create worker record'"
+      ],
+      "expected": "TOUR-WORKER-CROSS-TENANT-001's subject: the door refuses a foreign-tenant user id sent to it as-is, never rendering the other tenant's real data.",
+      "observed": "'This action is not permitted' / 'No visible \"users\" row with id \"USR-NF-WKR-01\" exists to attach a worker record to.' \u2014 no Northforge data rendered anywhere.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-worker-cross-tenant-refused.png",
+          "bytes": 196771,
+          "sha256": "662a1da6121c865bafa3e805f015516c6c4dcdc1bea28ed767a0cfcdc9dc8337"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:13:45Z"
+    },
+    {
+      "id": "LV-0051",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Supervisor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "clicked 'Add worker'",
+        "chose 'Invite a new worker'",
+        "typed 'Priya Anand' / priya.anand@brightbikes.example",
+        "clicked 'Create account and continue'"
+      ],
+      "expected": "TOUR-WORKER-ADD-SOD-001's subject (Task 7's own live discovery): createWorker reads a Supervisor as an operational writer, but the account-creation step it calls first is Task 3's Tenant-Admin-only door \u2014 the live control is refused mid-flow, not the same as standing to complete it.",
+      "observed": "'This action is not permitted' / 'Supervisor may not create a tenant user holding the Worker role. Only a Tenant Admin may (per the tenant role-to-module matrix and the account-lifecycle authority table).'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-worker-add-sod-refused.png",
+          "bytes": 197445,
+          "sha256": "5274b0907b4625efeda0f00c745e882462739c91931d782dd3392696440df8e1"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:14:06Z"
+    },
+    {
+      "id": "LV-0052",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed back in as dana.whitfield@brightbikes.example",
+        "opened Diego Fuentes' own worker record (WRK-BB-WKR-04)",
+        "opened his Qualifications tab"
+      ],
+      "expected": "TOUR-SEQ031-LIFECYCLE-001's User leg: his Paint Booth Respirator Certification already renders Expired.",
+      "observed": "Qualifications table showed one row, status column read 'Expired' with dates 2025-06-01 / 2025-06-01 / 2026-06-01 (certification / entry / expiry).",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-04-seq031-worker-qual-expired.png",
+          "bytes": 137345,
+          "sha256": "82417caa3a9ea8107e6213a2510af0f4981a022249e7e5b296ad4112684128a7"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:12:15Z"
+    },
+    {
+      "id": "LV-0053",
+      "pathId": "workflows:WF-DVC-005",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "navigated to /hub/devices/"
+      ],
+      "expected": "Devices main state renders the tenant's real fleet (14 rows) with Enroll device enabled; no Suspend control is drawn anywhere for any tenant role, per WF-DVC-005's own Denied path \u2014 Task 5's plan-conflict ruling (suspend/wipe authority stays on the platform console, not this Hub screen) holds on final bytes.",
+      "observed": "Device fleet table showed real seeded devices with Mode/Location/Sync health/Storage pressure/Status; a dedicated 'Suspending or de-authorising a device' section stated in full prose that no Suspend control is drawn here for any tenant role including the Tenant Admin.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/actionable-controls-devices-tenant-admin-main.png",
+          "bytes": 316276,
+          "sha256": "cc9aa26d6651b66f11534eaea70aada562b03085e91909b1438e3aa681a016bb"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:10:37Z"
+    },
+    {
+      "id": "LV-0054",
+      "pathId": "workflows:WF-DVC-001",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "clicked 'Enroll device'",
+        "typed device id 'DEV-TEN-BRIGHTBIKES-1', mode Shared, left Location Unplaced, application version '2.1.0'",
+        "clicked 'Enroll this device'"
+      ],
+      "expected": "TOUR-DEVICE-ENROLL-001's subject: enrollDevice commits a real write.",
+      "observed": "Toast read 'DEV-TEN-BRIGHTBIKES-1 was enrolled.'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/actionable-controls-devices-enroll-success.png",
+          "bytes": 326025,
+          "sha256": "5b07361c1d6ea6cfa814932470c0894ba529e541fbc1709cea471de15abe7f21"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:10:48Z"
+    },
+    {
+      "id": "LV-0055",
+      "pathId": "workflows:WF-DVC-002",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "changed DEV-BB-TAB-001's Reassign selector to 'Wheel Station 2 (Assembly Line A / Riverside Plant)'",
+        "clicked 'Reassign'",
+        "confirmed the change in the alert dialog"
+      ],
+      "expected": "TOUR-DEVICE-REASSIGN-001's subject: reassignDevice commits a real write.",
+      "observed": "Confirmation dialog showed 'Location: Assembly Cell 1 (...) -> Wheel Station 2 (...)'; toast read 'DEV-BB-TAB-001 is now bound to Wheel Station 2 (Assembly Line A / Riverside Plant).'",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/actionable-controls-devices-reassign-success.png",
+          "bytes": 341416,
+          "sha256": "9490244956241f201ae27c3e7bd0ff1072a06e6742ea59de72d93eabb9286430"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:11:04Z"
+    },
+    {
+      "id": "LV-0056",
+      "pathId": "workflows:WF-DVC-005",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "searched the device fleet for 'DEV-BB-TAB-008'"
+      ],
+      "expected": "TOUR-SEQ031-LIFECYCLE-001's Device leg: a device already suspended/de-authorised by the platform still renders here, status distinct from every other state, with no write control offered for it.",
+      "observed": "DEV-BB-TAB-008's Status column read 'De-authorised'; its Reassign control still rendered (Location may still change) but no control anywhere reversed or altered the suspension status itself.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/actionable-controls-seq031-device-deauthorised.png",
+          "bytes": 190307,
+          "sha256": "55ed1ccb000497eb757eb5e84d9de1a1995accc5c725bc1fa5a62fcf4ddecdf3"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:12:35Z"
+    },
+    {
+      "id": "LV-0057",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "(same session) signed in fresh, deep-linked to /hub/shift-management/?site=SITE-BB-NORTHGATE (the Location-to-Shift-Management cross-link's own target URL)"
+      ],
+      "expected": "Task 10 re-drive on the corrected seed: Task 6's Location-to-Shift-Management cross-link resolves to a real, filtered Shift Management view for a genuinely-unscoped Tenant Admin, not an empty/scope-filtered table.",
+      "observed": "Landed on /hub/shift-management/?site=SITE-BB-NORTHGATE with 'Filtered to Shifts at Northgate Components Plant, linked from that Site's own record in Location Configuration.' and a 'Clear filter' control; table showed real data -- Northgate Day Shift (SHIFT-BB-NG-DAY), not an empty table.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0057-crosslink-shifts-northgate.png",
+          "bytes": 147036,
+          "sha256": "634b063f66c72d7b164942bfd24e830419c41e3cd76b1a1831848f9fb9a65afe"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:22:00Z"
+    },
+    {
+      "id": "LV-0058",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "opened Alice Okonkwo's own worker record, Scope tab",
+        "clicked 'View Devices at Alice Okonkwo's scoped Areas'"
+      ],
+      "expected": "Task 6's Worker-to-Devices cross-link (a worker's own scoped Areas link to the Devices at those Locations, filtered) resolves to a real, filtered Devices view.",
+      "observed": "Landed on /hub/devices/?locations=LOC-BB-ASSY-CELL-01,LOC-BB-WHEEL-2,LOC-BB-ASSY-QC with 'Filtered to devices at Locations within a Worker's scoped Areas (3 Locations).' and a 'Clear filter' control.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/task6-crosslink-worker-to-devices.png",
+          "bytes": 271041,
+          "sha256": "f72d53dc32e53de7f0ba4037ac113f6d223916cc00aeb727461fb8e3eea26db3"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
+      "stamp": "2026-08-29T16:17:06Z"
+    },
+    {
+      "id": "LV-0059",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Supervisor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as marco.ellis@brightbikes.example (Bright Bikes Supervisor, RG-0003: siteIds [SITE-BB-RIVERSIDE], areaIds [AREA-BB-ASSEMBLY]) with ?next=/hub/worker-lifecycle-and-qualifications/?worker=WRK-BB-WKR-01",
+        "opened Alice Okonkwo's own worker record, Scope tab",
+        "read the scope panel's own disclosure",
+        "navigated (fresh sign-in) to /hub/location-configuration/?site=SITE-BB-NORTHGATE, outside Marco's own scope"
+      ],
+      "expected": "Task 10 regression re-drive of this sweep's own Task 6 (session scope wiring, H): a real, scoped Supervisor session should now narrow what is visible/writable to the signed-in actor's own granted Site/Area scope -- the opposite of this row's original finding (no session populated scope at all).",
+      "observed": "The Scope tab's own disclosure previously asserted 'no signed-in session in this build yet populates a real site/area scope on sign-in' -- now false since Task 6 landed, and corrected in this same task (app/hub/worker-lifecycle-and-qualifications/WorkerLifecycleScreen.tsx) to state the real current behavior. Separately, and more directly: signed in as the real scoped Supervisor Marco Ellis and navigated to Location Configuration at Northgate (outside his SITE-BB-RIVERSIDE scope) -- Northgate showed 'There is no Area under this Site yet', filtering out the 3 areas that exist there (visible to an unscoped Tenant Admin in this same task's LV-0036/LV-0037 re-drives), live evidence of real scope-narrowing on a genuinely scoped session. Scope-narrowing is drivable live; it is no longer only disclosable.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0059-scope-tab-corrected-disclosure.png",
+          "bytes": 135245,
+          "sha256": "ccc7255f0deeb4c3d7fb1c810647d9ef6f8e4b00dc79e8b822fb3e728b96f2c1"
+        },
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0059-scope-narrowing-marco-northgate-filtered.png",
+          "bytes": 133833,
+          "sha256": "57372df96076399d999e81e808acd95f542b97cfd2c30c41c9591f96686a1151"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:33:00Z"
+    },
+    {
+      "id": "LV-0060",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as dana.whitfield@brightbikes.example (Bright Bikes Tenant Admin, active) with ?next=/hub/shift-management/",
+        "clicked Edit on SHIFT-BB-EXP-01 (Day Shift, Rockford Fabrication Plant -- not Riverside)",
+        "changed the name to 'Day Shift (Early)' and the end time from 14:00 to 13:30",
+        "submitted the drawer"
+      ],
+      "expected": "Task 10 re-drive on the corrected seed: updateShift's SUCCESS path commits for a genuinely-unscoped Tenant Admin acting on a non-Riverside site, where it was refused under the RG-0001 site-scoping bug.",
+      "observed": "Drawer showed 'Saved.'; the register row re-rendered as 'Day Shift (Early)', Start-end 06:00-13:30, at Rockford Fabrication Plant (SITE-BB-EXP-01). No refusal. This remains the only live evidence of updateShift's success path in either unit's ledger, now genuinely reachable rather than dependent on the scoping bug's absence of enforcement.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0060-updateshift-success-rockford.png",
+          "bytes": 218064,
+          "sha256": "8bab7452805cc81798c4e6a817859a44ecee1f53035a892f80eddd8b977e9bef"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:24:00Z"
+    },
+    {
+      "id": "LV-0061",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "same session as LV-0060",
+        "clicked Archive on SHIFT-BB-EXP-02 (Afternoon Shift, Peoria Assembly Plant -- not Riverside)",
+        "confirmed in the archive confirmation dialog (shift-management-archive-confirm-confirm)"
+      ],
+      "expected": "Task 10 re-drive on the corrected seed: archiveShift authorises and commits for a genuinely-unscoped Tenant Admin acting on a non-Riverside site, where it was refused under the RG-0001 site-scoping bug.",
+      "observed": "'Afternoon Shift was archived.'; SHIFT-BB-EXP-02's row status became Archived at Peoria Assembly Plant (SITE-BB-EXP-02). No refusal.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0061-archiveshift-success-peoria.png",
+          "bytes": 225014,
+          "sha256": "5f8ce91d0cce3a54f947a1973d796774e2a9eb60186273a88cfaaa938cf46d99"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:25:00Z"
+    },
+    {
+      "id": "LV-0062",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "same session, navigated to Location Configuration through the module rail",
+        "opened SITE-BB-RIVERSIDE, then AREA-BB-ASSEMBLY",
+        "clicked Archive on LOC-BB-ASSY-QC (Final QC Bench) and confirmed",
+        "repeated for LOC-BB-WHEEL-2 (Wheel Station 2) with an in-page console/error listener installed"
+      ],
+      "expected": "archiveLocationTierEntity's SUCCESS path commits at the Location tier: role floor first, explicit row-tenant comparison, no children beneath a Location to sweep, write delegated to update().",
+      "observed": "'Final QC Bench was archived.' and 'Wheel Station 2 was archived.'; both status controls became ...-archived. Until now only this door's REFUSAL paths (has-active-children, role floor) carried ledger rows -- its success path had never been driven live at any tier.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-archivelocation-success.png",
+          "bytes": 364505,
+          "sha256": "506d8e5c827dbc300dc6ba7644abe3fcd768b8135bb749ddd992134e2a99f554"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:09:00Z"
+    },
+    {
+      "id": "LV-0063",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Supervisor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as grace.adeyemi@brightbikes.example (Bright Bikes Supervisor, active) with ?next=/hub/shift-management/",
+        "read the Archive column on every active Shift row and the Create control",
+        "attempted to force the disabled control by clearing its disabled attribute and clicking it"
+      ],
+      "expected": "After the archiveShift fix, a Supervisor still meets no live archive control and a named reason, and the underlying door would refuse them (L27293 is Tenant-Admin-only).",
+      "observed": "Archive renders as a disabled control with the reason 'Only the Tenant Admin may archive this.'; Create is disabled too. Forcing the control does nothing: when canWrite is false the screen renders a DIFFERENT element that carries no onClick at all, so there is no handler to reach. Rail unchanged for this role.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-supervisor-rail-and-archive-gate.png",
+          "bytes": 351048,
+          "sha256": "5747a1f5de92f2baf11c71bb0a103b704dabd156d0a99e9debb511e1c1ed8653"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": "The DOOR-level refusal (archiveShift returning a denial for a Supervisor) cannot be driven from this UI: the screen renders no control that reaches archiveShift for a role without the write grant, and no repository handle is exposed on window in the static export. Only the display gate is observable live. Same class of limit as LV-0059, and the same one PermissionsScreen.tsx's own header records for its segregation-of-duties refusal.",
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:12:00Z"
+    },
+    {
+      "id": "LV-0064",
+      "pathId": "modules:MOD-DOH-09",
+      "role": "Supervisor, Quality Manager, Read-only Auditor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as grace.adeyemi@brightbikes.example (Supervisor), deep-linked to /hub/permissions-roles-and-access/ and read the module rail",
+        "repeated as felix.brandt@brightbikes.example (Quality Manager)",
+        "repeated as tomas.lindqvist@brightbikes.example (Read-only Auditor) as the regression control"
+      ],
+      "expected": "After MOD-DOH-09's reach was moved off the dead fixtures file and onto src/surfaces/doh/modules/doh-09/matrix.ts with MTX-TEN-02a's Unavailable adopted, the rail and PermissionsScreen's own VIEW_REQUEST agree: Tenant Admin and Read-only Auditor reach it, Supervisor and Quality Manager do not.",
+      "observed": "Supervisor rail: MOD-DOH-02,03,04,05,06,07,10,14,15,16,19 -- MOD-DOH-09 ABSENT, and the deep-linked screen refuses with 'The current role does not carry a grant for this action.' Quality Manager rail: MOD-DOH-02,03,04,05,06,07,08,10,11,14,16,19 -- MOD-DOH-09 ABSENT, same screen refusal. Read-only Auditor rail: MOD-DOH-09 PRESENT and the user-and-role register renders read-only with 10 rows and a write-gate message. Tenant Admin rail (LV-0060's session): 16 modules including MOD-DOH-09, unchanged. Before this fix the rail offered Supervisor and Quality Manager a link to a screen that refused them on arrival. No other module's reach moved -- the generated diff is MOD-DOH-09 only.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-supervisor-permissions-rail-and-gate-agree.png",
+          "bytes": 230190,
+          "sha256": "35c3a30a19122b669984bffb7c79eff36cc551428d339fd936841cf9b487866d"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-auditor-permissions-still-reaches.png",
+          "bytes": 388058,
+          "sha256": "1e3dbfad642be4953c320ac8ef394135d7c4d45f7d3f5099b404ea22aba3511e"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:16:00Z"
+    },
+    {
+      "id": "LV-0065",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Worker",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as alice.okonkwo@brightbikes.example (Bright Bikes Worker, active) with ?next=/hub/shift-management/",
+        "read the module rail before and after the AppShell D11 fix"
+      ],
+      "expected": "D11: the route registry does not list the Worker among SURF-DOH's allowedRoles, so a Worker is offered no Hub module rail at all.",
+      "observed": "BEFORE the fix, MEASURED: the rail drew four links -- Shift Management, Run Scheduling and Execution Oversight, Worker Assignment, Notifications -- one per module whose matrix grants the Worker something, and Shift Management then refused with 'The current role does not carry a grant for this action.' Root cause was AppShell.tsx, which every screen this unit rebuilt uses instead of HubShell.tsx: it read dohModulesReachedBy(role) without first asking the route registry whether the persona reaches the surface at all, the question HubShell asks first. AFTER the fix: rail empty, 'No modules are offered to this role.' MOD-DOH-03's matrix was NOT changed -- its Worker cell is a real source grant (L27297) and D11 has one owner.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-worker-d11-empty-rail.png",
+          "bytes": 164532,
+          "sha256": "0a79c7fee165f9d71a6a6ce2cdbd5eaf009421afec85bc04a6737d23e2f8c985"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:20:00Z"
+    },
+    {
+      "id": "LV-0066",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Nadia Ferreira (Tenant Admin, invited) then Helena Voss (Admin) \u2014 both driven by the tour's own switchRole-free identity steps (type/click into the real sign-in form), never a role-simulator shortcut",
+      "surface": "Delivery Operations Hub + Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "THE RUNNER ITSELF WAS DRIVEN, NOT ITS STEPS REPLICATED BY HAND: opened the Tours menu ('demo-tours-toggle'), clicked the real 'Watch' button for TOUR-TENANT-ACTIVATION-001 ('demo-tour-watch-TOUR-TENANT-ACTIVATION-001') \u2014 the only manual input from here on was reading state and, once, setting playback speed to 0.5x via the runner's own 'demo-tour-speed' control",
+        "observed the runner autoplay all 17 steps unattended: TourRunner#start (src/tours/runner.ts) ran each TourStep's real DOM action (src/tours/actions.ts \u2014 navigate via the app's own Next.js router, type character-by-character with real input events, click via el.click()) and, after each one's expectRoute/expectVisible check passed, auto-advanced on its own STEP_GAP_MS (650ms/speed) timer with no click from this verifier",
+        "confirmed a failed first attempt at re-running the SAME tour in the SAME already-written IndexedDB session ('accept' step refused with 'No element carries data-control-id=\"accept-invitation-submit\"', because Nadia's invitation was already accepted by the prior run) \u2014 this is the runner's own documented, non-idempotent-replay-of-a-write limitation (src/tours/runner.ts's own header comment on `restart()`/write idempotency), not a defect; cleared IndexedDB ('aviixa-storyboard') and reloaded for a genuinely fresh run rather than silently discarding the failure",
+        "on the fresh run: caption/progress read 'step 14 of 17 \u2014 Playing' with the spotlight ring genuinely encircling the real 'tenant-detail-activate' control on /super-admin/tenants-lifecycle-and-pilots/detail/ \u2014 captured live, not stepped-to by hand",
+        "autoplay reached 'step 17 of 17 \u2014 Complete' unattended, landed on /super-admin/tenants-lifecycle-and-pilots/, Ironclad Fasteners' row reading Active",
+        "console-error hook (window.console.error/onerror/unhandledrejection all pushed into an array) was armed before this final clean run; array read empty at completion",
+        "performance.getEntriesByType('resource') read for the whole run: no entry outside http://localhost:4173"
+      ],
+      "expected": "TASK 9's OWN SUBJECT: the real auto-play tour-runner UI (WatchButton/TourOverlay/TourControls/NarrationCaption, src/ui/demo/tour/) drives TOUR-TENANT-ACTIVATION-001 \u2014 the cross-surface accept-then-activate tour \u2014 to completion by itself once 'Watch' is clicked, advancing spotlight/narration/progress on a real-time timer with no per-step click required from the verifier, exactly as src/tours/runner.ts's autoplay() loop is built to do. This is the FIRST ledger row that exercises the runner mechanism itself, closing the gap both units' closure records named identically ('the tour runner mechanism remains entirely undriven by any ledger row').",
+      "observed": "Confirmed a genuine timer-driven autoplay, not click-to-advance: after the initial 'Watch' click, every subsequent step ran and the narration/progress/spotlight advanced with zero further input from this verifier, at a real-time pace scaled by the speed selector (0.5x/1x/2x, TourControls' own 'demo-tour-speed'). NOTABLE FINDING, disclosed precisely and not overclaimed: this run crossed from /hub/accept-invitation/ to /super-admin/... and completed the Activate write, succeeding at exactly the continuous cross-surface chain LV-0010 (this same pathId's sibling row, unit-01 Task 12) recorded 'blocked' for a REVIEWER's own manual navigation ('no in-app link connects Hub and Super Admin, any navigation between them is a hard page load'). The mechanism differs, not the underlying finding: TourHost#navigate (src/ui/demo/DemoChrome.tsx) calls the app's own Next.js router.push(), a client-side transition inside the SAME document/React tree \u2014 never a hard page load \u2014 so the in-memory store (and Nadia's real acceptance write) stayed intact across the surface boundary the runner crossed. A reviewer clicking through the visible UI still has no in-app link between the two surfaces and would still hit LV-0009's write-only-persistence finding on a real hard navigation; this row does not reopen or contradict LV-0010, it demonstrates a different, narrower thing \u2014 the underlying app CAN sustain a client-side transition across that boundary when driven programmatically, which is what makes the tour able to demonstrate the full spine end to end even though a plain reviewer cannot discover that same path by clicking alone. Recorded here because it is real, live-observed behavior this task's own driving surfaced, not because it changes LV-0010's verdict.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/TOUR-TENANT-ACTIVATION-001-runner-spotlight-signin2.png",
+          "bytes": 168838,
+          "sha256": "3186a99a59eaa4d0e792449ee052f7f6dbeb14569918b2d0a0aedfae9ffee117"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/TOUR-TENANT-ACTIVATION-001-runner-complete.png",
+          "bytes": 166045,
+          "sha256": "e7650284445c9e435769c95f8aef7cf039236f8f787856e867ab8b6aade89e74"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task9-e64fea46e31c50d6aa34321ab1081aa767404a39",
+      "stamp": "2026-08-29T22:55:00Z"
+    },
+    {
+      "id": "LV-0067",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Marco Ellis (Supervisor) \u2014 signed in by the tour's own type/click steps into the real sign-in form, never a role-simulator shortcut",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "THE RUNNER ITSELF WAS DRIVEN, NOT ITS STEPS REPLICATED BY HAND: opened the Tours menu, clicked the real 'Watch' button for TOUR-WORKER-ADD-SOD-001 ('demo-tour-watch-TOUR-WORKER-ADD-SOD-001') and let it autoplay",
+        "observed all 11 steps run and auto-advance unattended (sign-in, navigate to Worker Lifecycle and Qualifications, open Add worker, choose new user, type name/email, submit) to 'step 11 of 11 \u2014 Complete', narration reading the real refusal copy ('Only a Tenant Admin may grant any tenant role...'); console-error hook armed for this run read empty on completion",
+        "RESTARTED THE SAME TOUR (runner's own 'demo-tour-restart' control) and, mid-autoplay, clicked the real 'Pause' control ('demo-tour-playpause') \u2014 landed paused at 'step 6 of 11 \u2014 Paused' ('He opens Worker Lifecycle and Qualifications...'), confirmed the SAME narration/step reached on the earlier full run, i.e. a real, reproducible autoplay position, not a one-off",
+        "EXERCISED TAKE OVER: clicked the real 'Take over' control ('demo-tour-takeover'). Confirmed by inspecting the live DOM immediately after: the tour overlay (spotlight + panel) was gone entirely, the app was still on /hub/worker-lifecycle-and-qualifications/ (the exact page/step-6 state the tour was paused at \u2014 NOT reset to step 0 or to the tour's start route), and focus landed on a real, usable control (TourOverlay's own documented fallback chain: the step-6 target 'sign-in-submit' no longer resolves on this page, so focus correctly fell back to 'demo-tours-toggle')",
+        "CONTINUED MANUALLY FROM THE HANDOFF POINT: with the tour overlay gone and control genuinely back with the verifier, clicked the real product's own 'Add worker' control ('worker-lifecycle-add-worker') by hand \u2014 the exact action step 7 ('open-add-worker') would have performed \u2014 and confirmed it produced the identical real result the tour step expects: the 'choose new user' panel ('worker-lifecycle-add-choose-new-user') rendered. Manual continuation after Take over genuinely works, on the real product, not a second driving mechanism",
+        "console-error hook and performance.getEntriesByType('resource') both re-checked immediately after this manual click: zero console errors, zero requests outside http://localhost:4173"
+      ],
+      "expected": "TASK 9's OWN SUBJECT, the SoD-discovery tour named in the brief as unit-02's representative: the real tour-runner UI drives TOUR-WORKER-ADD-SOD-001 to completion unattended, AND the 'Take over' control genuinely hands control back to the user at the exact current state (not a reset to step 0 or to the tour's start route), with manual continuation from that exact point working on the real product.",
+      "observed": "Both halves confirmed live. Full unattended completion: narration/progress/status advanced from 'step 1 of 11 \u2014 Playing' to 'step 11 of 11 \u2014 Complete' with zero clicks from this verifier after the initial 'Watch'. Take over: state before and after the click was identical except runner status and overlay visibility \u2014 same route, same step index (6 of 11), same underlying repository state \u2014 the overlay simply disappeared and focus moved to a live, usable control; this is a real handoff, not a stop-and-reset. The manually-clicked 'Add worker' afterward produced the exact next real state the tour's own step 7 asserts (worker-lifecycle-add-choose-new-user visible), proving the handoff lands somewhere the reviewer can genuinely keep working from.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-midstep.png",
+          "bytes": 98095,
+          "sha256": "04ab5160cc12e3808de411e63af3d5d5e7813616a2d3cc13c70eb1e162290c6e"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-complete.png",
+          "bytes": 235203,
+          "sha256": "9a2234ad2fa2c9f243b7d28be880f903ecf0b9fc8e59b972aa7faca574b78c8b"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-paused-step6.png",
+          "bytes": 222200,
+          "sha256": "15535f0fb1c57282a84c1abfa258d1fe728558610a7a8333895174dbcb162e0a"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-takeover-handoff.png",
+          "bytes": 197418,
+          "sha256": "6ba7445ac60db3838f9954eb514dcf5972447f8d0fbddb2c458a07829a481bf1"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-manual-continue-after-takeover.png",
+          "bytes": 191630,
+          "sha256": "777daf254ed96c441ca6cbe05fd66f5b5fad70bf14a396130c99c60b7f6b2630"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task9-e64fea46e31c50d6aa34321ab1081aa767404a39",
+      "stamp": "2026-08-29T22:55:00Z"
+    },
+    {
+      "id": "LV-0068",
+      "pathId": "workflows:WF-ROLE-022",
+      "role": "Support",
+      "surface": "Super Admin Platform Console + Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (CANONICAL_EPOCH_MS 2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as iris.nakamura@platform.aviixa.example (Support, USR-PLAT-SUP-01) with ?next=/super-admin/support-access/",
+        "selected the reason class (the closed list's own single 'unspecified in source' option), selected tenant TEN-BRIGHTBIKES, typed ticket reference 'BB-9012'",
+        "clicked 'Open a support session'"
+      ],
+      "expected": "Task 10 seed fix C (AS-0001's closedAt corrected from null to 2026-08-16T09:05:00Z): Iris Nakamura's stale AS-0001 row no longer reads as still-open relative to the app's simulated clock, so Task 7's one-session-per-actor guard no longer permanently refuses her a new session. This exercises WF-ROLE-022's own primary actor through a path never live-verifiable before either this seed fix or Task 7's door existed.",
+      "observed": "Landed on /hub/support-session/ -- 'Read-only support session -- Bright Bikes'. Banner: 'Platform support is viewing this workspace, read-only. Engineer Iris Nakamura. Ends by 02/03/2026, 13:00:00.' Full read-only Sites list rendered (24 Bright Bikes sites, including the archived ones correctly labelled). No create/edit/archive control anywhere on the screen. Before this seed fix, opening a new session was unconditionally refused by the (correctly written) one-session-per-actor guard, because AS-0001's stale closedAt: null read as still open.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/new-row-iris-nakamura-support-session-open.png",
+          "bytes": 154857,
+          "sha256": "75d61ad2d8e1d44c307609a00df60059d3fa152639605579b8342fcc5b56cb03"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:35:00Z"
+    }
+  ]
+}

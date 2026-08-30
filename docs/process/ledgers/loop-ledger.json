@@ -1,0 +1,809 @@
+{
+  "schema_version": "1.0.0",
+  "ledger": "loop-ledger",
+  "governing_sections": [
+    "master prompt \u00a723.2 (named ledger)",
+    "master prompt \u00a727.3 (evidence-shape requirement)"
+  ],
+  "scope_note": "Slice 4 (2026-08-19-slice-04-tenant-setup), branch slice-04-tenant-setup off main at df5455b, through HEAD 4506790. Reconstructed 2026-08-20 from git log, .superpowers/sdd/2026-08-19-slice-04-tenant-setup/progress.md, and the per-task report/review artifacts in the same directory \u2014 all of which are scheduled for deletion when this SDD workspace closes. Every field cites a commit sha, a progress.md line number, or a report file path; a field with no such citation is written \"unrecorded\" and says what would have carried it, per the absolute rule governing this ledger's construction (progress.md:1319).",
+  "columns": [
+    "loop_id",
+    "lifecycle_state",
+    "scope",
+    "entry_evidence",
+    "findings",
+    "decision",
+    "corrections",
+    "exit_criteria",
+    "actual_exit_evidence",
+    "retry_count",
+    "next_state"
+  ],
+  "loops": [
+    {
+      "loop_id": "LOOP-DOH-01",
+      "scope": "Task 1 \u2014 the SURF-DOH spine (six shared-truth modules, no independent review dispatched)",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:12-15",
+      "findings": "None \u2014 controller verified directly rather than dispatching an independent reviewer: 28 unit + 11 component green, tsc --noEmit exit 0, before committing.",
+      "decision": "No independent-review loop entered for this task. Controller ruling recorded elsewhere (ledger note) that the spine was pre-existing/uncommitted at session entry and was verified by the controller itself before committing, not taken on trust.",
+      "corrections": "None recorded \u2014 no fix round.",
+      "exit_criteria": "Controller-verified green suite and clean typecheck before commit (no independent review requirement recorded for this task in progress.md).",
+      "actual_exit_evidence": "progress.md:15 \u2014 `Task 1: complete (commits df5455b..25fe924, verified by controller)`",
+      "retry_count": 0,
+      "next_state": "NONE \u2014 closed."
+    },
+    {
+      "loop_id": "LOOP-DOH-02",
+      "scope": "Task 2 \u2014 the Hub shell, module index, HubChrome (shared chrome frozen at task 1, unfrozen twice more within this loop)",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:97 \u2014 fix round 1/5 dispatched over commits 25fe924..3733172",
+      "findings": "Round-1 independent review (review-25fe924..3733172.diff, see task-2-review.md): spec NOT MET, quality not approved, 0 Critical / 3 Important / 9 Minor. Round-3 fix introduced an architectural gate violation (contract-gates) caught only by a separate release-gate run, not by the review itself.",
+      "decision": "Important-1/2 fixed in round 2 (commit a923a4d); round-2 fix itself created a new violation (permission logic moved into src/ui/), closed in round 3 (commit f9a1dc3) by moving the decision out of HubChrome entirely (DOH_MODULES.rolesReaching + HubShell computing the rail). Axe verification deferred by explicit ruling to the task-12 gate (progress.md:86, :116).",
+      "corrections": "3 fix rounds: round 1 (rail on index / rail under Worker persona), round 2 (D12/D13 banner-region gating + third instance the fix itself exposed), round 3 (HubChrome takes a modules prop and holds zero policy; closes the contract-gates violation round 2 introduced).",
+      "exit_criteria": "Independent (re-)review clean with no unresolved Important findings, release gates green, three Minors may be parked with stated reasons.",
+      "actual_exit_evidence": "progress.md:387 \u2014 `Task 2: complete (commits df5455b..f9a1dc3, review clean, 3 Minor parked with reasons)`",
+      "retry_count": 3,
+      "next_state": "NONE \u2014 closed. One cross-task pointer carried forward to task 10 (progress.md:243)."
+    },
+    {
+      "loop_id": "LOOP-DOH-03",
+      "scope": "Task 3 \u2014 MOD-DOH-01 tenant lifecycle and tier operations",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:189 \u2014 independent review dispatched (opus) over review-a923a4d..392e47e.diff, whole module",
+      "findings": "Round-1 review: spec NOT MET, quality not approved, 0 Critical / 3 Important / 8 Minor. Important-1 (rail offers a module to a role its own matrix marks Unavailable) was ruled NOT this module's defect but HubChrome's, and queued behind loop LOOP-DOH-02's round 3.",
+      "decision": "Fix round waited on task 2 round 3 landing (progress.md:219, :318) before running, because the honest fix for the rail finding could only pass once the shared chrome changed.",
+      "corrections": "1 fix round (commits f9a1dc3..7e79864): rail test rewritten to query the rail with a positive control, live-region wrapped so an announcement cannot be missed, stale pending_downgrade outcome cleared, per-cell matrix assertion tightened from toContain to exact toBe.",
+      "exit_criteria": "Scoped re-review names, for every amended test, the single implementation change that would fail it; no new breakage.",
+      "actual_exit_evidence": "progress.md:421 \u2014 `Task 3: complete (commits a923a4d..7e79864, review clean, 5 Minor deferred)`",
+      "retry_count": 1,
+      "next_state": "NONE \u2014 closed."
+    },
+    {
+      "loop_id": "LOOP-DOH-04",
+      "scope": "Task 4 (pass one) + Task 7 (pass two) \u2014 MOD-DOH-09 permissions, roles and access, tracked as one module across two dispatches",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "Task 4 dispatch: progress.md:264 (`Task 4: DONE_WITH_CONCERNS ... Committed 5c6b385`); Task 7 dispatch: progress.md:597",
+      "findings": "Pass-one round-1 review (review-532c39e..5c6b385.diff): spec NOT MET, quality not approved, 0 Critical / 5 Important / 9 Minor \u2014 including an audit-atomicity gap (auditPath read at one of four write handlers) and a controller-caused regression in the person-measure gate (Important-4, progress.md:348-357, ruled the controller's own to fix). Pass-two review (review-d86808b..5288b55.diff): spec MET, quality APPROVED, 0 Critical / 0 Important / 8 Minor \u2014 the only build task in this slice to pass its first independent review (progress.md:639, :988-991).",
+      "decision": "Pass one's fix round closed all 5 Important + the controller's own person-measure regression (stem-matching added, not a revert). Pass two's 4 Minors promoted (progress.md:658) because two were judged not polish (untested false-audit path; scope widening contradicting the panel's own copy).",
+      "corrections": "Pass one: 1 fix round (commits 950b741..727c49a). Pass two: 1 fix round (commits b7cd7bb..ffffd3f) despite passing review, because the controller promoted 4 of 8 Minors past the skill's default (deferred otherwise).",
+      "exit_criteria": "Pass one: scoped re-review confirms audit atomicity on all four handlers and the stem-matcher's both-directions proof. Pass two: scoped re-review confirms the 4 promoted-Minor fixes and no regression.",
+      "actual_exit_evidence": "Pass one: progress.md:507 `Task 4: complete (commits 532c39e..727c49a, review clean, 7 Minor deferred)`. Pass two: progress.md:793 `Task 7: complete (commits d86808b..ffffd3f, review clean, 4 Minor deferred)`",
+      "retry_count": 2,
+      "next_state": "NONE \u2014 closed."
+    },
+    {
+      "loop_id": "LOOP-DOH-05",
+      "scope": "Task 6 \u2014 MOD-DOH-02 location configuration",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:262 \u2014 independent review dispatched (opus) over review-392e47e..532c39e.diff, whole module",
+      "findings": "Round-1 review: spec NOT MET, quality not approved, 0 Critical / 3 Important / 12 Minor \u2014 two dead controls reaching one of three call sites (areaById/siteById snapshot), a cascade keyed on the wrong id level, and a Supervisor write control disabled from first render behind a test that only asserted presence. Round-1 fix's own re-review then found a NEW reachable defect the fix itself created (two cascades sharing one target id, progress.md:502) once round 1's fix made the site-level archival path reachable.",
+      "decision": "Round-1 fix closed 3 Important + 5 correctness/honesty Minors (progress.md:316). The re-reviewer classed the two-cascade collision as out-of-scope/follow-up; the controller ruled it IN as round 2, same defect class as the module's own prior shipped bug (progress.md:502).",
+      "corrections": "2 fix rounds: round 1 (commits 7e79864..950b741) \u2014 sweep to one liveArea/liveSite pair, split reassignTargets/reparentTargets; round 2 (commits 727c49a..d86808b) \u2014 per-cascade-node keying (reassignTargetByNode).",
+      "exit_criteria": "Re-reviewer counts stale reads itself (grep for zero remaining occurrences) rather than accepting the sweep's claim; both directions of the two-select independence asserted.",
+      "actual_exit_evidence": "progress.md:557 \u2014 `Task 6: complete (commits 392e47e..d86808b, review clean, 8 Minor deferred)`",
+      "retry_count": 2,
+      "next_state": "NONE \u2014 closed."
+    },
+    {
+      "loop_id": "LOOP-DOH-06",
+      "scope": "Task 5 \u2014 MOD-DOH-12 integration surface (SSO)",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:614 \u2014 independent review dispatched (opus) over review-5288b55..0766c90.diff",
+      "findings": "Round-1 review: spec MET on scope, quality not approved, 0 Critical / 1 Important / 5 Minor \u2014 the STATE-01 fold applied to one render branch of four (status pill and state meaning read connection.state directly, bypassing the fold).",
+      "decision": "Fixed at the source (one derived connectionShown feeding all fourteen render/resolve reads) rather than per branch, per the controller's explicit preference for root-cause fixes over branch patches (progress.md:788).",
+      "corrections": "1 fix round (commits ffffd3f..ed2d0f7).",
+      "exit_criteria": "Re-review counts the reads itself rather than accepting the report's count.",
+      "actual_exit_evidence": "progress.md:903 \u2014 `Task 5: complete (commits 5288b55..ed2d0f7, review clean, 0 Minor open)` \u2014 re-reviewer counted sixteen property accesses across fifteen statements, not the report's claimed fourteen.",
+      "retry_count": 1,
+      "next_state": "NONE \u2014 closed."
+    },
+    {
+      "loop_id": "LOOP-DOH-07",
+      "scope": "Task 8 \u2014 MOD-DOH-03 shift management",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "Dispatch implied at progress.md:666 (`Task 8: DONE ... Committed 3a14808`); review over review-0766c90..3a14808.diff",
+      "findings": "Round-1 review: spec NOT MET, quality not approved, 0 Critical / 2 Important / 5 Minor \u2014 a screen sentence pointing at UNRESOLVED_IN_SOURCE content that did not exist there, guarded by a test structurally incapable of catching a missing array element (iterate-and-assert-each-renders shape).",
+      "decision": "Important-1 (the ABSENT-vs-DISABLED rendering question) explicitly NOT taken into this task's fix round \u2014 held for the slice-wide adjudication (progress.md:776). Important-2 (the missing disclosure / vacuous pointer test) fixed immediately.",
+      "corrections": "2 fix rounds: round 1 (commits ed2d0f7..537c024) fixed the pointer; round 2 (commits 537c024..0c647d8) fixed a NEW pointer that round 1's own fix introduced (the ROLE_NOT_GRANTED note), the same defect class reappearing inside the round that was fixing it.",
+      "exit_criteria": "Re-review runs the uniqueness check itself and confirms the UNRESOLVED_IN_SOURCE entry does not itself contain the matched phrase (so the array text cannot accidentally satisfy the assertion).",
+      "actual_exit_evidence": "progress.md:959 \u2014 `Task 8: complete (commits 0766c90..0c647d8, review clean, 2 Minor deferred)`",
+      "retry_count": 2,
+      "next_state": "NONE \u2014 closed. Important-1 (rendering question) escalated to LOOP-DOH-11 (the ABSENT-vs-DISABLED adjudication)."
+    },
+    {
+      "loop_id": "LOOP-DOH-08",
+      "scope": "Task 9 \u2014 MOD-DOH-04 worker lifecycle and qualifications (heaviest, surveillance-critical module)",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:1058 \u2014 `Task 9: DONE ... Independent review dispatched (opus) over a 290KB diff` (review-312ea96..2dcd236.diff)",
+      "findings": "Round-1 review: spec NOT MET on two rows, quality not approved, 0 Critical / 2 Important / 9 Minor \u2014 both Importants traced to one blind spot: 'scope enforced in what the screen DREW rather than in what it READ' (clearance corpus unfiltered; qualification write not re-validated on persona switch).",
+      "decision": "Both findings closed by intersection with the persona's live Area scope, applying the same principle the file already used one line away for the Area filter (progress.md:1139). Three Minors promoted because they were judged task 10's interface, not task 9's polish (chipFor's return type, the daysToExpiry/expiryDate invariant, workerById's live-register signature).",
+      "corrections": "1 fix round (commits 9342ecd..f20e68e): 2 Important + 4 promoted Minors + 1 report self-correction (an overclaimed regex-forbids-five-names test that actually forbade none).",
+      "exit_criteria": "Re-review confirms the implementer's own generalisation ('anything else in this slice bounding a write by render has the same defect class') is sound and mechanisable, and counts every seed-built lookup rather than only the one named.",
+      "actual_exit_evidence": "progress.md:1239 \u2014 `Task 9: complete (commits 312ea96..f20e68e, review clean, 5 Minor deferred)`",
+      "retry_count": 1,
+      "next_state": "NONE \u2014 closed. The generalisation is carried into a planned task-11 gate (progress.md:1266)."
+    },
+    {
+      "loop_id": "LOOP-DOH-09",
+      "scope": "Infrastructure fixes \u2014 slice-03-gates concurrency race (probe path) + the MOD-DOH-12 DOH_SEAMS registry row",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:1049 \u2014 `Infrastructure fixes ... committed 312ea96 ... Independent review dispatched (opus) over review-49300d0..312ea96.diff`",
+      "findings": "Round-1 review: 0 Critical / 2 Important / 4 Minor, 'quality: needs fixes' (progress.md:1077-1078) \u2014 the race fix (walk() filtering) reached one of five readdirSync(SA_ROOT) reader sites; the exclusion regex was a prefix match capable of hiding a genuine source file named zz-probe*.tsx (gate-evasion-by-naming). Round-1-fix re-review then found the round-1-fix's own evidence claim for the second finding was 'plausible and consistent with the code but not established' (progress.md:1178) \u2014 the controller had already repeated the stronger claim to the client and had to retract it.",
+      "decision": "Round 1 fixed both Importants structurally (one isForeignProbe/saEntries() helper serving all six readers; exact-match regex). Round 2 (a scoped re-review of round 1's own evidence) demanded run-specific proof (exit codes, pass/fail counts, timestamps) rather than a quotable string reconstructable from source, per the controller's own corrected ruling (progress.md:1178).",
+      "corrections": "Round 0 (commit 312ea96): initial concurrency fix + DOH_SEAMS row. Round 1 (commit 9342ecd): reached all six readers, tightened the regex, added exit-handler cleanup, restored the seam registry's four-step disclosure text. Round 2 (commit 965319a): restored the missing fourth transport-state relation in the seam description.",
+      "exit_criteria": "Filesystem-mtime corroboration of the claimed run sequence, independent of anything the report itself asserts.",
+      "actual_exit_evidence": "progress.md:1206 \u2014 `Infrastructure work: complete (commits 312ea96..965319a, review clean)` \u2014 settled by the re-reviewer gathering directory/file mtimes itself (progress.md:1208-1214) rather than by reading the report's evidence claim.",
+      "retry_count": 2,
+      "next_state": "NONE \u2014 closed."
+    },
+    {
+      "loop_id": "LOOP-DOH-10",
+      "scope": "Batched pointer sweep \u2014 the array-iterating panel test shape, across four modules (tenant-lifecycle, location-configuration, permissions, integration-surface)",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:889 \u2014 ruling to batch the sweep as one dispatch rather than five per-module fixes or a task-11 gate",
+      "findings": "Not independently re-reviewed as its own diff in progress.md (its integration-surface half was folded into and reviewed alongside LOOP-DOH-09's round-1-fix diff, per progress.md:1008). No standalone Critical/Important/Minor count recorded for the sweep itself.",
+      "decision": "Result: 4 pointers found across 4 modules (tenant-lifecycle 1, location-configuration 0, permissions 1, integration-surface 2), none broken; the zero for location-configuration was explicitly ruled a legitimate result rather than a gap (progress.md:1001-1004).",
+      "corrections": "One dispatch, no fix round recorded as such \u2014 this loop's own scope was corrective (adding pointer-pinning assertions), not a defect requiring a subsequent round.",
+      "exit_criteria": "Every added assertion fails when its target is removed (mutation proof per pointer), and every mutation edit reverted and verified byte-identical.",
+      "actual_exit_evidence": "Committed 49300d0 (tenant-lifecycle, permissions) per progress.md:994; integration-surface pointers held back and carried into commit 312ea96 (LOOP-DOH-09) per progress.md:1008.",
+      "retry_count": 0,
+      "next_state": "NONE \u2014 closed."
+    },
+    {
+      "loop_id": "LOOP-DOH-11",
+      "scope": "The ABSENT-versus-DISABLED-WITH-REASON adjudication \u2014 a slice-wide source-reading question raised independently by two reviewers (task 3 and task 8) against the controller's own earlier reading",
+      "lifecycle_state": "COMPLETE",
+      "entry_evidence": "progress.md:717 \u2014 controller's first reading, later contested; progress.md:774 \u2014 second contest, controller declines to resolve by seniority",
+      "findings": "The dedicated adjudication (progress.md:822-868) found the source SELF-CONTRADICTORY at named-test strength: TEST-TA-003/TEST-FLOOR-003 assert no control exists for a class of items on any tenant-facing screen; TEST-30-3-2-002/AC-30-3-2-003 assert the same control, same role, same class of tenant-facing screen, renders 'locked rather than absent'. Both are acceptance-criteria-backed and they collide (progress.md:829-834).",
+      "decision": "Neither module changes its rendering and no module is judged wrong; both readings ship, each disclosed on its own screen, and the contradiction is recorded via the build's SOURCE_CONFLICTS mechanism carrying both locator sets (progress.md:868). The controller also publicly recorded that its own first reading's strongest locator (L7187) was not clean evidence (progress.md:835).",
+      "corrections": "No code correction \u2014 a source-of-truth question, not a defect. Task 11's gates were scoped instead: absent-for-nonexistence on unanimous ground, a closed-set-reason requirement regardless of rendering side, and a contested-control fixture pinning each of the four conflicts to the build's recorded choice with both locator sets (progress.md:870).",
+      "exit_criteria": "A comprehensive source survey (not a handful of greps) able to name test-against-test contradictions rather than prose-against-prose ones.",
+      "actual_exit_evidence": "progress.md:822 \u2014 'THE SOURCE IS INCONSISTENT, at named-test strength' plus the four-finding writeup at progress.md:837-868.",
+      "retry_count": 2,
+      "next_state": "Task 11 gates (not yet reached in this workspace) enforce the adjudication's three assertions."
+    },
+    {
+      "loop_id": "LOOP-DOH-12",
+      "scope": "Task 10 \u2014 MOD-DOH-14 (calendar) + MOD-DOH-13 (tenant view of platform administration) + devices (three deliverables, three commits)",
+      "lifecycle_state": "OPEN \u2014 review dispatched, verdict not recorded in this workspace",
+      "entry_evidence": "progress.md:1272 \u2014 `Task 10: DONE, three deliverables, three commits ... Verified by me` and progress.md:1311 \u2014 closure-wave-A dispatch of the independent review",
+      "findings": "unrecorded \u2014 the review (review-965319a..4506790.diff, 393752 bytes on disk, the largest review diff in the slice) was dispatched as part of closure wave A alongside the registry-status-computation and ledger-derivation dispatches; its verdict does not appear anywhere in progress.md, which ends before the review concludes.",
+      "decision": "unrecorded \u2014 no disposition exists yet in the available artifacts.",
+      "corrections": "unrecorded \u2014 none possible before a verdict exists.",
+      "exit_criteria": "Same as every other module loop in this slice: independent review with no unresolved Important/Critical, or a fix round until one is reached.",
+      "actual_exit_evidence": "unrecorded \u2014 this is a genuine open loop as of the last line of progress.md. What would carry it: a review verdict entry in progress.md, or a task-10-review.md file, or a `Task 10: complete (commits ..., review clean)` line matching the pattern every other closed loop in this ledger follows.",
+      "retry_count": 0,
+      "next_state": "Pending review verdict, then either a fix round (LOOP-DOH-12 continues) or task-11 gates / whole-branch review (per approval-ledger.json APP-011 and the pending_gates entry)."
+    }
+  ],
+  "controller_rulings": {
+    "note": "Every `Ruling:` line in progress.md is a controller decision made on the client's behalf, extracted verbatim (source_citation gives the exact progress.md line). cost_if_wrong is extracted from the ruling's own 'Cost if wrong:' or 'Cost of...' clause where present; five rulings (self-corrections/retractions) carry no such clause and are marked accordingly rather than having one invented.",
+    "count": 88,
+    "entries": [
+      {
+        "ruling_id": "RUL-DOH-001",
+        "source_citation": "progress.md:42",
+        "decision_text": "Ruling: C1 \u2014 T2 owns the BannerRegion wiring and derives the suspension banner from tenant state, which it already holds; the support-session and announcement banners come from one seeded fixture module T2 creates. T10 owns the MOD-DOH-13 screen and may extend that fixture, never redefine the component. Reason: the component already exists from task 1 and its support-session arm is a discriminated union \u2014 two owners would mean two constructions of the same closed union. Cost if wrong: T10 duplicates banner logic, which the task review sees as a diff over an existing component.",
+        "cost_if_wrong": "T10 duplicates banner logic, which the task review sees as a diff over an existing component.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-002",
+        "source_citation": "progress.md:44",
+        "decision_text": "Ruling: C2 \u2014 T4 defines the SsoConnectionRecord type and its seeded default in src/surfaces/doh/sso-connection.ts and consumes it from the sign-in screen; T5 owns the settings screen that renders it. The interface lands with its first consumer, the screen with its module. Reason: spec \u00a74 puts MOD-DOH-09 pass one before MOD-DOH-12 while saying two-track sign-in needs the connection record \u2014 the only reading that satisfies both is that the record is data, not a screen. Consequence: T5 moves out of wave 1 into wave 2. Cost if wrong: one file moves, one import changes.",
+        "cost_if_wrong": "one file moves, one import changes.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-003",
+        "source_citation": "progress.md:46",
+        "decision_text": "Ruling: C3 \u2014 both hold, because they describe different controls. D23 governs the clearance REGISTER: read-only, no grant control on it, for anyone. D10 governs the cross-surface handoff affordance that routes to the Client Command Center where granting actually happens: present for Supervisor and Quality Manager, and DISABLED WITH THE NAMED REASON for the Tenant Admin, which is what FB-QUAL-005 asks the disabled control to teach. No grant control is minted in the Hub. Cost if wrong: an invented affordance the reviewer strikes \u2014 one component.",
+        "cost_if_wrong": "an invented affordance the reviewer strikes \u2014 one component.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-004",
+        "source_citation": "progress.md:48",
+        "decision_text": "Ruling: C4 \u2014 T10 stays one dispatch but produces three commits, one per deliverable, because the three share no file and the spec's own ordering is a dependency claim rather than a review boundary. Cost if wrong: one wide review surface, mitigated by the three-commit split the reviewer reads separately.",
+        "cost_if_wrong": "one wide review surface, mitigated by the three-commit split the reviewer reads separately.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-005",
+        "source_citation": "progress.md:50",
+        "decision_text": "Ruling: parallelism \u2014 the skill forbids parallel implementers because they conflict. Waves here are strictly FILE-DISJOINT and every implementer is forbidden to run git or to write outside its declared path list; the controller commits each module separately after its wave. Reason: eight modules of this size sequentially is the whole session, and the conflict the rule guards against is a shared working tree, which disjoint paths plus no-git removes. Cost if wrong: two agents collide on one file, which git status shows before any commit and which costs one re-dispatch.",
+        "cost_if_wrong": "two agents collide on one file, which git status shows before any commit and which costs one re-dispatch.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-006",
+        "source_citation": "progress.md:61",
+        "decision_text": "Ruling: the census text inside the task-4 and task-7 briefs says SCR-DOH-ROLE-04 renders the nine access conditions \"in evaluation order, safety first (L14531), not definition order (L14514)\". That is false. The spec corrected it before implementation in commit ba32256: L14531 is the request-arrival step and no safety-first ordering exists in the frozen source. Safety controls are condition NINE and win by PRECEDENCE via safety-controls-win, not by position. Both implementers are given the correction in their controller notes and told to render the spine's ACCESS_CONDITIONS and PRECEDENCE_RULES rather than hand-type an order. Cost if wrong: an invented ordering rendered to a reviewer as if the source stated it, in the one screen whose whole purpose is explaining a refusal.",
+        "cost_if_wrong": "an invented ordering rendered to a reviewer as if the source stated it, in the one screen whose whole purpose is explaining a refusal.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-007",
+        "source_citation": "progress.md:63",
+        "decision_text": "Ruling: AC-16-12 (L20225) categorically forbids any surface rendering \"a role selector, an 'acting as' control, an 'acting as' banner, or any session-level role context\", and MOD-DOH-09 makes acting as another role in the audit trail Explicitly prohibited for all five roles. The slice-4 role switcher is therefore reviewer chrome \u2014 a view switcher across seeded fixtures, visually and semantically separated from product chrome, never labelled \"acting as\" and never presented as a session role context. Sent to the task-2 implementer mid-flight. Cost if wrong: the storyboard's most visible control contradicts a categorical source prohibition that gate G4 and any reviewer would both catch.",
+        "cost_if_wrong": "the storyboard's most visible control contradicts a categorical source prohibition that gate G4 and any reviewer would both catch.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-008",
+        "source_citation": "progress.md:84",
+        "decision_text": "Ruling: src/ui/doh/HubChrome.tsx is UNFROZEN for exactly two changes. (1) The module rail renders only when activeModuleId is supplied \u2014 on the index it is pure duplication of a richer list that carries the module id, the SCR-DOH-NN annotation and the purpose, none of which the rail has. (2) The rail does not render for the Worker persona, because a persona that gets no Hub screen must not be offered Hub navigation; eight links whose every destination renders Unavailable is the shell contradicting its own copy. HubChrome takes one new prop for the persona. Cost if wrong: a frozen task-1 artefact changed after the fact, which the whole-branch review sees in the diff.",
+        "cost_if_wrong": "a frozen task-1 artefact changed after the fact, which the whole-branch review sees in the diff.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-009",
+        "source_citation": "progress.md:86",
+        "decision_text": "Ruling: axe over /hub/ is DEFERRED to the task-12 slice gate, where the build and the served export exist. The implementer's jsdom substitute is the right one for now \u2014 one h1 per mode, the main skip-link target, a labelled native select, uniquely-named nav landmarks, status by icon and text rather than colour. Cost if wrong: an axe violation discovered at the gate instead of at the task, costing one fix round on a screen eight modules already wrap in.",
+        "cost_if_wrong": "an axe violation discovered at the gate instead of at the task, costing one fix round on a screen eight modules already wrap in.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-010",
+        "source_citation": "progress.md:88",
+        "decision_text": "Ruling: tenantState keeps NO setter in the shell. The transition belongs to MOD-DOH-01's state machine and a second owner would mean two owners of one transition. Nothing is lost: a screen wanting to demonstrate a suspension holds its own state and passes it as a prop. Cost if wrong: one prop added later.",
+        "cost_if_wrong": "one prop added later.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-011",
+        "source_citation": "progress.md:112",
+        "decision_text": "Ruling: the reviewer could not verify the authorisation behind the HubChrome unfreeze or the axe deferral, because both lived only in the dispatch prompt and my messages to the implementer. Written up as WS/task-2-controller-notes.md after the fact, and every later task now gets a notes FILE rather than prose in a dispatch. Cost if wrong: nothing \u2014 this only adds an artefact a reviewer can check.",
+        "cost_if_wrong": "nothing \u2014 this only adds an artefact a reviewer can check.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-012",
+        "source_citation": "progress.md:114",
+        "decision_text": "Ruling: on Important 2, the fix is the COPY, not a control. The shell claimed \"Banners cover all three platform access classes\" while two are seeded open:false with nothing anywhere in the build able to open them. Adding a control to open them would give the MOD-DOH-13 rendering a second owner, which is exactly what ruling C1 exists to prevent. The copy instead states which class is seeded open, that the other two arms carry no End-session BY CONSTRUCTION rather than by configuration, and that all three are exercised on the MOD-DOH-13 screen task 10 builds. That sentence is true now and stays true after task 10. Cost if wrong: one paragraph rewritten in task 10.",
+        "cost_if_wrong": "one paragraph rewritten in task 10.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-013",
+        "source_citation": "progress.md:116",
+        "decision_text": "Ruling: spec compliance is recorded \u274c on the axe checkbox alone and is NOT reopened. The brief's per-task \"RED to GREEN to axe to commit\" sequence is unachievable inside a task dispatch \u2014 axe here is Playwright over the served static export, and building mid-wave sweeps in three siblings' half-written files. It moves to the task-12 gate, where the build exists. Cost if wrong: an axe violation found at the gate instead of at the task, costing one fix round on a shell eight modules wrap in.",
+        "cost_if_wrong": "an axe violation found at the gate instead of at the task, costing one fix round on a shell eight modules wrap in.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-014",
+        "source_citation": "progress.md:140",
+        "decision_text": "Ruling: a stalled agent is resumed rather than re-dispatched whenever its files are already on disk, and I verify its tests myself before deciding which. Re-dispatching a fresh agent over completed work would either duplicate it or overwrite it, and the file list plus the test result tells me which case I am in without guessing. Cost if wrong: a resumed agent with a damaged context produces a confused report, which the task review catches.",
+        "cost_if_wrong": "a resumed agent with a damaged context produces a confused report, which the task review catches.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-015",
+        "source_citation": "progress.md:166",
+        "decision_text": "Ruling: neither T3 nor T4 is committed on a stalled agent's word. Both implementers are gone with the prior session, so both are re-dispatched fresh carrying their brief, their controller notes, and the exact failures \u2014 the report file is the persistent memory either way. T6 is not committed alone: pnpm build:registries reads the FILESYSTEM route tree, not git, so regenerating after a partial wave would stamp \"demonstrated-in-storyboard\" on two modules whose code is not committed. Source commits land per module; the registry regeneration is one controller commit at wave close. Cost if wrong: one extra commit in the branch history.",
+        "cost_if_wrong": "one extra commit in the branch history.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-016",
+        "source_citation": "progress.md:168",
+        "decision_text": "Ruling: the failing gate case is a DEFECT IN THE GATE, not in the fixture. /count|rate|score|.../i matched the substring \"count\" inside `accountState`; an account state is not a behavioural measure on a person. This build has recorded this exact failure mode three times already \u2014 `signed` inside \"signed-in\", `18` inside `MOD-SA-18`, `Worker` inside \"Worker-Shift\" \u2014 and the standing rule from slice 3 is to match the semantic unit. T4 fixes its own key gate with camelCase-aware boundaries and extracts the pattern to a NEW tests/coverage/person-measure-keys.ts. Cost if wrong: a gate that under-matches, which the task review reads as a weakened safety gate.",
+        "cost_if_wrong": "a gate that under-matches, which the task review reads as a weakened safety gate.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-017",
+        "source_citation": "progress.md:170",
+        "decision_text": "Ruling: tests/coverage/slice-03-gates.test.ts is NOT refactored to share that module. It scans SOURCE LINES; the new gate scans FIXTURE KEYS \u2014 different surfaces. It is merged, and its three axes carry three recorded near-misses in their comments. Extracting from it to save a duplicate would put a regression risk on the build's most historically fragile gate to buy nothing. Cost if wrong: two definitions of \"a measure on a person\" drift apart, which the slice-4 gate task (T11) is the place to catch.",
+        "cost_if_wrong": "two definitions of \"a measure on a person\" drift apart, which the slice-4 gate task (T11) is the place to catch.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-018",
+        "source_citation": "progress.md:172",
+        "decision_text": "Ruling: T3 and T4 re-dispatch IN PARALLEL. Their path lists are disjoint \u2014 T3 owns app/hub/tenant-lifecycle-and-tier-operations/** and tests/*doh-tenant-lifecycle*; T4 owns app/hub/permissions-roles-and-access/**, src/surfaces/doh/sso-connection.ts, tests/*doh-permissions* and the new tests/coverage/person-measure-keys.ts. Neither may run git or write outside its list. Cost if wrong: one collision that git status shows before any commit.",
+        "cost_if_wrong": "one collision that git status shows before any commit.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-019",
+        "source_citation": "progress.md:174",
+        "decision_text": "Ruling: the two OTHER new gate files (doh-locations, doh-tenant-lifecycle) carry their own copies of the loose key regex and pass only because no key of theirs trips it. They adopt person-measure-keys.ts in a single small batch dispatch AFTER wave 1a lands, not now \u2014 touching them now would collide with T3's own fix. Cost if wrong: two latent under-strength gates for the length of one wave.",
+        "cost_if_wrong": "two latent under-strength gates for the length of one wave.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-020",
+        "source_citation": "progress.md:183",
+        "decision_text": "Ruling: master-prompt \u00a723.2 names seven process ledgers; this build has five (preflight, approval, research, product-candidate, evidence-envelope) plus the source-reading ledger. The invocation, TDD, debug, review, verification and loop ledgers exist today only as NARRATIVE inside these SDD workspaces \u2014 real evidence, wrong shape, and the SDD workspace is deleted at plan close. Backfilling them mid-wave is not the move: they must be derived from git history and the SDD artefacts, which are still being written. Recorded here as a NAMED GAP against \u00a727.3, scheduled as its own task at slice-4 close, before the slice's completion claim. Nothing is invented \u2014 every entry will cite a commit, an artefact path or a command output that already exists. Cost if wrong: the final delivery's evidence bundle is short six ledgers, which \u00a729.4 blocks a completion claim on.",
+        "cost_if_wrong": "the final delivery's evidence bundle is short six ledgers, which \u00a729.4 blocks a completion claim on.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-021",
+        "source_citation": "progress.md:191",
+        "decision_text": "Ruling: T6 gets the same treatment as T3 and for the same reason \u2014 its files are green and typecheck clean, and it too has NO report and NO self-review, because its implementer's session ended first. Green plus silent is the dangerous combination: nothing about compiling proves a control carries a handler, a test asserts anything, or a filter changes a result set. A fresh implementer (sonnet) self-reviews it against the brief with authority to fix, then reports. Cost if wrong: one agent seat spent confirming work that was already correct.",
+        "cost_if_wrong": "one agent seat spent confirming work that was already correct.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-022",
+        "source_citation": "progress.md:215",
+        "decision_text": "Ruling: the module's transcription is EXACT and the chrome is the defect. The source distinguishes two banner classes on adjacent lines \u2014 the soft/hard suspension banner is Tenant-Admin-only, the compliance-suspension message is universal \u2014 and the chrome collapses both into one role-blind seed. src/ui/doh/HubChrome.tsx and app/hub/banner-fixtures.ts are therefore UNFROZEN for exactly two changes, as their own dispatch: (1) the rail offers a module only to roles that reach that module, not merely roles that reach the Hub; (2) the banner seed takes a role and splits the two classes. Reason: this is not one screen's cosmetic slip \u2014 every one of the eight modules has roles its matrix marks Unavailable, so leaving it means eight screens each asserting an absence the shared chrome contradicts, and eight separate fixes. Cost if wrong: a frozen task-1/task-2 artefact changes twice in one slice, which the whole-branch review reads in the diff.",
+        "cost_if_wrong": "a frozen task-1/task-2 artefact changes twice in one slice, which the whole-branch review reads in the diff.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-023",
+        "source_citation": "progress.md:217",
+        "decision_text": "Ruling: per-module role visibility gets ONE owner with a cross-check, not two. A rolesReaching field on DOH_MODULES would be a second copy of data each module already holds in its own byRole matrix, and two copies of one rule is the trap this build punishes. So: the spine carries the field the chrome reads, and each module's suite asserts that the roles its matrix leaves entirely Unavailable are EXACTLY the roles the spine withholds it from. Drift then fails a test instead of shipping. Cost if wrong: one assertion per module, eight in total.",
+        "cost_if_wrong": "one assertion per module, eight in total.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-024",
+        "source_citation": "progress.md:219",
+        "decision_text": "Ruling: T3's fix round waits for the chrome dispatch rather than running now. Its three Importants are one root \u2014 findings 2 and 3 are module-local, but finding 2's honest test (query nav[aria-label=\"Hub modules\"] and assert the link is absent) can only pass after the chrome change lands. Fixing them in two rounds would spend two review seats on one cause. Reason: T4 and T6 are still running, so T3 idling costs no wall-clock. Cost if wrong: T3 sits one dispatch longer than it had to.",
+        "cost_if_wrong": "T3 sits one dispatch longer than it had to.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-025",
+        "source_citation": "progress.md:227",
+        "decision_text": "Ruling: task 2 is NOT complete and was never marked so \u2014 its round-2 scoped re-review is the agent that hit the watchdog, so the loop is open at round 2 with the fix committed and unverified. Re-dispatched over the existing review-3733172..a923a4d.diff rather than folded into a later round: skipping a scoped re-review because the fix looked small is the named rationalisation, and this fix touched the one component all eight modules wrap in. The axe finding is excluded from its scope by the standing deferral, and the re-reviewer is asked to name which three Minors were left and whether each stated reason holds. Cost if wrong: one review seat on a 23KB diff.",
+        "cost_if_wrong": "one review seat on a 23KB diff.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-026",
+        "source_citation": "progress.md:229",
+        "decision_text": "Ruling: the chrome change from task 3's Important-1 lands as task 2 FIX ROUND 3, not as a new task. Task 2 owns HubChrome and banner-fixtures, its loop is already open, and minting a task-2b would put a second owner on the same two files while the first is mid-loop. Round 3 carries whatever the re-review leaves open PLUS the two source-backed chrome defects. Cost if wrong: one task's fix loop reaches round 3 of its 5.",
+        "cost_if_wrong": "one task's fix loop reaches round 3 of its 5.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-027",
+        "source_citation": "progress.md:283",
+        "decision_text": "Ruling: from now on, per-task verification includes pnpm test:release. It costs 14 seconds and it is the difference between catching a Global Constraint violation at the task that caused it and finding it four tasks later, as happened here. Cost if wrong: 14 seconds per task.",
+        "cost_if_wrong": "14 seconds per task.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-028",
+        "source_citation": "progress.md:285",
+        "decision_text": "Ruling: the contract-gates violation and task 3's rail finding are ONE fix, not two. The gate says the component may not decide; the rail finding says the component decides wrongly. Both close by moving the decision OUT of HubChrome \u2014 the shell computes which modules this role reaches and passes them in, and the chrome renders what it is given. A component that holds no policy cannot hold a wrong policy. Cost if wrong: one prop shape changes and every call site with it.",
+        "cost_if_wrong": "one prop shape changes and every call site with it.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-029",
+        "source_citation": "progress.md:287",
+        "decision_text": "Ruling: task 2 round 3 absorbs the closed-vocabulary fixes for modules.ts and banner-fixtures.ts, because round 3 is already opening both files and two owners on one file inside one wave is the collision this build keeps paying for. Task 4's nine exports stay with task 4 \u2014 they are its files, its review has not run yet, and I will not pre-judge its reviewer by handing it a finding list. If the reviewer misses them, they enter task 4's fix round as a controller-confirmed gap. Cost if wrong: one extra fix round on task 4.",
+        "cost_if_wrong": "one extra fix round on task 4.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-030",
+        "source_citation": "progress.md:316",
+        "decision_text": "Ruling: task 6's fix round covers the three Importants plus five Minors that are correctness or honesty rather than polish \u2014 flags replaced wholesale on archive (drops unbound/scope-pending), the prose claiming a three-column tree collapses when md:grid-cols-3 is fixed, readOnlyCause as a five-branch ladder with no exhaustiveness check where a compiler-checked Record is the same length, six controls whose visibility is decided by a seventh control's decision, and the cascade-target test that exercises the fallback instead of the target it selects. The remaining seven Minors are deferred. Reason: the first two are the same class of defect as the Importants \u2014 a claim the build contradicts \u2014 and this build's whole premise is not claiming what is not there. Cost if wrong: a slightly wider fix diff than the findings strictly demanded.",
+        "cost_if_wrong": "a slightly wider fix diff than the findings strictly demanded.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-031",
+        "source_citation": "progress.md:318",
+        "decision_text": "Ruling: task 6's fix round WAITS for task 2 round 3, and so does task 3's. Round 3 changes HubChrome's prop shape and will fix call sites in both modules' component suites; a fixer editing the same suite concurrently is the collision the file-disjoint rule exists to prevent. Everything downstream of the shared chrome queues behind it. Reason: round 3 is the one change every module wraps in. Cost if wrong: two fix rounds start one dispatch later than they could have.",
+        "cost_if_wrong": "two fix rounds start one dispatch later than they could have.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-032",
+        "source_citation": "progress.md:357",
+        "decision_text": "Ruling: Important 4 is closed by ADDING stem matching for the magnitude set, not by reverting to substrings. The substring form is what produced the false positive that started this; the word form is what lost the suffixes. Neither alone is right, and the fix is small \u2014 a stem test over the magnitude vocabulary catches `counter`, `scorecard`, `ranked` and `throughputs` without matching `count` inside `account`, because `account` does not STEM from `count`. The both-directions proof gains every one of those four as a required true positive and keeps `accountState`, `roleName` and `scopeLabel` as required false positives. Reason: I ordered the change that lost the coverage; leaving it as an accepted trade would be grading my own ruling. Cost if wrong: one more round on a matcher that two reviewers have now read.",
+        "cost_if_wrong": "one more round on a matcher that two reviewers have now read.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-033",
+        "source_citation": "progress.md:359",
+        "decision_text": "Ruling: task 4's nine closed-vocabulary offenders enter its fix round as findings the REVIEWER raised, exactly as the earlier ruling anticipated \u2014 I routed them to task 4 rather than pre-judging its reviewer with them, and the reviewer found all nine independently, ran the gate's own regex over the new files, and named the two that matter semantically: CONDITION_MAPPINGS has nine entries with no compile-time check that they cover ACCESS_CONDITIONS, so a missing mapping only throws at render; and APPROVER_CAPABLE_ROLES is a role SUBSET that a widened annotation lets any RoleId[] into. Cost if wrong: nothing \u2014 the routing worked as designed.",
+        "cost_if_wrong": "nothing \u2014 the routing worked as designed.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-034",
+        "source_citation": "progress.md:361",
+        "decision_text": "Ruling: all three fix rounds \u2014 task 3, task 4, task 6 \u2014 queue behind task 2 round 3, then run in parallel. Round 3 is editing each module's unit suite to add the spine cross-check, so a fixer in the same file now is the collision the file-disjoint rule prevents. Once round 3 lands they are disjoint from one another, one module directory each. Cost if wrong: three rounds start one dispatch later.",
+        "cost_if_wrong": "three rounds start one dispatch later.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-035",
+        "source_citation": "progress.md:373",
+        "decision_text": "Ruling: rolesReaching for the five UNBUILT modules is derived from source matrices rather than from screens that exist, and the implementer flagged two worth a second look \u2014 Shift Management withholds from nobody (its matrix has no Unavailable cell), and the Integration Surface withholds from Supervisor/QM on a row this slice does not build. That stands: the cross-check assertion is what makes it safe, because each module's suite will fail if its matrix and the spine disagree when the module is actually built. Deriving from the source now and verifying at build time beats leaving the field empty and discovering the disagreement in a screen. Cost if wrong: a wrong rolesReaching value fails a test in the slice that builds that module, which is where it should fail.",
+        "cost_if_wrong": "a wrong rolesReaching value fails a test in the slice that builds that module, which is where it should fail.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-036",
+        "source_citation": "progress.md:375",
+        "decision_text": "Ruling: TENANT_STATE_LABEL / WRITE_CLASS_NOTE / TENANT_STATE_TONE now exist in three copies across HubShell and two module screens. NOT fixed in any of the three fix rounds now running \u2014 three implementers editing one shared constant in parallel is the collision every ruling in this wave has been avoiding. Each is told to name the duplication as a concern and leave it. ONE hoist at wave close, one owner, one review. Cost if wrong: the duplication survives one more wave, during which a fourth copy could appear \u2014 which the wave-close hoist would then absorb anyway.",
+        "cost_if_wrong": "the duplication survives one more wave, during which a fourth copy could appear \u2014 which the wave-close hoist would then absorb anyway.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-037",
+        "source_citation": "progress.md:418",
+        "decision_text": "Ruling: the implementer declined to clear `pending_downgrade` after an upgrade and it was RIGHT to. Its own UNSPECIFIED_IN_SOURCE panel records cancel-on-upgrade as undefined in the source, so clearing it would be inventing a product rule inside a fix round for an unrelated finding. Left standing, disclosed on screen, and put to the re-reviewer to confirm the disclosure actually covers it. Cost if wrong: a reviewer-visible oddity that the disclosure already names.",
+        "cost_if_wrong": "a reviewer-visible oddity that the disclosure already names.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-038",
+        "source_citation": "progress.md:443",
+        "decision_text": "Ruling: the pending_downgrade deferral is confirmed correct on review. The re-reviewer checked the disclosure actually covers it rather than taking my word: the tier-change pill renders `tone=\"stale\"` while the state persists, and the downgrade gate text is tier-agnostic, so nothing on screen becomes false once the tier moves. Only the outcome sentence was ever contradictory and that was the finding. Cost if wrong: nil \u2014 this is now checked, not assumed.",
+        "cost_if_wrong": "nil \u2014 this is now checked, not assumed.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-039",
+        "source_citation": "progress.md:463",
+        "decision_text": "Ruling: the three mutation proofs are recorded in the report and the re-reviewer is told to judge whether the diff supports each, not to accept the claim. This module has now had TWO rounds claiming to fix the same class of defect, and the first one's report described as fixed a defect that survived in two other call sites. A regression test that would still pass with the frozen map restored is exactly the trap this module already fell into once. Cost if wrong: a third round on the same class.",
+        "cost_if_wrong": "a third round on the same class.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-040",
+        "source_citation": "progress.md:478",
+        "decision_text": "Ruling: finding 3's gate is not the test of finding 3. Gate 2 checks the ANNOTATION FORM only, so nine mechanical `as const satisfies` conversions turn it green whether or not the exhaustiveness checks behind them are real. The re-review is told a green gate is not an ADDRESSED verdict for the two that matter semantically \u2014 CONDITION_MAPPINGS must carry a compile-time proof it covers ACCESS_CONDITIONS, and APPROVER_CAPABLE_ROLES must actually reject a non-subset. Cost if wrong: nine conversions that satisfy a gate and prove nothing, which is the exact defect class this build keeps finding.",
+        "cost_if_wrong": "nine conversions that satisfy a gate and prove nothing, which is the exact defect class this build keeps finding.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-041",
+        "source_citation": "progress.md:486",
+        "decision_text": "Ruling: fixed at slice close as its own small task with a unique-per-run path, NOT now. It is a merged slice-3 file, it is the build's most historically fragile gate, and three agents are mid-flight in this tree. But it must be fixed before the whole-branch review, because a wave-close verification racing anything will look like a real gate failure and cost a round of chasing a defect that is not there. Cost if wrong: one more session where a green suite reads as red.",
+        "cost_if_wrong": "one more session where a green suite reads as red.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-042",
+        "source_citation": "progress.md:502",
+        "decision_text": "Ruling: the implementer's disclosed \"unreachable\" concern is no longer unreachable, and this round's own fix is what changed that. Two \"Reassign the paused Job to\" selects render one per pending cascade, all bound to ONE useState. The report called it unreachable and it was \u2014 of the INITIAL RENDER. But finding 2's fix is precisely what makes site-level archival with a held child cascade succeed instead of being wrongly refused, so one user action now produces two simultaneous cascade blocks sharing one target id. The re-reviewer classed it out-of-scope and flagged it for follow-up; I am ruling it IN. It is the same class as the defect this module already shipped once \u2014 a control whose target is not the one the screen names \u2014 and it is reachable today, in a screen whose audit sentence is the product. Task 6 fix round 2, scoped to exactly this: key the target per cascade node. Cost if wrong: one small round on a two-select collision that no test currently trips.",
+        "cost_if_wrong": "one small round on a two-select collision that no test currently trips.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-043",
+        "source_citation": "progress.md:554",
+        "decision_text": "Ruling: T7 and T8 were HELD while task 6 round 2 ran, and go out now. Both consume task 6's Site and Area fixtures \u2014 T7 for scope pass two, T8 for the Site binding a Shift inherits its timezone from \u2014 and round 2 was editing that module's screen. A consumer reading a producer mid-edit is a collision the file-disjoint rule does not cover, because the conflict is in the DATA, not the file list. Cost if wrong: two tasks started one dispatch later than they could have.",
+        "cost_if_wrong": "two tasks started one dispatch later than they could have.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-044",
+        "source_citation": "progress.md:612",
+        "decision_text": "Ruling: two readings were left to the client instead of invented, and both are right to leave. A new role starting tenant-wide and then narrowed by a second control is two matrix rows where the source may mean one; and the register is deliberately NOT scope-filtered, because \"own scope\" over a PERSON is undefined in the source \u2014 a person is not in an Area the way a Location is. Inventing either would put a product rule in a storyboard the client has not ratified, which per-module contract item 10 forbids in the same words: do not invent a control. Both are recorded in the unspecified-in-source panel and the reviewer rules on whether the panel states them honestly. Cost if wrong: two client questions surface at review instead of being silently answered.",
+        "cost_if_wrong": "two client questions surface at review instead of being silently answered.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-045",
+        "source_citation": "progress.md:627",
+        "decision_text": "Ruling: briefs excerpt the census, and an excerpt can cut the one row that decides a question. From here on, every module dispatch tells its implementer that the brief's matrix quotation is a CONVENIENCE, that the frozen source is the authority, and that a disagreement between them is a finding to report rather than a discrepancy to reconcile quietly. This one was caught only because the implementer went to the source unprompted. Cost if wrong: nothing \u2014 it makes explicit what the source-precedence rule already required.",
+        "cost_if_wrong": "nothing \u2014 it makes explicit what the source-precedence rule already required.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-046",
+        "source_citation": "progress.md:629",
+        "decision_text": "Ruling: the missing DOH_SEAMS row is a CONTROLLER item, not this task's to invent. This module's one cross-slice seam \u2014 tenant contact email to Notifications in slice 10 \u2014 has no row in the frozen registry. The implementer did the right thing twice: it did not reuse a seam id that means something else, and it did not silently omit the seam. It names the seam inline, states outright that the registry lacks the row, and pins that statement with a unit test \u2014 so the disclosure STOPS BEING TRUE the moment the row is added, which is a disclosure that cannot rot. I add the row at slice close and the SeamNotice swap goes with it. Cost if wrong: one inline disclosure lives one slice longer than it needed to.",
+        "cost_if_wrong": "one inline disclosure lives one slice longer than it needed to.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-047",
+        "source_citation": "progress.md:658",
+        "decision_text": "Ruling: FOUR of the eight Minors are promoted into a fix round; four are deferred. The skill says Minors never enter the loop, and the controller rules on findings that conflict with what the spec requires \u2014 these two do. (1) The `unchanged` arm has no test: delete it and a same-scope assignment emits \"Narrowed the grant to Tenant \u2014 the whole workspace\" for a write that changed nothing AND appends an audit entry for a non-action, with nothing going red. An untested guard on a false-audit path does not get to be a Minor because it currently works. (2) Remove-then-reassign takes an Area-scoped grant back to tenant-wide in two clicks, beside a panel asserting \"a scope narrows a role and never widens it\" \u2014 a screen contradicting its own copy is the one thing this build refuses to ship, whatever the severity label. (3) and (4) are cheap and real: a hand-copied reason sentence that can drift from the module owning it, and an SCR id annotating a third physically separate section the census does not describe. Cost if wrong: one small round on a task already approved.",
+        "cost_if_wrong": "one small round on a task already approved.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-048",
+        "source_citation": "progress.md:660",
+        "decision_text": "Ruling: the implementer is also told to CORRECT ITS OWN REPORT where the reviewer caught it overstating \u2014 \u00a71 lists \"Additive\" as enforced when nothing enforces it (the evaluator is always handed a single view role, never an account's grant set), and \u00a76 names a register key that is a fixture field. The brief only requires additive be RENDERED, so the code is compliant and no code changes. But a report is evidence, and evidence that overstates is worse than evidence that is thin. Cost if wrong: nil.",
+        "cost_if_wrong": "nil.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-049",
+        "source_citation": "progress.md:717",
+        "decision_text": "Ruling: the discriminator is not categorical-versus-routing. It is WHETHER THIS PERSON HOLDS THIS RIGHT IN ANY CIRCUMSTANCE. Never \u2192 ABSENT, because a disabled control invites the belief the right exists somewhere and produces a support ticket asking for it. Holds it generally but is refused on THIS object right now \u2014 maker-checker, segregation of duties, own-scope \u2014 \u2192 DISABLED WITH THE REASON, because there the disabled state teaches a rule that genuinely binds this person, which is FB-QUAL-005's actual shape. On that reading MOD-DOH-01, -02 and -03 are right and MOD-DOH-12 is the outlier: a Read-only Auditor never holds those two writes in any circumstance.",
+        "cost_if_wrong": "unrecorded \u2014 this ruling's text carries no 'Cost if wrong:' or 'Cost of...' clause; the decision_text field is the full citation.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-050",
+        "source_citation": "progress.md:719",
+        "decision_text": "Ruling: I am NOT ordering that change from five greps, and not in task 5's fix round. This is a slice-wide invariant that binds the two unbuilt modules as well, it turns on a source reading rather than a defect, and one gate enforcing one rule beats four modules each arguing it. A dedicated adjudication reads the frozen source's rendering rule comprehensively and returns the discriminator with locators; task 11, the slice-gates task, is where the verdict lands as an enforced gate \u2014 which is what that task exists for. Task 5's fix round takes the STATE-01 fold and its Minors only. Cost if wrong: one module renders a prohibition the other way for the length of the slice, disclosed on screen in both, with the divergence recorded rather than hidden.",
+        "cost_if_wrong": "one module renders a prohibition the other way for the length of the slice, disclosed on screen in both, with the divergence recorded rather than hidden.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-051",
+        "source_citation": "progress.md:738",
+        "decision_text": "Ruling: if the client wants a reassigned role to return to its prior scope, that is a FOURTH assignment state and a product decision, not a patch. Recorded in the unspecified panel as a client question rather than modelled speculatively. Cost if wrong: one client question surfaces at review instead of a fourth state shipping unratified.",
+        "cost_if_wrong": "one client question surfaces at review instead of a fourth state shipping unratified.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-052",
+        "source_citation": "progress.md:774",
+        "decision_text": "Ruling: I do not overturn my earlier reading and I do not defend it. Both are now on the record with locators, and they conflict on ONE case: maker-checker. L7187 renders a Supervisor's own-Job approval ABSENT \u2014 \"absent, not disabled with an error, because a disabled control invites the belief that the right exists somewhere\" \u2014 while L20338 renders an Author's own-submission review DISABLED with \"You authored this submission. A different person must review it.\" Those are the same shape decided two ways in the frozen source, which is exactly the inconsistency the adjudication was dispatched to characterise rather than paper over. It reports before task 11. Until then no module changes its rendering, both readings stay disclosed on screen, and I record that I may have been wrong \u2014 five greps against a reviewer's citation of the build's own mapping is not a contest I should win by seniority. Cost if wrong: one slice ships a prohibition rendered two ways, disclosed in both, and one gate corrects it.",
+        "cost_if_wrong": "one slice ships a prohibition rendered two ways, disclosed in both, and one gate corrects it.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-053",
+        "source_citation": "progress.md:776",
+        "decision_text": "Ruling: task 8's fix round takes Important 2 and the Minors, and NOT Important 1. The missing disclosure is a screen pointing at content that is not there, which is false today regardless of how the rendering question settles \u2014 and its test is structurally unable to fail, which is the more serious half. Important 1 waits for the adjudication and lands slice-wide in task 11, because settling it five times in five modules is how it drifts. Cost if wrong: task 8 needs a second round after the adjudication, on a change the reviewer describes as inverting one branch and correcting five strings.",
+        "cost_if_wrong": "task 8 needs a second round after the adjudication, on a change the reviewer describes as inverting one branch and correcting five strings.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-054",
+        "source_citation": "progress.md:778",
+        "decision_text": "Ruling: the WriteControl lift happens AFTER the rendering question settles, not at wave close as originally scheduled. The reviewer compared the two existing copies and found them identical but for the module noun \u2014 and pointed out that lifting now would freeze the contested ABSENT branch into four modules at once. It supplied the interface, including that the decision is HANDED IN and the policy import stays `import type`, so nothing under src/ui value-imports @/policy. Cost if wrong: a third copy lives one slice longer.",
+        "cost_if_wrong": "a third copy lives one slice longer.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-055",
+        "source_citation": "progress.md:788",
+        "decision_text": "Ruling: the implementer's exception is right and is worth recording as a rule. The WRITES still spread the real connection rather than the coerced one, because persisting the coercion would store a state the record does not have \u2014 a second bug wearing the first one's fix. Reads see what the screen is showing; writes see what the record IS. The boundary is commented in place, and the re-review judges whether it leaves any path where a write commits against a record the screen is not showing. Cost if wrong: a write path disagrees with its own card, which is the finding again from the other side.",
+        "cost_if_wrong": "a write path disagrees with its own card, which is the finding again from the other side.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-056",
+        "source_citation": "progress.md:790",
+        "decision_text": "Ruling: the disclosed mutation survivor stands as disclosed. Reverting the pill's `tone` prop alone is not caught, because tone is a CSS class and nothing on this screen is communicated by colour alone \u2014 the pill's LABEL carries the fact and is asserted. Demanding a class assertion would buy a brittle test that breaks on any restyle and proves nothing about meaning; this build's own accessibility rule is that state is never conveyed by colour alone, so a surviving colour-only mutation is evidence the rule holds rather than that the test is weak. Recorded here so the next reviewer does not re-open it. Cost if wrong: nil \u2014 the fact under it is asserted twice over.",
+        "cost_if_wrong": "nil \u2014 the fact under it is asserted twice over.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-057",
+        "source_citation": "progress.md:820",
+        "decision_text": "Ruling: task 9 is HELD until task 8's fix round lands, for the same reason tasks 7 and 8 were held for task 6. Task 9 consumes DOH_SHIFTS and keys escalation on (Area, Shift), and task 8's fix round is editing that module's fixtures \u2014 including converting two exported vocabularies to `as const satisfies`, which is a type-shape change to exactly what task 9 imports. A consumer reading a producer mid-edit is the collision the file-disjoint rule does not cover. Cost if wrong: the heaviest task in the slice starts one dispatch later.",
+        "cost_if_wrong": "the heaviest task in the slice starts one dispatch later.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-058",
+        "source_citation": "progress.md:835",
+        "decision_text": "Ruling: I was partly wrong, and the correction matters. L7187 \u2014 my strongest anti-Reading-A locator, the Supervisor's own-Job approval rendered ABSENT \u2014 is NOT clean evidence, because L7191's own state table shows that Supervisor never holds Job approval at all (\"pending_approval \u2192 active | Quality Manager or designated equivalent approver, never the creator\"). So it is not a maker-checker case and it does not contradict Reading A. The genuinely decisive anti-A locators are L44774 (the root holds create on the same screen; everyone else sees it absent, with the support-ticket argument used in the OPPOSITE direction from Reading A's) and L16607/L14578. My conclusion survived on other evidence; my reasoning for it did not, and both reviewers who contested me were arguing from better ground than I credited.",
+        "cost_if_wrong": "unrecorded \u2014 this ruling's text carries no 'Cost if wrong:' or 'Cost of...' clause; the decision_text field is the full citation.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-059",
+        "source_citation": "progress.md:868",
+        "decision_text": "Ruling: NEITHER module changes its rendering, and no module is wrong. A source that contradicts itself at named-test strength cannot be obeyed, and picking a side would be inventing a product rule the client has not ratified \u2014 which per-module contract item 10 forbids in the same words. Both readings ship, each disclosed on its own screen, and the contradiction is recorded as a source conflict carrying BOTH locator sets. This is what the build's SOURCE_CONFLICTS mechanism exists for, and it is the honest answer to a question two independent reviewers and I each got partly right. Cost if wrong: the client sees a real defect in their own specification instead of a storyboard that quietly resolved it.",
+        "cost_if_wrong": "the client sees a real defect in their own specification instead of a storyboard that quietly resolved it.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-060",
+        "source_citation": "progress.md:870",
+        "decision_text": "Ruling: task 11's gates take the adjudication's three assertions in its own order of safety. (1) Absent-for-nonexistence, over the Command Center's four exclusions, every Frontline non-action, and every out-of-V1 capability \u2014 unanimous ground, and it asserts the exclusion text carries NO control semantics: no button role, not focusable, no disabled attribute. (2) No unreasoned refusal whatever the rendering: every matrix cell that is not Allowed or Allowed-with-conditions renders either nothing or a non-actionable element carrying a machine-readable reason from a CLOSED set \u2014 and the negative is asserted too, no non-actionable element without a reason, no reason outside the set. This is enforceable without picking a side. (3) A contested-control fixture pinning each of the four conflicts to the build's recorded choice with both locator sets, so a later change flips a test rather than silently switching readings. Cost if wrong: a gate encodes a contradiction faithfully instead of hiding it.",
+        "cost_if_wrong": "a gate encodes a contradiction faithfully instead of hiding it.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-061",
+        "source_citation": "progress.md:872",
+        "decision_text": "Ruling: the fourth contested control is ESCALATED, not decided. Severity-1 bundle / platform-fixed settings is named test against named test, and the adjudication says so plainly. It goes to the client as a decision with both test IDs, rather than being parked in a gate fixture as though the build had chosen. Cost if wrong: nil \u2014 this is the one case the source itself forbids resolving.",
+        "cost_if_wrong": "nil \u2014 this is the one case the source itself forbids resolving.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-062",
+        "source_citation": "progress.md:889",
+        "decision_text": "Ruling: the sweep is ONE batched dispatch, not five per-module fixes and not a task-11 gate. A generic gate cannot mechanically tell which sentence points at which panel entry \u2014 the claim is in prose \u2014 so a gate here would either be vacuous or would pin prose, and both are failure modes this slice has already produced. It is same-shape work across five files, which the skill says to batch into one dispatch and review as one unit. It runs after the current fix rounds settle so it does not collide with a live writer. Cost if wrong: one dispatch spent adding five tests that each turn out already covered.",
+        "cost_if_wrong": "one dispatch spent adding five tests that each turn out already covered.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-063",
+        "source_citation": "progress.md:900",
+        "decision_text": "Ruling: the prohibition rule is stated to task 9 as \"a worker may be NAMED for qualification, assignment and lifecycle purposes, and never MEASURED\", because this is the one module where \"never key on a worker\" is too blunt to be followed. A qualification expiry date is a fact about a certificate; a count of Runs completed is a measure of a person. Without that line an implementer either breaks the rule or refuses to build the module. Cost if wrong: a reviewer disputes one fixture field, on a module whose whole subject is the boundary.",
+        "cost_if_wrong": "a reviewer disputes one fixture field, on a module whose whole subject is the boundary.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-064",
+        "source_citation": "progress.md:917",
+        "decision_text": "Ruling: the disclosed mutation survivor is CLOSED, not merely accepted, and the reason is recorded so no later reviewer reopens it. The re-reviewer read the shared primitive's own contract \u2014 \"Colour is never load-bearing alone... The icon is decorative (aria-hidden); the label is what assistive technology and colour-blind readers rely on\" \u2014 and confirmed `tone` is a pure CSS class lookup with no independent semantic channel, while the label is already asserted. A colour-only mutation surviving is EVIDENCE THE ACCESSIBILITY RULE HOLDS, not evidence the test is weak. Cost if wrong: nil.",
+        "cost_if_wrong": "nil.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-065",
+        "source_citation": "progress.md:944",
+        "decision_text": "Ruling: this one Minor is closed rather than deferred, and the reason is that it is the round's own defect class reappearing inside the round's own fix. The skill says Minors do not enter the loop; a Minor that IS the finding, introduced by the finding's fix, is not the case that rule is protecting. It is one assertion, scoped to one assertion, and the implementer is told to satisfy itself the test fails for the right reason \u2014 a pointer test that passes when the pointer's clause is deleted is worth nothing, which is the entire subject. Cost if wrong: one dispatch on one line.",
+        "cost_if_wrong": "one dispatch on one line.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-066",
+        "source_citation": "progress.md:950",
+        "decision_text": "Ruling: a one-assertion round still gets its scoped re-review, and I am recording why rather than treating it as ceremony. \"The fix was small, skip the re-review\" is the named rationalisation, and this build has now produced three counter-examples in one slice: a task-2 fix that introduced an architectural gate violation, a task-6 fix that made an unreachable collision reachable, and the round this one closes \u2014 which created the very pointer it now pins. Small is exactly when this build ships defects. The re-review is scoped to four questions on a 2KB diff and costs almost nothing. Cost if wrong: one cheap agent seat.",
+        "cost_if_wrong": "one cheap agent seat.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-067",
+        "source_citation": "progress.md:1006",
+        "decision_text": "Ruling: I created a collision and I am recording it as mine. I put tests/unit/doh-sso.test.ts in BOTH the sweep's path list and the infrastructure dispatch's, and both agents wrote it. No damage \u2014 I checked rather than assumed: 37 unit and 48 component green with both sets of edits present, and the sweep additionally repaired a component assertion that went stale when the seam row landed. But the file-disjoint rule is the controller's to enforce and I broke it. The fix is procedural: from here, before any parallel dispatch, I diff the path lists against every live agent's, not only against the other dispatch in the same message. Cost of the error this time: nil, by luck rather than by design.",
+        "cost_if_wrong": "Cost of the error this time: nil, by luck rather than by design.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-068",
+        "source_citation": "progress.md:1008",
+        "decision_text": "Ruling: the sweep's integration-surface work is HELD BACK from its own commit rather than committed alongside. Committing a file two agents are writing is how a half state gets recorded as a whole one \u2014 and the infrastructure agent is still live in exactly those files. Its commit carries them, and it has been told the sweep's assertions are now its alone and must be re-pointed rather than deleted if the seam row makes one of them false. Cost if wrong: one commit attributes two agents' work.",
+        "cost_if_wrong": "one commit attributes two agents' work.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-069",
+        "source_citation": "progress.md:1047",
+        "decision_text": "Ruling: the one-line consequence goes back to the agent that caused it, not to me and not to a fresh dispatch. tests/unit/doh-spine.test.ts asserts DOH_SEAMS has length 5 and the new row makes it 6 \u2014 correctly red, the assertion doing its job. The agent was right to flag rather than reach for a file outside its list, so I extended its list by exactly that file. A controller fix would skip review; a fresh dispatch for one line would cost more context than the line is worth. It is also asked whether a bare length check is the right FORM, since it will need bumping on every future seam. Cost if wrong: one assertion changes shape.",
+        "cost_if_wrong": "one assertion changes shape.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-070",
+        "source_citation": "progress.md:1056",
+        "decision_text": "Ruling: the infrastructure review is dispatched with SIX adversarial questions rather than a compliance checklist, because \"still 48/48\" is exactly what a weakened gate looks like. The two that matter most are not about the flake at all: (1) can a REAL source file be mistaken for a foreign probe and skipped \u2014 a gate evadable by naming a file appropriately is a worse defect than the flake it replaced; and (2) is the probe still INSIDE whatever the gate actually scans, because a probe moved out of the walk proves non-vacuity of nothing. The reviewer is also told to name each of the three recorded historical near-misses and say whether the current code would still catch it. Cost if wrong: a safety gate ships quieter than it was, which is the one outcome this whole exercise was meant to prevent.",
+        "cost_if_wrong": "a safety gate ships quieter than it was, which is the one outcome this whole exercise was meant to prevent.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-071",
+        "source_citation": "progress.md:1075",
+        "decision_text": "Ruling: the review is told explicitly NOT to treat the ABSENT-versus-DISABLED choice as a defect, and is given the two adjudication results that DO bind \u2014 that `Explicitly prohibited` carries no rendering anywhere in the source, so any claim that a cell dictated a rendering is wrong; and that `Unavailable` is overloaded across two senses that render oppositely. Without that, a reviewer reading the by-rule scheme cold would raise the contested rendering as an Important finding on the heaviest module in the slice, and I would spend a fix round re-litigating a question the source itself cannot settle. Cost if wrong: the reviewer under-reports a rendering issue that the task-11 gate will catch anyway.",
+        "cost_if_wrong": "the reviewer under-reports a rendering issue that the task-11 gate will catch anyway.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-072",
+        "source_citation": "progress.md:1106",
+        "decision_text": "Ruling: the removed inline block's four-step disclosure is RESTORED to the registry row's description, not accepted as prose loss. \"Sending is not delivery, delivery is not opening, opening is not acknowledgement, and acknowledgement is not the business action\" is a standing product invariant \u2014 a screen that collapses those states is precisely the dishonesty this build exists to avoid \u2014 and the registry description dropped *opening* and the no-collapse rule entirely. The registry is now the one place that text belongs, so it goes there. Cost if wrong: one description is longer than its five siblings.",
+        "cost_if_wrong": "one description is longer than its five siblings.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-073",
+        "source_citation": "progress.md:1108",
+        "decision_text": "Ruling: the fix round must RE-PROVE detection preservation, the same way the original did. A safety gate's fix round gets the same evidence bar as the change it fixes \u2014 the whole reason detection survived this far is that it was proved at every layer rather than once at the end, and Important 1 changes exactly what the concurrent trials exercise. Cost if wrong: one more planted-defect run on a gate that has now had four.",
+        "cost_if_wrong": "one more planted-defect run on a gate that has now had four.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-074",
+        "source_citation": "progress.md:1139",
+        "decision_text": "Ruling: the second finding is the more instructive one, and the fix instruction says why. The file ALREADY solves that exact hazard one line away \u2014 for the Area FILTER, at :353, with the reasoning written out: \"A filter naming an Area this persona cannot see is not a filter, so it falls back rather than being reset in whichever handler we remembered.\" The comment is correct and it is the argument for fixing the write the same way, by intersection rather than by remembering to reset. A build that writes down the right principle and applies it to one of two consumers is the same failure as a fix that reaches one call site of three. Cost if wrong: nil \u2014 the fix follows the file's own stated rule.",
+        "cost_if_wrong": "nil \u2014 the fix follows the file's own stated rule.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-075",
+        "source_citation": "progress.md:1141",
+        "decision_text": "Ruling: three Minors are promoted because they are task 10's INTERFACE, not task 9's polish. chipFor returns `string`, so the calendar must re-derive the chip vocabulary or compare magic literals across a module boundary; nothing ties daysToExpiry to expiryDate, and a calendar necessarily places records by the date while the chip reads the count; and workerById reads a module-level Map from the SEED while its sibling takes the live register \u2014 the module-load snapshot defect this slice has already shipped twice. Closing them now costs one fix round; shipping them costs the next module a workaround and the one after that a second copy of it. Cost if wrong: a slightly wider fix diff on a module already approved on its hard parts.",
+        "cost_if_wrong": "a slightly wider fix diff on a module already approved on its hard parts.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-076",
+        "source_citation": "progress.md:1143",
+        "decision_text": "Ruling: the ~500-line screen extraction is DEFERRED to its own task at slice close, with the reviewer's four line ranges recorded verbatim \u2014 the prose constants at :162-265, stateTreatment at :2304-2425 (a data table wearing a switch), the inline audit templates, and the gate-settings section. It is not a defect, it moves no behaviour, and churning a 2,425-line module that task 11 is about to gate trades real regression risk for zero behavioural gain. Cost if wrong: the heaviest file in the slice stays heavy for one more task.",
+        "cost_if_wrong": "the heaviest file in the slice stays heavy for one more task.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-077",
+        "source_citation": "progress.md:1157",
+        "decision_text": "Ruling: the re-review is told, in terms, not to report the in-flight task-9 reds as findings, and given the reason \u2014 a half-declared variable and a signature mid-propagation in another agent's files. Without that it would spend its pass diagnosing someone else's work in progress and return findings I would have to discard, which is worse than noise: it is a reviewer's attention spent on a question that was already answered. Cost if wrong: a reviewer stays silent about a red that turns out to be this diff's after all, which the next full verification catches anyway.",
+        "cost_if_wrong": "a reviewer stays silent about a red that turns out to be this diff's after all, which the next full verification catches anyway.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-078",
+        "source_citation": "progress.md:1159",
+        "decision_text": "Ruling: the re-review is also asked the predicate question in BOTH directions \u2014 not only \"can a real file still be hidden\" but \"can a real PROBE now be missed\", which would put a foreign probe back into the scan. The first fix was too wide and the correction narrows it; a correction that narrows past the target reintroduces the original race while looking like a tightening. Every fix in this slice that overshot did so by being asked only the question that motivated it. Cost if wrong: nil \u2014 it is one extra question on a 10KB diff.",
+        "cost_if_wrong": "nil \u2014 it is one extra question on a 10KB diff.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-079",
+        "source_citation": "progress.md:1178",
+        "decision_text": "Ruling: I overstated the finding-2 verification in my own report to the client and I am correcting it rather than leaving it. I said the implementer \"proved the reviewer's hypothetical was actual\" by planting a real zz-probe.tsx. The re-reviewer judged that claim plausible and consistent with the code but NOT established by the evidence offered \u2014 the planted violation text and the expected FAIL string were both already in the source, so the report's evidence is obtainable by reading rather than running. What IS established, independently, is the property itself: the re-reviewer traced the two regexes by hand and confirmed the old prefix form matched `zz-probe.tsx` while the exact form does not. So the fix is verified; the execution claim is not. The implementer is asked to either produce something only a run yields \u2014 exit code, assertion counts, surrounding output \u2014 or say plainly that it reasoned it through, because a correct inference honestly labelled is worth more than an execution claim a reader cannot check. Cost of the error: I told the client a stronger story than the evidence carried.",
+        "cost_if_wrong": "Cost of the error: I told the client a stronger story than the evidence carried.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-080",
+        "source_citation": "progress.md:1191",
+        "decision_text": "Ruling: the implementer's generalisation is put to the re-reviewer as a question in its own right, separate from the findings. It wrote: \"anything else in this slice bounding a write by render has the same defect, and it is invisible to a per-persona sweep that only asserts absence.\" If that is sound it is the most valuable output of this task, because it converts one module's defect into a class a gate can catch \u2014 and task 11 is where it would land. The re-reviewer is told to be concrete or to say it cannot be mechanised, because \"write more tests\" is not a gate. Cost if wrong: one paragraph of analysis that task 11 discards.",
+        "cost_if_wrong": "one paragraph of analysis that task 11 discards.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-081",
+        "source_citation": "progress.md:1193",
+        "decision_text": "Ruling: the re-review is told to COUNT the seed-built lookups rather than confirm the one that was named. workerById taking the live register is the THIRD module-load-snapshot read this slice has shipped, and the previous two were each fixed incompletely \u2014 one reached one call site of three. A signature change propagates only where the compiler forces it, so any caller still reaching a seed map, or any OTHER seed-built lookup in a 2,400-line module, is the same defect surviving with a green suite over it. Cost if wrong: one count that comes back matching the claim.",
+        "cost_if_wrong": "one count that comes back matching the claim.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-082",
+        "source_citation": "progress.md:1197",
+        "decision_text": "Ruling: this round's re-review is scoped to the EVIDENCE claim and explicitly told not to re-litigate the prose, because I verified the prose myself by reading the actual string. Dispatching a reviewer to re-read a sentence I have already read would be ceremony; dispatching one to judge whether a corrected evidence claim now DISTINGUISHES between having run a command and having reconstructed its output is the part I cannot settle by reading the file the claim is about. It is given four specific questions \u2014 could this have been produced without running it, is it internally consistent, does it show the thing it is offered for, and is any of it still reconstructable from source \u2014 and told explicitly that \"the implementer labelled it as reasoning instead\" is a FULLY ACCEPTABLE outcome, not a failure. Cost if wrong: one cheap seat on a 1.5KB diff.",
+        "cost_if_wrong": "one cheap seat on a 1.5KB diff.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-083",
+        "source_citation": "progress.md:1222",
+        "decision_text": "Ruling: my correction to the client stands as correct, and so does the outcome. The original evidence genuinely did not distinguish between running and reconstructing \u2014 the reviewer was right, I was right to retract, and the implementer was right that it had run it. All three of those are true at once, which is what an assurance practice looks like when it works: the claim was not accepted on authority, the retraction was not treated as an accusation, and the question was closed by evidence nobody involved could have manufactured. Cost of the exchange: two cheap review seats and one public correction.",
+        "cost_if_wrong": "Cost of the exchange: two cheap review seats and one public correction.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-084",
+        "source_citation": "progress.md:1266",
+        "decision_text": "Ruling: this becomes a task-11 gate, and the reason it CAN be a gate rather than a review habit is that the slice already standardises the three things the assertion needs \u2014 SEEDED_ROLE_SCOPES/selectableAreas(roleId) as the scope query, commit() as a wrapper that stringifies exactly what was written, and HubShell's role switcher. So one shared property-test helper, pointed at each module's screen, can: set a scope-bearing selection under a broad persona, switch to a narrow one WITHOUT re-touching it, fire every enabled write, and assert the recorded action names no Area outside the narrow persona's scope. Plus the corpus companion: rendered ids of the narrow persona a STRICT subset of the broad one's \u2014 both directions \u2014 rather than \"fewer buttons\", which is exactly what let this through the first time. Cost if wrong: one helper written and pointed at eight screens.",
+        "cost_if_wrong": "one helper written and pointed at eight screens.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-085",
+        "source_citation": "progress.md:1285",
+        "decision_text": "Ruling: brief defects are now a NAMED CLASS with three instances, and they are recorded against the briefs rather than the modules. Task 5's excerpt cut the only row carrying its module's Unavailable cells; task 10's cut a whole prohibition row; task 10's devices brief invented two quotations. Every one was caught by an implementer reading the source unprompted, and none by a reviewer, because a reviewer reading the brief and the diff sees them agree. The standing instruction \u2014 the brief's matrix quotation is a CONVENIENCE, the frozen source is the authority, a disagreement is a finding \u2014 has now paid for itself three times and goes into every remaining dispatch. Cost if wrong: implementers spend a few minutes at the source on briefs that turn out accurate.",
+        "cost_if_wrong": "implementers spend a few minutes at the source on briefs that turn out accurate.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-086",
+        "source_citation": "progress.md:1296",
+        "decision_text": "Ruling: this locator is added to task 11's contested-control fixture as evidence, and it does NOT re-open the adjudication's verdict. It is a strong data point \u2014 arguably the cleanest discriminator in the source, since \"extend the time box\" exists for NOBODY on this surface yet renders disabled, which cuts against a naive reading of both A and B and suggests the real line is \"exists nowhere in the product\" versus \"exists somewhere, just not here for you\". But the adjudication surveyed comprehensively and found a genuine test-against-test contradiction, and one more locator does not dissolve a contradiction at that strength. I have already been wrong once in this exact way, by generalising from five greps against a comprehensive survey. Recorded as evidence, not as a verdict. Cost if wrong: task 11's fixture carries one more locator than it strictly needs.",
+        "cost_if_wrong": "task 11's fixture carries one more locator than it strictly needs.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-087",
+        "source_citation": "progress.md:1317",
+        "decision_text": "Ruling: the registry dispatch is told that a report reading \"six computed, four have no signal and here is why, three belong to unbuilt slices\" is a COMPLETE SUCCESS, and that fourteen computed statuses where four are proxies would be the failure. A number that cannot fall when its evidence is deleted is the same defect as a hardcoded zero wearing a computation. It must supply a mutation proof per registry \u2014 delete the evidence, watch the count drop, restore \u2014 and must extend the generator's existing refusal, which already exits non-zero rather than publish a measurement it knows is wrong. Cost if wrong: an inflated dashboard, which is worse than no dashboard because it will be read as fact.",
+        "cost_if_wrong": "an inflated dashboard, which is worse than no dashboard because it will be read as fact.",
+        "made_on_clients_behalf": true
+      },
+      {
+        "ruling_id": "RUL-DOH-088",
+        "source_citation": "progress.md:1319",
+        "decision_text": "Ruling: the ledger dispatch is bound by one absolute rule \u2014 every row cites a commit sha, a file path, or a recorded command and its output, and any field without evidence is written `unrecorded` rather than inferred. It is told WHY in this build's own terms: two review rounds were spent on exactly this distinction when an agent's verification claim was judged \"plausible and consistent with the code but not established\", the controller had to publicly retract, and the question was finally settled by filesystem timestamps nobody could have staged. A ledger with honest gaps is evidence; a ledger with plausible fabrications is worse than none, because a reader cannot tell the rows apart and must distrust all of them. Cost if wrong: the client receives process evidence they cannot rely on, at the exact moment the SDD workspace holding the real thing is deleted.",
+        "cost_if_wrong": "the client receives process evidence they cannot rely on, at the exact moment the SDD workspace holding the real thing is deleted.",
+        "made_on_clients_behalf": true
+      }
+    ]
+  },
+  "verified_finding": {
+    "description": "The count of first-round independent-review outcomes for this slice's build tasks, verified against the artifacts rather than taken on assertion.",
+    "method": "Every review verdict line in progress.md was located and read (see loop entries LOOP-DOH-02 through LOOP-DOH-09 above for each one's citation).",
+    "result": "At progress.md:988-991, the controller states 'Every one of the six reviewed modules failed its first independent review... Task 7 is the only task that passed first time' \u2014 verified: at that point in the narrative (after task 8's round-2 re-review, before task 9's review concluded), seven first-round module/shell reviews had returned a verdict \u2014 task 2 (fail, progress.md:102), task 3 (fail, progress.md:193), task 6 (fail, progress.md:289), task 4 pass one (fail, progress.md:328), task 7 pass two (PASS, progress.md:639), task 5 (fail, progress.md:675), task 8 (fail, progress.md:740) \u2014 six of those seven failed. The claim holds exactly as stated for that snapshot.",
+    "update_after_task_9": "Task 9's own first-round review (progress.md:1110) also returned not-approved (0 Critical / 2 Important / 9 Minor). Counting all eight first-round build-task reviews concluded by the end of this workspace's evidence (tasks 2,3,4,5,6,7,8,9), seven of eight failed their first independent review and one (task 7) passed. Task 10's review (LOOP-DOH-12) was dispatched but its verdict is not recorded in progress.md, so it is excluded from both counts rather than assumed either way.",
+    "shared_property": "Every one of the seven that failed had reported DONE (or DONE_WITH_CONCERNS) with a green suite and a clean typecheck first \u2014 verified against each task's own completion line cited above, all of which report green tests and clean tsc before their review was dispatched."
+  }
+}

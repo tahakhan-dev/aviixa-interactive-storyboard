@@ -1,0 +1,5291 @@
+{
+ "modules": [
+  {
+   "id": "MOD-FL-A6",
+   "name": "Offline and Sync Engine",
+   "surface": "SURF-FL",
+   "purpose": "Holds connectivity state, durable queues and sync; run player reads offline state from it",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "persistent offline indicator",
+    "durable upload queue",
+    "sync state list"
+   ],
+   "classification": "SoW Fact",
+   "line": 91695
+  },
+  {
+   "id": "unstated",
+   "name": "Identity, Authentication and Device Mode",
+   "surface": "SURF-FL",
+   "purpose": "One of the twelve Frontline modules named by the source",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "My Runs",
+   "surface": "SURF-FL",
+   "purpose": "Worker run list; shows parked runs and other assigned runs as available",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "parked run display",
+    "version each assigned run will execute on"
+   ],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Run Player",
+   "surface": "SURF-FL",
+   "purpose": "Executes the run; status strip carries honest degradation lines",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "status strip",
+    "help path",
+    "step instructions panel"
+   ],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Data Capture and Evidence",
+   "surface": "SURF-FL",
+   "purpose": "Captures and encrypts evidence; never writes to the device gallery",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "encrypted store",
+    "evidence list"
+   ],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "On-Device Detection and Containment",
+   "surface": "SURF-FL",
+   "purpose": "Deterministic detection, severity classification, hold placement and containment checklist launch",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "specification check",
+    "severity banding",
+    "Severity 1 hold",
+    "containment checklist"
+   ],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Security and Data Protection",
+   "surface": "SURF-FL",
+   "purpose": "One of the twelve Frontline modules named by the source",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Coaching Rendering",
+   "surface": "SURF-FL",
+   "purpose": "Renders agent-selected card, curated default asset, or authored Work Instructions",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "replay",
+    "dismiss",
+    "provenance label"
+   ],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Gates and Sign-Off Authority",
+   "surface": "SURF-FL",
+   "purpose": "Enforces proof and specification gates on the device, offline",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "hard gate block without valid proof"
+   ],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Notifications",
+   "surface": "SURF-FL",
+   "purpose": "One of the twelve Frontline modules named by the source",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Worker Lifecycle on Device",
+   "surface": "SURF-FL",
+   "purpose": "One of the twelve Frontline modules named by the source",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [],
+   "classification": "SoW Fact",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "Training Library Viewer",
+   "surface": "SURF-FL",
+   "purpose": "Online only; a content viewer rather than a question channel",
+   "roles_allowed": [
+    "Worker"
+   ],
+   "key_functions": [
+    "view training content"
+   ],
+   "classification": "SoW Fact — §1.4 seam 12",
+   "line": 92728
+  },
+  {
+   "id": "unstated",
+   "name": "agent activity panel",
+   "surface": "SURF-CC",
+   "purpose": "Per-agent on/off state, activations this shift, last activation, outputs produced, items waiting at the gate",
+   "roles_allowed": [
+    "Supervisor",
+    "Quality Manager",
+    "Tenant Admin"
+   ],
+   "key_functions": [
+    "honest degradation flag",
+    "platform pause state",
+    "link to Studio to switch the agent"
+   ],
+   "classification": "SoW Fact — §6.9.1",
+   "line": 91703
+  },
+  {
+   "id": "unstated",
+   "name": "deviation workspace",
+   "surface": "SURF-CC",
+   "purpose": "Renders deterministic deviation record, brief when present, divergence flag, propagation and release",
+   "roles_allowed": [
+    "Supervisor",
+    "Quality Manager"
+   ],
+   "key_functions": [
+    "acknowledge",
+    "request release with a note",
+    "release",
+    "mark evidence reviewed"
+   ],
+   "classification": "Derived Clarification",
+   "line": 91968
+  },
+  {
+   "id": "unstated",
+   "name": "shift handoff panel",
+   "surface": "SURF-CC",
+   "purpose": "Delivers brief, partial brief, no-brief state, deterministic pack, manual note and supersession",
+   "roles_allowed": [
+    "Supervisor",
+    "Quality Manager"
+   ],
+   "key_functions": [
+    "Acknowledge",
+    "Annotate"
+   ],
+   "classification": "Derived Clarification",
+   "line": 92240
+  },
+  {
+   "id": "unstated",
+   "name": "sync state and connectivity module",
+   "surface": "SURF-CC",
+   "purpose": "Per-device last successful sync, queue depth, parked items, storage state, freshness class",
+   "roles_allowed": [
+    "Supervisor",
+    "Quality Manager"
+   ],
+   "key_functions": [
+    "sync-conflict review panel"
+   ],
+   "classification": "SoW Fact",
+   "line": 92845
+  },
+  {
+   "id": "unstated",
+   "name": "learning read view",
+   "surface": "SURF-CC",
+   "purpose": "Shows fallback used, resolution, pointer and version divergences, help-request counts",
+   "roles_allowed": [
+    "Quality Manager",
+    "Quality Engineer"
+   ],
+   "key_functions": [
+    "divergence listing",
+    "instruction-review candidates"
+   ],
+   "classification": "SoW Fact — §5.16.5",
+   "line": 91634
+  },
+  {
+   "id": "unstated",
+   "name": "devices and fleet section",
+   "surface": "SURF-SA",
+   "purpose": "Fleet list with flags, artifact/package version, last contact, failure count, storage telemetry",
+   "roles_allowed": [
+    "Platform Engineer",
+    "Admin",
+    "Root Super Admin"
+   ],
+   "key_functions": [
+    "replacement dispatch",
+    "escalation to physical attention"
+   ],
+   "classification": "SoW Fact — §8.13",
+   "line": 93010
+  },
+  {
+   "id": "unstated",
+   "name": "evaluation harness",
+   "surface": "SURF-SA",
+   "purpose": "Consumes divergence pairs as regression candidates before any enable or disable passes the evaluation gate",
+   "roles_allowed": [
+    "Platform Engineer"
+   ],
+   "key_functions": [
+    "regression-candidate queue"
+   ],
+   "classification": "SoW Fact — §3.1, §8.3.5",
+   "line": 93697
+  },
+  {
+   "id": "unstated",
+   "name": "Anomaly Register",
+   "surface": "SURF-DOH",
+   "purpose": "Critical anomaly auto-entered with its containment record; prior cases reachable manually",
+   "roles_allowed": [
+    "Quality Manager",
+    "Supervisor"
+   ],
+   "key_functions": [
+    "auto-entry of Critical anomaly",
+    "closure note"
+   ],
+   "classification": "SoW Fact — §3.3",
+   "line": 93143
+  }
+ ],
+ "roles_rules": [
+  {
+   "role": "Worker",
+   "may": [
+    "See authored Work Instructions on the step",
+    "See the curated default asset",
+    "Replay guidance",
+    "Dismiss guidance",
+    "See the honest degradation state — Allowed with conditions, a status-strip line only"
+   ],
+   "may_not": [
+    "See an agent-selected coaching card (Unavailable while degraded)",
+    "Switch the agent on or off — Explicitly prohibited",
+    "Retire a coaching asset — Explicitly prohibited",
+    "Relax a proof gate because coaching is unavailable — Explicitly prohibited"
+   ],
+   "surface": "SURF-FL",
+   "scope_conditions": [
+    "Prevention Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 91762
+  },
+  {
+   "role": "Supervisor",
+   "may": [
+    "See authored Work Instructions — Allowed with conditions, through the Studio or the Delivery Operations Hub record, not the run player",
+    "See the curated default asset — Read-only through the Studio corpus",
+    "See the honest degradation state"
+   ],
+   "may_not": [
+    "Switch the agent on or off — Explicitly prohibited",
+    "Retire a coaching asset — Explicitly prohibited",
+    "Relax a proof gate because coaching is unavailable — Explicitly prohibited"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Prevention Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 91763
+  },
+  {
+   "role": "Quality Manager",
+   "may": [
+    "Switch the agent on or off — Allowed with conditions, a Studio action under authoring grants",
+    "Retire a coaching asset — Allowed with conditions, through the Studio approval chain",
+    "See the honest degradation state",
+    "See the learning read view"
+   ],
+   "may_not": [
+    "Relax a proof gate because coaching is unavailable — Explicitly prohibited"
+   ],
+   "surface": "SURF-STU",
+   "scope_conditions": [
+    "Prevention Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 91769
+  },
+  {
+   "role": "Tenant Admin",
+   "may": [
+    "See the honest degradation state",
+    "Read-only on Work Instructions and curated default"
+   ],
+   "may_not": [
+    "Switch the agent on or off — Explicitly prohibited",
+    "Retire a coaching asset — Explicitly prohibited",
+    "Relax a proof gate — Explicitly prohibited"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Prevention Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 91761
+  },
+  {
+   "role": "Read-only Auditor",
+   "may": [
+    "Read-only on Work Instructions and curated default via the record"
+   ],
+   "may_not": [
+    "See the honest degradation state — Explicitly prohibited, the Read-only Auditor has no Command Center access",
+    "Relax a proof gate — Explicitly prohibited"
+   ],
+   "surface": "SURF-DOH",
+   "scope_conditions": [
+    "Prevention Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 91768
+  },
+  {
+   "role": "Worker",
+   "may": [
+    "Trigger a deviation deterministically — by capturing a value; not a discretionary act",
+    "Have the Severity 1 hold placed locally — automatic and immediate",
+    "Complete the containment checklist offline"
+   ],
+   "may_not": [
+    "Acknowledge the escalation — Explicitly prohibited",
+    "Request release with a note — Explicitly prohibited",
+    "Release a Severity 1 hold — Explicitly prohibited",
+    "Reclassify at review time — Explicitly prohibited",
+    "See the classification-divergence flag — Explicitly prohibited, the worker surface carries the deterministic verdict only",
+    "Change an authored limit or mapping — Explicitly prohibited"
+   ],
+   "surface": "SURF-FL",
+   "scope_conditions": [
+    "Deviation and Containment Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 92030
+  },
+  {
+   "role": "Supervisor",
+   "may": [
+    "Complete the containment checklist offline — Allowed with conditions, where the Supervisor holds a device and the run",
+    "Acknowledge the escalation",
+    "Request release with a note",
+    "See the classification-divergence flag — Read-only"
+   ],
+   "may_not": [
+    "Release a Severity 1 hold — Explicitly prohibited",
+    "Reclassify at review time — Explicitly prohibited",
+    "Change an authored limit or mapping — Explicitly prohibited"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Deviation and Containment Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 92032
+  },
+  {
+   "role": "Quality Manager",
+   "may": [
+    "Acknowledge the escalation",
+    "Release a Severity 1 hold",
+    "Reclassify at review time with a recorded reason — Allowed with conditions, at the review-time bridge only, with a reason",
+    "See the classification-divergence flag — Allowed with conditions, may raise a Lane B proposal from it",
+    "Change an authored limit or mapping — Allowed with conditions, through the Studio approval chain or a decided Lane B proposal"
+   ],
+   "may_not": [],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Deviation and Containment Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 92035
+  },
+  {
+   "role": "Tenant Admin",
+   "may": [
+    "See the classification-divergence flag — Read-only"
+   ],
+   "may_not": [
+    "Complete the containment checklist offline — Explicitly prohibited",
+    "Acknowledge the escalation — Explicitly prohibited",
+    "Request release with a note — Explicitly prohibited",
+    "Release a Severity 1 hold — Explicitly prohibited",
+    "Reclassify at review time — Explicitly prohibited"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Deviation and Containment Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 92028
+  },
+  {
+   "role": "Read-only Auditor",
+   "may": [
+    "See the classification-divergence flag — Read-only via the Delivery Operations Hub record"
+   ],
+   "may_not": [
+    "Acknowledge the escalation — Explicitly prohibited, no Command Center access",
+    "Release a Severity 1 hold — Explicitly prohibited",
+    "Complete the containment checklist offline — Explicitly prohibited"
+   ],
+   "surface": "SURF-DOH",
+   "scope_conditions": [
+    "Deviation and Containment Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 92033
+  },
+  {
+   "role": "Worker",
+   "may": [],
+   "may_not": [
+    "Receive the full brief — Explicitly prohibited, workers see only their own assigned-task readiness",
+    "See emerging-pattern watch items — Explicitly prohibited",
+    "Acknowledge the brief — Explicitly prohibited",
+    "Annotate the brief — Explicitly prohibited",
+    "Read the deterministic handoff pack — Explicitly prohibited",
+    "Write the manual handoff note — Explicitly prohibited",
+    "Be blocked from starting a shift by a missing acknowledgement — Explicitly prohibited"
+   ],
+   "surface": "SURF-FL",
+   "scope_conditions": [
+    "Shift Handoff Agent degraded"
+   ],
+   "governing_decision": "DEC-HANDOFF-001",
+   "line": 92302
+  },
+  {
+   "role": "Supervisor",
+   "may": [
+    "Receive the full brief",
+    "See emerging-pattern watch items",
+    "Acknowledge the brief",
+    "Annotate the brief",
+    "Read the deterministic handoff pack — subject to DEC-HANDOFF-001",
+    "Write the manual handoff note — subject to DEC-HANDOFF-002",
+    "See the brief's absence honestly stated"
+   ],
+   "may_not": [
+    "Be blocked from starting a shift by a missing acknowledgement — Explicitly prohibited"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Shift Handoff Agent degraded"
+   ],
+   "governing_decision": "DEC-HANDOFF-002",
+   "line": 92302
+  },
+  {
+   "role": "Quality Manager",
+   "may": [
+    "Receive the full brief — Allowed with conditions, optional recipient per configuration",
+    "See emerging-pattern watch items",
+    "Acknowledge the brief",
+    "Annotate the brief",
+    "Read the deterministic handoff pack",
+    "Write the manual handoff note"
+   ],
+   "may_not": [
+    "Be blocked from starting a shift by a missing acknowledgement — Explicitly prohibited"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Shift Handoff Agent degraded"
+   ],
+   "governing_decision": "DEC-HANDOFF-002",
+   "line": 92302
+  },
+  {
+   "role": "Tenant Admin",
+   "may": [
+    "See the brief's absence honestly stated"
+   ],
+   "may_not": [
+    "Receive the full brief — Unavailable, not a configured recipient",
+    "See emerging-pattern watch items — Unavailable",
+    "Acknowledge the brief — Explicitly prohibited",
+    "Annotate the brief — Explicitly prohibited",
+    "Write the manual handoff note — Explicitly prohibited"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "Shift Handoff Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 92302
+  },
+  {
+   "role": "Read-only Auditor",
+   "may": [
+    "Read the deterministic handoff pack — Read-only via the Delivery Operations Hub record",
+    "See the brief's absence — Read-only via the record"
+   ],
+   "may_not": [
+    "Receive the full brief — Explicitly prohibited, no Command Center access",
+    "See emerging-pattern watch items — Explicitly prohibited",
+    "Acknowledge the brief — Explicitly prohibited",
+    "Annotate the brief — Explicitly prohibited"
+   ],
+   "surface": "SURF-DOH",
+   "scope_conditions": [
+    "Shift Handoff Agent degraded"
+   ],
+   "governing_decision": null,
+   "line": 92302
+  },
+  {
+   "role": "Quality Manager",
+   "may": [
+    "Release a lot hold — uniformly, no exceptions by work type, risk class, or tag",
+    "Disposition the lot",
+    "Resolve sync conflicts — action 5, Quality Manager and above",
+    "Mark evidence reviewed — action 7"
+   ],
+   "may_not": [],
+   "surface": "SURF-CC",
+   "scope_conditions": [
+    "lot release is Quality Manager only, uniformly"
+   ],
+   "governing_decision": null,
+   "line": 94974
+  },
+  {
+   "role": "Supervisor",
+   "may": [
+    "Request release with a note — produces an item for the Quality Manager",
+    "Acknowledge — action 1, Supervisor and above",
+    "Reassignment — action 8, Supervisor and above",
+    "Acknowledge and annotate the brief — action 6, Supervisor and above",
+    "View sync conflicts only"
+   ],
+   "may_not": [
+    "Release a Severity 1 hold — Explicitly prohibited",
+    "Resolve a sync conflict — viewing only"
+   ],
+   "surface": "SURF-CC",
+   "scope_conditions": [],
+   "governing_decision": "DEC-PLUS-001",
+   "line": 91976
+  },
+  {
+   "role": "Platform Engineer",
+   "may": [
+    "Submit a rollback change (maker)",
+    "Submit an emergency pause",
+    "Own diagnosis and fleet health"
+   ],
+   "may_not": [
+    "Approve their own change — takes effect only when an Admin approves it"
+   ],
+   "surface": "SURF-SA",
+   "scope_conditions": [
+    "maker-checker discipline"
+   ],
+   "governing_decision": null,
+   "line": 94064
+  },
+  {
+   "role": "Admin",
+   "may": [
+    "Approve a Platform Engineer's submitted change (checker)"
+   ],
+   "may_not": [
+    "Approve critical-class elements without the root account"
+   ],
+   "surface": "SURF-SA",
+   "scope_conditions": [],
+   "governing_decision": null,
+   "line": 94064
+  },
+  {
+   "role": "Root Super Admin",
+   "may": [
+    "Approve critical-class actions including device wipe, compliance suspension, emergency pause, resume and all-tenant broadcast"
+   ],
+   "may_not": [
+    "Bypass the evaluation gate — it binds every operator of the platform console including the root account"
+   ],
+   "surface": "SURF-SA",
+   "scope_conditions": [
+    "critical class"
+   ],
+   "governing_decision": null,
+   "line": 94814
+  },
+  {
+   "role": "agent identity",
+   "may": [],
+   "may_not": [
+    "Release a hold",
+    "Classify a deviation",
+    "Bypass a specification, evaluation, qualification, approval or publication gate",
+    "Retire a coaching asset",
+    "Alter a containment checklist",
+    "Create, alter or delete any field of an authoritative record",
+    "Self-approve",
+    "Execute a stale queued action"
+   ],
+   "surface": "SURF-DOH",
+   "scope_conditions": [
+    "applies platform-wide"
+   ],
+   "governing_decision": null,
+   "line": 92418
+  },
+  {
+   "role": "Job Owner",
+   "may": [
+    "Decide adoption for notified (first-two-digit) version changes"
+   ],
+   "may_not": [],
+   "surface": "SURF-DOH",
+   "scope_conditions": [
+    "patch versions apply directly and are tracked"
+   ],
+   "governing_decision": null,
+   "line": 93376
+  }
+ ],
+ "business_rules": [
+  {
+   "id": "unnumbered",
+   "statement": "Detection is deterministic, interpretation is agentic. No artificial-intelligence model sits in the deviation-triggering path.",
+   "enforcement_point": "On-device deterministic layer",
+   "applies_to": "all deviations",
+   "is_hard_gate": true,
+   "line": 91425
+  },
+  {
+   "id": "unnumbered",
+   "statement": "No platform-level pause of the agentic layer ever suppresses layer (a). The deterministic backbone is not agent machinery and has no off switch.",
+   "enforcement_point": "Frontline device",
+   "applies_to": "emergency pause, outages, timeouts",
+   "is_hard_gate": true,
+   "line": 91427
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Every failure degrades interpretation, assembly, retrieval and narration; none degrades detection, classification, gating or the Severity 1 hold.",
+   "enforcement_point": "architecture boundary",
+   "applies_to": "all agent failures",
+   "is_hard_gate": true,
+   "line": 91426
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A Severity 1 hold never releases because an agent, a queue, or a network failed.",
+   "enforcement_point": "release rule; device",
+   "applies_to": "Severity 1 holds",
+   "is_hard_gate": true,
+   "line": 91482
+  },
+  {
+   "id": "unnumbered",
+   "statement": "An agent must never be offered as a substitute for a missing work package, because the agent does not hold the limits, severity mappings or gate rules.",
+   "enforcement_point": "Frontline fallback ladder",
+   "applies_to": "package-integrity failure",
+   "is_hard_gate": true,
+   "line": 91534
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Neither the capture state chain nor the command state chain is ever collapsed into the word \"synced\".",
+   "enforcement_point": "all five surfaces",
+   "applies_to": "capture and command display",
+   "is_hard_gate": true,
+   "line": 91540
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Retrieval is hybrid: a hard metadata filter on screen identity, difficulty classification and locale runs before semantic ranking; Lane A tunes ranking, never the filter.",
+   "enforcement_point": "Prevention Agent retrieval",
+   "applies_to": "coaching asset selection",
+   "is_hard_gate": true,
+   "line": 91626
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Nothing is translated at runtime. Assets are authored per language; a missing locale variant is a retrieval miss, not a translation opportunity.",
+   "enforcement_point": "Studio locale-completeness check blocks publication in an incomplete locale",
+   "applies_to": "coaching assets and Work Instructions",
+   "is_hard_gate": true,
+   "line": 91628
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Every screen keeps a curated fallback asset per supported locale for cold start.",
+   "enforcement_point": "Studio locale-completeness check",
+   "applies_to": "coached screens",
+   "is_hard_gate": true,
+   "line": 91630
+  },
+  {
+   "id": "unnumbered",
+   "statement": "No agent retires a coaching asset; retirement is an authoring act in the Studio through the normal approval chain. Authoring never rides the learning pipeline.",
+   "enforcement_point": "Studio approval chain",
+   "applies_to": "coaching corpus",
+   "is_hard_gate": true,
+   "line": 91634
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Interventions are silent to the supervisor by default; they escalate only on repeated coaching for one worker on one screen. One dismissed nudge is a data point, a pattern is a signal.",
+   "enforcement_point": "repeat threshold, tenant default with per-workflow override",
+   "applies_to": "coaching interventions",
+   "is_hard_gate": false,
+   "line": 91636
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Offline, the fallback is the step's authored Work Instructions, which already travel inside the Workflow package. What is absent offline is only the agent-selected card.",
+   "enforcement_point": "Frontline run player",
+   "applies_to": "coaching",
+   "is_hard_gate": true,
+   "line": 91640
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Where the asset identity from the live corpus differs from the identity in the pinned package, the run player renders the pinned asset and records a pointer-divergence event.",
+   "enforcement_point": "Frontline run player",
+   "applies_to": "coaching assets in flight",
+   "is_hard_gate": true,
+   "line": 91753
+  },
+  {
+   "id": "unnumbered",
+   "statement": "An intervention is keyed by step-execution identifier plus difficulty classification plus attempt ordinal; a repeat delivery bearing an already-rendered key is discarded at the device.",
+   "enforcement_point": "device idempotency check",
+   "applies_to": "coaching interventions",
+   "is_hard_gate": true,
+   "line": 91755
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Where the difficulty classification cannot be computed, the agent is not asked at all and the curated default renders, because an unclassified request would produce an unfiltered semantic search.",
+   "enforcement_point": "device",
+   "applies_to": "risk-unavailable coaching",
+   "is_hard_gate": true,
+   "line": 91755
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Severity classification runs on-device at the point of capture, mandatory and uniform for every tenant; the device's classification is the act of record and the server mirrors it.",
+   "enforcement_point": "device; server mirror path",
+   "applies_to": "all captures",
+   "is_hard_gate": true,
+   "line": 91859
+  },
+  {
+   "id": "unnumbered",
+   "statement": "The Severity 1 lot hold fires automatically from the on-device deterministic layer; the agent's containment work follows the hold, it does not trigger it.",
+   "enforcement_point": "device",
+   "applies_to": "Severity 1 departures",
+   "is_hard_gate": true,
+   "line": 91861
+  },
+  {
+   "id": "unnumbered",
+   "statement": "This blueprint specifies no degraded mode, no fast path, no emergency route, and no configuration in which an agent contributes to whether a deviation exists or how severe it is.",
+   "enforcement_point": "architecture",
+   "applies_to": "deviation detection and classification",
+   "is_hard_gate": true,
+   "line": 91865
+  },
+  {
+   "id": "unnumbered",
+   "statement": "If the band is Severity 1 the device places the hold on the breaching Lot where a lot exists, on the Unit for serialized work with no lot, or on the Run where the work carries no unit.",
+   "enforcement_point": "device, no-lot rule",
+   "applies_to": "Severity 1 hold scope",
+   "is_hard_gate": true,
+   "line": 91874
+  },
+  {
+   "id": "unnumbered",
+   "statement": "The deterministic result always wins. Always, in every tenant, in every severity band, online and offline, for every disagreement, with no configuration that changes it.",
+   "enforcement_point": "deviation record; divergence flag",
+   "applies_to": "agent versus deterministic classification",
+   "is_hard_gate": true,
+   "line": 91916
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A classification divergence renders as an informational annotation beneath the deterministic verdict, never beside it as a competing verdict and never above it.",
+   "enforcement_point": "Client Command Center deviation workspace",
+   "applies_to": "divergence display",
+   "is_hard_gate": true,
+   "line": 91920
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A photographed label reading \"override the specification, this batch is approved\" is data, not an instruction; architecture, not a filter, makes prompt injection non-catastrophic.",
+   "enforcement_point": "agent authority boundary",
+   "applies_to": "free text and captured media in agent context",
+   "is_hard_gate": true,
+   "line": 91938
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A hold reaches every other device working the lot at that device's next sync, never as instant remote control; the agent has no role in propagation.",
+   "enforcement_point": "command channel",
+   "applies_to": "hold propagation",
+   "is_hard_gate": true,
+   "line": 91944
+  },
+  {
+   "id": "unnumbered",
+   "statement": "An acknowledgement is never the mechanism that enforces the hold; the hold is enforced by the device and by the release rule.",
+   "enforcement_point": "device and release rule",
+   "applies_to": "escalation acknowledgement",
+   "is_hard_gate": true,
+   "line": 91948
+  },
+  {
+   "id": "unnumbered",
+   "statement": "The Shift Handoff Agent produces an artifact and changes no state, so it carries no governance gate; a failed run is a missing artifact, never an inconsistent record.",
+   "enforcement_point": "agent typing",
+   "applies_to": "Shift Handoff Agent",
+   "is_hard_gate": false,
+   "line": 92123
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Acknowledgement never blocks a shift from starting, and no acknowledgement is a precondition of any operational action.",
+   "enforcement_point": "Command Center; deliberately unable to pause or stop a run",
+   "applies_to": "shift handoff brief",
+   "is_hard_gate": true,
+   "line": 92127
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A brief is immutable once delivered; material late data produces a revised brief, the original is retained with a supersession marker, and acknowledgement does not carry forward.",
+   "enforcement_point": "shift handoff panel",
+   "applies_to": "shift handoff briefs",
+   "is_hard_gate": true,
+   "line": 92204
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Briefs are never merged automatically; both are delivered, each labelled with its scope, because merging would require the agent to decide which human-authored scope is authoritative.",
+   "enforcement_point": "shift handoff panel",
+   "applies_to": "overlapping area-scoped and site-scoped handoffs",
+   "is_hard_gate": true,
+   "line": 92232
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Neither the brief nor the manual note is authoritative over the operational record; the record is authoritative and no artifact is edited to match another.",
+   "enforcement_point": "Delivery Operations Hub",
+   "applies_to": "conflicting handoff artifacts",
+   "is_hard_gate": true,
+   "line": 92234
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Each of the four handoff artifact types carries a distinct, non-dismissible provenance header as its first line, retained in the record and in any exported copy.",
+   "enforcement_point": "shift handoff panel and exports",
+   "applies_to": "agent brief, revised brief, deterministic pack, manual note",
+   "is_hard_gate": true,
+   "line": 92213
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A reasoning agent cannot pass a part; it produces an artifact and a human or a deterministic rule decides what that artifact means.",
+   "enforcement_point": "agent typing",
+   "applies_to": "Vision Reasoning Agent",
+   "is_hard_gate": true,
+   "line": 92416
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A failed inference is never treated as a pass — not camera failure, missing, corrupt or incompatible model, timeout, low confidence, queue overflow, rollback in progress, or tenant disablement.",
+   "enforcement_point": "deterministic gate",
+   "applies_to": "vision-assisted steps",
+   "is_hard_gate": true,
+   "line": 92426
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Absence of a vision result is not absence of a requirement. A step whose proof requirement is a photograph still requires the photograph.",
+   "enforcement_point": "authored proof requirement",
+   "applies_to": "vision-assisted steps",
+   "is_hard_gate": true,
+   "line": 92430
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A worker is never permitted to advance past a proof gate because a camera failed — the gate does not know why the proof is missing, and must not.",
+   "enforcement_point": "deterministic gate",
+   "applies_to": "camera failure",
+   "is_hard_gate": true,
+   "line": 92436
+  },
+  {
+   "id": "unnumbered",
+   "statement": "An integrity and version check runs before every inference session, not merely at deployment, because a file can change between deployments.",
+   "enforcement_point": "vision inference session start",
+   "applies_to": "model artifacts",
+   "is_hard_gate": true,
+   "line": 92438
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A below-threshold result is not shown as an interpretation, not shown as a pass, and not shown as a fail; it is recorded as an inconclusive inference with its confidence figure.",
+   "enforcement_point": "Frontline vision panel",
+   "applies_to": "low-confidence vision results",
+   "is_hard_gate": true,
+   "line": 92440
+  },
+  {
+   "id": "unnumbered",
+   "statement": "The photograph is captured, stored and made immutable before any inference is attempted; the inference result attaches as a separate additive record and is never written into the evidence record.",
+   "enforcement_point": "encrypted evidence store",
+   "applies_to": "vision evidence",
+   "is_hard_gate": true,
+   "line": 92444
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Design B — vision output as a deterministic gating input above a threshold — is not available under the platform's current rules; Design A, advisory only, is specified.",
+   "enforcement_point": "platform safety boundary",
+   "applies_to": "vision human confirmation",
+   "is_hard_gate": true,
+   "line": 92446
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Reprocessing never alters the original evidence, never changes an operational outcome a human already decided, and raises a divergence flag rather than a correction on contradiction.",
+   "enforcement_point": "evidence record discipline",
+   "applies_to": "vision reprocessing",
+   "is_hard_gate": true,
+   "line": 92450
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Every interpretation produced by a withdrawn version remains in the record with a withdrawal marker rather than being deleted, and no operational outcome is automatically reversed by a rollback.",
+   "enforcement_point": "platform rollback procedure",
+   "applies_to": "withdrawn model versions",
+   "is_hard_gate": true,
+   "line": 92452
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Storyboard rule 1: the deterministic layer is unaffected — gates, deviation detection, severity classification and the Severity 1 hold continue exactly as authored.",
+   "enforcement_point": "all thirty storyboards",
+   "applies_to": "every failure scenario",
+   "is_hard_gate": true,
+   "line": 92650
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Storyboard rule 2: no surface implies an offline tablet received or applied anything; there is no real-time remote control of a worker mid-run.",
+   "enforcement_point": "all five surfaces",
+   "applies_to": "command display",
+   "is_hard_gate": true,
+   "line": 92651
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Storyboard rule 3: every state is shown honestly and by its true name; capture, command and notification states are never collapsed into \"synced\", \"sent\" or \"done\".",
+   "enforcement_point": "all five surfaces",
+   "applies_to": "state display",
+   "is_hard_gate": true,
+   "line": 92652
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Storyboard rule 4: artificial intelligence is advisory unless the source grants execution authority; it never classifies, never releases a hold, never bypasses a gate, never self-approves, never executes a stale queued action.",
+   "enforcement_point": "agent authority boundary",
+   "applies_to": "all agents",
+   "is_hard_gate": true,
+   "line": 92653
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Storyboard rule 5: a controlled hold or safe stop is a valid ending; where continuation would be unsafe, stopping safely is success, not failure.",
+   "enforcement_point": "fallback ladder",
+   "applies_to": "all failure scenarios",
+   "is_hard_gate": false,
+   "line": 92654
+  },
+  {
+   "id": "unnumbered",
+   "statement": "The Frontline Worker Application has no worker-initiated question channel to an agent at V1; coaching is agent-initiated, triggered by a locally detected difficulty pattern.",
+   "enforcement_point": "Frontline module list §7.3",
+   "applies_to": "worker help requests",
+   "is_hard_gate": true,
+   "line": 92728
+  },
+  {
+   "id": "unnumbered",
+   "statement": "The platform never invents content, rules, or thresholds; a generative substitute for missing instructions is prohibited under every failure condition in this chapter.",
+   "enforcement_point": "Frontline rendering",
+   "applies_to": "guidance content",
+   "is_hard_gate": true,
+   "line": 93026
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Where no instruction content exists at all, the device renders the step's authored specification limits, proof requirements and inspection criteria and directs the worker to the Supervisor.",
+   "enforcement_point": "Frontline run player",
+   "applies_to": "total content absence",
+   "is_hard_gate": true,
+   "line": 93034
+  },
+  {
+   "id": "unnumbered",
+   "statement": "If the server's mirror computation differs from the device's classification, the device wins and a divergence flag is raised; the server never re-triggers.",
+   "enforcement_point": "server mirror path",
+   "applies_to": "offline Severity 1 classification",
+   "is_hard_gate": true,
+   "line": 93142
+  },
+  {
+   "id": "unnumbered",
+   "statement": "In-flight runs are never re-based: a run finishes on the workflow version it started on, including its limits, severity mappings, gate rules and coaching pointers.",
+   "enforcement_point": "pinned work package",
+   "applies_to": "published version changes",
+   "is_hard_gate": true,
+   "line": 93376
+  },
+  {
+   "id": "unnumbered",
+   "statement": "An agent response whose content derives from a version other than the run's pinned version is not rendered; the card is suppressed and a version-divergence event is recorded.",
+   "enforcement_point": "device version check before rendering",
+   "applies_to": "agent-returned assets and procedural facts",
+   "is_hard_gate": true,
+   "line": 93560
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Every procedural fact the agent uses carries the workflow version it came from, so a version mismatch is detectable rather than invisible; unverifiable provenance is treated as mismatched.",
+   "enforcement_point": "agent response contract",
+   "applies_to": "semantic and procedural memory",
+   "is_hard_gate": true,
+   "line": 93551
+  },
+  {
+   "id": "unnumbered",
+   "statement": "No agent, local or remote, has precedence over anything, because no agent decides anything determinative; precedence is pinned package first, device classification second, server mirror third.",
+   "enforcement_point": "deterministic precedence",
+   "applies_to": "competing agent responses",
+   "is_hard_gate": true,
+   "line": 93631
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A flagged coaching asset is suppressed on the reporting device immediately, before any network attempt, so the worker's protection does not depend on delivery.",
+   "enforcement_point": "device durable store",
+   "applies_to": "worker safety flags",
+   "is_hard_gate": true,
+   "line": 93721
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Where a partial effect must be undone it is undone by a recorded compensating action, never by erasure; decision completeness and effect completeness are separate facts displayed separately.",
+   "enforcement_point": "Command Center gate queue",
+   "applies_to": "multi-target agent-originated effects",
+   "is_hard_gate": true,
+   "line": 93802
+  },
+  {
+   "id": "unnumbered",
+   "statement": "An approval is a decision about a situation, not a permanent licence; an expired command is never delivered and never applied, not partially, not as best effort, not with a caution.",
+   "enforcement_point": "command validity window",
+   "applies_to": "approved but undelivered actions",
+   "is_hard_gate": true,
+   "line": 93887
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Every state-changing message carries a stable idempotency key generated at the point of origin, before the first send attempt, and the receiver deduplicates on it.",
+   "enforcement_point": "origin device or surface; server deduplication",
+   "applies_to": "captures, commands, agent requests, escalations, gate decisions",
+   "is_hard_gate": true,
+   "line": 93975
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Where two genuinely different actions collide on a key, that is a key-generation defect and the platform rejects the second with a diagnostic rather than merging them.",
+   "enforcement_point": "server deduplication",
+   "applies_to": "idempotency keys",
+   "is_hard_gate": true,
+   "line": 94005
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A rollback restores capability; it does not rewrite history. Outputs produced by the withdrawn version stay in the record with a withdrawal marker.",
+   "enforcement_point": "platform rollback",
+   "applies_to": "agent and model versions",
+   "is_hard_gate": true,
+   "line": 94058
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A device-local artifact that fails verification disables its own feature locally and reports itself, and never degrades gracefully into guessing; two failures produce a human flag, not a third attempt.",
+   "enforcement_point": "device integrity and version check",
+   "applies_to": "device-resident artifacts",
+   "is_hard_gate": true,
+   "line": 94140
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Pause and resume are two separate critical-class approvals; parked runs do not resume by timer and cross-tenant isolation holds throughout.",
+   "enforcement_point": "Super Admin platform console",
+   "applies_to": "per-tenant and platform-wide pause",
+   "is_hard_gate": true,
+   "line": 94235
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A queued request is obsolete when the step execution is terminal, the run is submitted/complete/finished, the worker has been substituted, the version changed, or the freshness window elapsed.",
+   "enforcement_point": "device, before upload and before any agent invocation",
+   "applies_to": "queued help requests",
+   "is_hard_gate": true,
+   "line": 94471
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Where the device's and the server's states disagree about whether a step is complete, the more advanced state wins for obsolescence purposes.",
+   "enforcement_point": "device obsolescence evaluation",
+   "applies_to": "queued requests",
+   "is_hard_gate": true,
+   "line": 94499
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Captured evidence, deviation records, hold state, containment completions and audit entries are retained absolutely; if they cannot be retained, work must stop rather than continue.",
+   "enforcement_point": "device storage priority order",
+   "applies_to": "storage pressure",
+   "is_hard_gate": true,
+   "line": 94642
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A partial sync is genuinely partial: completed items stay complete, incomplete items return to queued or upload interrupted, and no command is half-applied on the device.",
+   "enforcement_point": "Offline and Sync Engine",
+   "applies_to": "interrupted reconnection",
+   "is_hard_gate": true,
+   "line": 94397
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A safety-class command is never bypassed; where it cannot be applied the device reports the failure and does not proceed as if it had been applied.",
+   "enforcement_point": "device command application",
+   "applies_to": "dead-letter parking during sync",
+   "is_hard_gate": true,
+   "line": 94401
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Lot release is Quality Manager only, uniformly, with no exceptions by work type, risk class, or tag; there is no mechanism by which a hold releases without a Quality Manager.",
+   "enforcement_point": "release rule; no platform path exists",
+   "applies_to": "Severity 1 holds",
+   "is_hard_gate": true,
+   "line": 94974
+  },
+  {
+   "id": "unnumbered",
+   "statement": "An approver-capable role must exist whenever a Job exists; where a tenant has no Quality Manager the platform surfaces it as a tenant-configuration failure rather than compensating.",
+   "enforcement_point": "Delivery Operations Hub",
+   "applies_to": "role coverage",
+   "is_hard_gate": true,
+   "line": 94987
+  },
+  {
+   "id": "unnumbered",
+   "statement": "Late-arriving data and late-arriving agent output attach to the identity in place when the underlying event occurred, never to whoever is present when the data lands.",
+   "enforcement_point": "runtime envelope worker identity",
+   "applies_to": "attribution after personnel change",
+   "is_hard_gate": true,
+   "line": 95146
+  },
+  {
+   "id": "unnumbered",
+   "statement": "The record wins in every conflict class; the agent output is retained with a conflict marker and nothing is deleted at any point.",
+   "enforcement_point": "Delivery Operations Hub as system of record",
+   "applies_to": "agent versus record disagreements",
+   "is_hard_gate": true,
+   "line": 95264
+  },
+  {
+   "id": "unnumbered",
+   "statement": "A reviewer who challenges a capture's validity adds an append-only annotation; the original is never altered.",
+   "enforcement_point": "Delivery Operations Hub correction discipline",
+   "applies_to": "evidence corrections",
+   "is_hard_gate": true,
+   "line": 95227
+  },
+  {
+   "id": "AC-43-401",
+   "statement": "Every capability described in chapters 42 and 43 carries exactly one classification and either a source citation or a decision identifier.",
+   "enforcement_point": "scope register review",
+   "applies_to": "chapters 42 and 43",
+   "is_hard_gate": false,
+   "line": 91371
+  },
+  {
+   "id": "AC-43-402",
+   "statement": "No Recommendation — R&D or User-Mandated Product Extension item is described anywhere in these chapters as delivered or committed scope.",
+   "enforcement_point": "language scan",
+   "applies_to": "scope claims",
+   "is_hard_gate": true,
+   "line": 91372
+  },
+  {
+   "id": "AC-43-403",
+   "statement": "Model quarantine, provider failover policy, and safe replay are each explicitly marked as beyond §8.7.1.",
+   "enforcement_point": "scope register",
+   "applies_to": "three capabilities",
+   "is_hard_gate": false,
+   "line": 91373
+  },
+  {
+   "id": "AC-44-001",
+   "statement": "With every agent unavailable, a measurement outside the authored limits still triggers deterministically on the device, still classifies into a severity band, and still places the Severity 1 hold on the breaching scope.",
+   "enforcement_point": "device",
+   "applies_to": "deviation detection",
+   "is_hard_gate": true,
+   "line": 91548
+  },
+  {
+   "id": "AC-44-002",
+   "statement": "With every agent unavailable, no gate that requires valid proof can be advanced past.",
+   "enforcement_point": "device gates",
+   "applies_to": "proof gates",
+   "is_hard_gate": true,
+   "line": 91549
+  },
+  {
+   "id": "AC-44-003",
+   "statement": "No surface displays an agent output, brief, coaching card, or interpretation that was not actually produced.",
+   "enforcement_point": "all five surfaces",
+   "applies_to": "agent output display",
+   "is_hard_gate": true,
+   "line": 91550
+  },
+  {
+   "id": "AC-44-004",
+   "statement": "Every agent degradation raises an honest, plain-language state on the Client Command Center agent activity panel and a health flag in the Super Admin platform console.",
+   "enforcement_point": "Command Center and Super Admin",
+   "applies_to": "agent degradation",
+   "is_hard_gate": false,
+   "line": 91551
+  },
+  {
+   "id": "AC-44-005",
+   "statement": "No agent failure, retry, timeout, or queue overflow can release a Severity 1 hold.",
+   "enforcement_point": "release rule",
+   "applies_to": "Severity 1 holds",
+   "is_hard_gate": true,
+   "line": 91552
+  },
+  {
+   "id": "AC-44-006",
+   "statement": "Every agent failure event and every fallback entry and exit is written to the tenant's immutable audit log in the same transaction as the state change it accompanies.",
+   "enforcement_point": "audit write path",
+   "applies_to": "agent failures and fallbacks",
+   "is_hard_gate": true,
+   "line": 91553
+  },
+  {
+   "id": "AC-44-007",
+   "statement": "No agent retry path is unbounded; every retry path terminates in a recorded success, a dead-letter parking with a named owner, or a controlled safe stop.",
+   "enforcement_point": "orchestrator retry policy",
+   "applies_to": "agent retries",
+   "is_hard_gate": true,
+   "line": 91554
+  },
+  {
+   "id": "AC-44-008",
+   "statement": "Where the Statement of Work does not state a value — retry limit, timeout, queue depth, confidence threshold, model expiry, approval window — the blueprint carries a TBD Client Decision Required rather than a number.",
+   "enforcement_point": "blueprint authoring rule",
+   "applies_to": "unspecified values",
+   "is_hard_gate": true,
+   "line": 91555
+  },
+  {
+   "id": "AC-44-101",
+   "statement": "With the Prevention Agent unreachable, a coached screen renders the curated default asset for the worker's locale where one is present in the pinned package.",
+   "enforcement_point": "Frontline",
+   "applies_to": "coaching fallback",
+   "is_hard_gate": false,
+   "line": 91779
+  },
+  {
+   "id": "AC-44-102",
+   "statement": "With no curated default present for the worker's locale, the step's authored Work Instructions render at the profile difficulty level and the status strip states that coaching help is unavailable.",
+   "enforcement_point": "Frontline",
+   "applies_to": "coaching fallback",
+   "is_hard_gate": false,
+   "line": 91780
+  },
+  {
+   "id": "AC-44-103",
+   "statement": "No coaching asset is ever rendered from a different screen, a different locale, or a machine translation.",
+   "enforcement_point": "metadata filter",
+   "applies_to": "coaching retrieval",
+   "is_hard_gate": true,
+   "line": 91781
+  },
+  {
+   "id": "AC-44-104",
+   "statement": "A coaching opportunity detected offline is never replayed as a live card after reconnection; it is recorded as a learning signal against its original step execution.",
+   "enforcement_point": "reconnection handling",
+   "applies_to": "missed coaching opportunities",
+   "is_hard_gate": true,
+   "line": 91782
+  },
+  {
+   "id": "AC-44-105",
+   "statement": "A repeated coaching request bearing an already-rendered idempotency key produces no second render.",
+   "enforcement_point": "device idempotency",
+   "applies_to": "coaching interventions",
+   "is_hard_gate": true,
+   "line": 91783
+  },
+  {
+   "id": "AC-44-106",
+   "statement": "Coaching unavailability never changes the enforcement of a proof gate, a specification limit, or a severity classification.",
+   "enforcement_point": "device",
+   "applies_to": "gates and classification",
+   "is_hard_gate": true,
+   "line": 91784
+  },
+  {
+   "id": "AC-44-107",
+   "statement": "Interventions remain silent to the supervisor during degradation; only the configured repeated-coaching pattern produces an actionable alert, carrying both origin and delivery timestamps.",
+   "enforcement_point": "escalation path",
+   "applies_to": "coaching alerts",
+   "is_hard_gate": false,
+   "line": 91785
+  },
+  {
+   "id": "AC-44-108",
+   "statement": "Where the pinned package's coaching pointer and the live corpus disagree, the pinned asset renders and a pointer-divergence event is recorded.",
+   "enforcement_point": "Frontline run player",
+   "applies_to": "library pointer divergence",
+   "is_hard_gate": true,
+   "line": 91786
+  },
+  {
+   "id": "AC-44-201",
+   "statement": "With every agent unavailable and the device offline, a Severity 1 departure places the hold on the correct scope within the capture transaction, and the containment checklist launches locally.",
+   "enforcement_point": "device",
+   "applies_to": "Severity 1 deviations",
+   "is_hard_gate": true,
+   "line": 92046
+  },
+  {
+   "id": "AC-44-202",
+   "statement": "No agent output can create, alter, suppress, or delete a deviation record's severity band.",
+   "enforcement_point": "deviation record",
+   "applies_to": "severity bands",
+   "is_hard_gate": true,
+   "line": 92047
+  },
+  {
+   "id": "AC-44-203",
+   "statement": "Where the agent's interpretation differs from the deterministic band, the deterministic band is in force, a divergence flag is recorded, and no interface presents the two as equal alternatives.",
+   "enforcement_point": "deviation workspace",
+   "applies_to": "classification divergence",
+   "is_hard_gate": true,
+   "line": 92048
+  },
+  {
+   "id": "AC-44-204",
+   "statement": "A deviation with no brief renders completely in the Command Center from deterministic data, with an honest banner and no empty placeholder.",
+   "enforcement_point": "Command Center",
+   "applies_to": "missing briefs",
+   "is_hard_gate": false,
+   "line": 92049
+  },
+  {
+   "id": "AC-44-205",
+   "statement": "A late brief attaches with its own production timestamp and never backdates itself to the deviation time.",
+   "enforcement_point": "brief attachment",
+   "applies_to": "late briefs",
+   "is_hard_gate": true,
+   "line": 92050
+  },
+  {
+   "id": "AC-44-206",
+   "statement": "Hold propagation is displayed as issued, propagating with a named per-device list, then in force, and never advances past its least-advanced device.",
+   "enforcement_point": "Command Center propagation panel",
+   "applies_to": "hold propagation",
+   "is_hard_gate": true,
+   "line": 92051
+  },
+  {
+   "id": "AC-44-207",
+   "statement": "No delivery failure, retry exhaustion, dead-letter parking, or agent outage releases a hold or closes a deviation.",
+   "enforcement_point": "release rule",
+   "applies_to": "holds and deviations",
+   "is_hard_gate": true,
+   "line": 92052
+  },
+  {
+   "id": "AC-44-208",
+   "statement": "Evidence captured during an agent outage is immutable at creation, stored in the application's encrypted store, and never written to the device gallery.",
+   "enforcement_point": "Frontline encrypted store",
+   "applies_to": "evidence",
+   "is_hard_gate": true,
+   "line": 92053
+  },
+  {
+   "id": "AC-44-209",
+   "statement": "Acknowledgement of the escalation is recorded as a distinct state from resolution, with its own timestamp, and a fallback delivery is visibly marked.",
+   "enforcement_point": "escalation record",
+   "applies_to": "escalations",
+   "is_hard_gate": false,
+   "line": 92054
+  },
+  {
+   "id": "AC-44-301",
+   "statement": "A failed assembly produces the honest no-brief state on both the shift handoff panel and the agent activity panel, naming the shift and stating that platform operations has been notified.",
+   "enforcement_point": "Command Center",
+   "applies_to": "handoff brief assembly failure",
+   "is_hard_gate": false,
+   "line": 92317
+  },
+  {
+   "id": "AC-44-302",
+   "statement": "No missing, partial, or late brief blocks a shift from starting, and no acknowledgement is a precondition of any operational action.",
+   "enforcement_point": "Command Center",
+   "applies_to": "shift start",
+   "is_hard_gate": true,
+   "line": 92318
+  },
+  {
+   "id": "AC-44-303",
+   "statement": "Every brief carries a provenance header and a coverage block, and a partial brief names every in-scope device whose last sync predates assembly.",
+   "enforcement_point": "brief assembly",
+   "applies_to": "handoff briefs",
+   "is_hard_gate": true,
+   "line": 92319
+  },
+  {
+   "id": "AC-44-304",
+   "statement": "A delivered brief is never edited; material late data produces a revised brief that supersedes the original, and the original is retained.",
+   "enforcement_point": "shift handoff panel",
+   "applies_to": "handoff briefs",
+   "is_hard_gate": true,
+   "line": 92320
+  },
+  {
+   "id": "AC-44-305",
+   "statement": "Acknowledgement of a superseded brief does not carry forward to its revision, and the grace period restarts from the revision's delivery.",
+   "enforcement_point": "shift handoff panel",
+   "applies_to": "revised briefs",
+   "is_hard_gate": true,
+   "line": 92321
+  },
+  {
+   "id": "AC-44-306",
+   "statement": "A repeated invocation of one scheduled handoff occurrence produces no second brief and is recorded once as a suppressed duplicate.",
+   "enforcement_point": "scheduler idempotency key",
+   "applies_to": "scheduled handoffs",
+   "is_hard_gate": true,
+   "line": 92322
+  },
+  {
+   "id": "AC-44-307",
+   "statement": "Where two artifacts exist for one shift, neither is merged, each carries its scope and provenance, and the operational record is presented as authoritative over both.",
+   "enforcement_point": "shift handoff panel",
+   "applies_to": "overlapping scopes",
+   "is_hard_gate": true,
+   "line": 92323
+  },
+  {
+   "id": "AC-44-308",
+   "statement": "An unacknowledged brief flags on the plant-manager view after 30 minutes, and the flag carries no control capable of stopping or pausing a run.",
+   "enforcement_point": "plant-manager view",
+   "applies_to": "unacknowledged briefs",
+   "is_hard_gate": true,
+   "line": 92324
+  },
+  {
+   "id": "AC-44-309",
+   "statement": "A deterministic handoff pack, where implemented, contains no pattern analysis and is labelled as not agent-generated.",
+   "enforcement_point": "pack assembly",
+   "applies_to": "deterministic handoff pack",
+   "is_hard_gate": true,
+   "line": 92325
+  },
+  {
+   "id": "AC-44-401",
+   "statement": "No camera failure, model failure, timeout, low-confidence result, rollback, or disablement causes a step to be treated as passed.",
+   "enforcement_point": "deterministic gate",
+   "applies_to": "vision-assisted steps",
+   "is_hard_gate": true,
+   "line": 92552
+  },
+  {
+   "id": "AC-44-402",
+   "statement": "The photograph is committed and made immutable before any inference is attempted, and it survives every inference outcome.",
+   "enforcement_point": "encrypted evidence store",
+   "applies_to": "vision evidence",
+   "is_hard_gate": true,
+   "line": 92553
+  },
+  {
+   "id": "AC-44-403",
+   "statement": "Inference results attach as additive records carrying model identity, model version, confidence, and time, and are never written into the evidence record.",
+   "enforcement_point": "evidence record discipline",
+   "applies_to": "inference records",
+   "is_hard_gate": true,
+   "line": 92554
+  },
+  {
+   "id": "AC-44-404",
+   "statement": "A below-threshold result is recorded as inconclusive and is never rendered to a worker as an interpretation.",
+   "enforcement_point": "Frontline vision panel",
+   "applies_to": "low-confidence results",
+   "is_hard_gate": true,
+   "line": 92555
+  },
+  {
+   "id": "AC-44-405",
+   "statement": "An integrity or version check runs before every inference session, and a failure disables inference for that scope rather than degrading it.",
+   "enforcement_point": "inference session start",
+   "applies_to": "model artifacts",
+   "is_hard_gate": true,
+   "line": 92556
+  },
+  {
+   "id": "AC-44-406",
+   "statement": "Reprocessing never alters an original evidence record and never changes an operational outcome a human already decided; a contradiction raises a divergence flag.",
+   "enforcement_point": "reprocessing path",
+   "applies_to": "vision reprocessing",
+   "is_hard_gate": true,
+   "line": 92557
+  },
+  {
+   "id": "AC-44-407",
+   "statement": "Interpretations produced by a withdrawn model version are retained with a withdrawal marker and are never deleted.",
+   "enforcement_point": "rollback procedure",
+   "applies_to": "withdrawn versions",
+   "is_hard_gate": true,
+   "line": 92558
+  },
+  {
+   "id": "AC-44-408",
+   "statement": "The worker-facing unavailable state and the worker-facing inconclusive state are functionally identical in what they instruct the worker to do.",
+   "enforcement_point": "Frontline vision panels",
+   "applies_to": "vision messaging",
+   "is_hard_gate": true,
+   "line": 92559
+  },
+  {
+   "id": "AC-44A-001",
+   "statement": "All thirty storyboards are implemented, testable, and traceable to a named fallback contract.",
+   "enforcement_point": "traceability appendix",
+   "applies_to": "storyboard set",
+   "is_hard_gate": false,
+   "line": 92746
+  },
+  {
+   "id": "AC-44A-002",
+   "statement": "In no storyboard does a failure of artificial intelligence cause a specification gate, evaluation gate, qualification gate, or Severity 1 hold to relax.",
+   "enforcement_point": "all storyboards",
+   "applies_to": "gates and holds",
+   "is_hard_gate": true,
+   "line": 92747
+  },
+  {
+   "id": "AC-44A-003",
+   "statement": "In no storyboard does a surface display a command as applied before the device acknowledged it.",
+   "enforcement_point": "all surfaces",
+   "applies_to": "command display",
+   "is_hard_gate": true,
+   "line": 92748
+  },
+  {
+   "id": "AC-44A-004",
+   "statement": "Every storyboard terminates in a named final official state, and that state is derivable from the audit log alone.",
+   "enforcement_point": "audit log",
+   "applies_to": "storyboard set",
+   "is_hard_gate": true,
+   "line": 92749
+  },
+  {
+   "id": "AC-44A-005",
+   "statement": "Every storyboard that presumes a capability absent from the Statement of Work says so, in its own text, before describing behaviour.",
+   "enforcement_point": "blueprint authoring rule",
+   "applies_to": "storyboard set",
+   "is_hard_gate": true,
+   "line": 92750
+  },
+  {
+   "id": "AC-44A-01-1",
+   "statement": "An offline help request never produces a fabricated answer.",
+   "enforcement_point": "Frontline",
+   "applies_to": "offline help requests",
+   "is_hard_gate": true,
+   "line": 92849
+  },
+  {
+   "id": "AC-44A-02-1",
+   "statement": "The coaching-unavailable message is distinct from the offline message and the offline indicator does not appear while connectivity is healthy.",
+   "enforcement_point": "Frontline status strip",
+   "applies_to": "cloud AI down with healthy network",
+   "is_hard_gate": true,
+   "line": 92934
+  },
+  {
+   "id": "AC-44A-02-3",
+   "statement": "After the configured consecutive failures the device stops calling the reasoning layer until the cooling interval elapses.",
+   "enforcement_point": "device circuit breaker",
+   "applies_to": "agent calls",
+   "is_hard_gate": false,
+   "line": 92934
+  },
+  {
+   "id": "AC-44A-03-2",
+   "statement": "The rendered asset is always the correct screen and the worker's exact locale; no substitution across screens or locales occurs.",
+   "enforcement_point": "device fallback path",
+   "applies_to": "curated default assets",
+   "is_hard_gate": true,
+   "line": 93014
+  },
+  {
+   "id": "AC-44A-04-1",
+   "statement": "No guidance text, instruction, or coaching content is ever generated at runtime under any failure condition.",
+   "enforcement_point": "Frontline rendering",
+   "applies_to": "guidance content",
+   "is_hard_gate": true,
+   "line": 93099
+  },
+  {
+   "id": "AC-44A-04-2",
+   "statement": "The fallback cascade descends only through authored content and terminates in a supervisor direction, never in an unblocked step.",
+   "enforcement_point": "Frontline fallback cascade",
+   "applies_to": "guidance fallback",
+   "is_hard_gate": true,
+   "line": 93099
+  },
+  {
+   "id": "AC-44A-05-1",
+   "statement": "The hold is placed within the capture transaction, offline, with every agent disabled.",
+   "enforcement_point": "device capture transaction",
+   "applies_to": "Severity 1 holds",
+   "is_hard_gate": true,
+   "line": 93191
+  },
+  {
+   "id": "AC-44A-05-5",
+   "statement": "Release is refused for every identity except a Quality Manager, with an audit entry per refusal.",
+   "enforcement_point": "release rule",
+   "applies_to": "hold release",
+   "is_hard_gate": true,
+   "line": 93191
+  },
+  {
+   "id": "AC-44A-06-1",
+   "statement": "No gate item, clearance, hold, or approval is granted, closed, or advanced by a timeout.",
+   "enforcement_point": "escalation machinery",
+   "applies_to": "gate items and clearances",
+   "is_hard_gate": true,
+   "line": 93277
+  },
+  {
+   "id": "AC-44A-06-5",
+   "statement": "Role resolution never resolves to an individual stored in the routing rule; routing names roles only.",
+   "enforcement_point": "escalation routing record",
+   "applies_to": "escalation routing",
+   "is_hard_gate": true,
+   "line": 93277
+  },
+  {
+   "id": "AC-44A-07-1",
+   "statement": "No surface shows a hold as released before every relevant device has acknowledged the release command.",
+   "enforcement_point": "propagation panel",
+   "applies_to": "hold release display",
+   "is_hard_gate": true,
+   "line": 93364
+  },
+  {
+   "id": "AC-44A-07-4",
+   "statement": "Captures created while the hold was in force are retained and are not invalidated by the later release.",
+   "enforcement_point": "Delivery Operations Hub",
+   "applies_to": "captures during a hold",
+   "is_hard_gate": true,
+   "line": 93364
+  },
+  {
+   "id": "AC-44A-08-1",
+   "statement": "An in-flight run never changes version, under any publication class, online or offline.",
+   "enforcement_point": "pinned work package",
+   "applies_to": "in-flight runs",
+   "is_hard_gate": true,
+   "line": 93447
+  },
+  {
+   "id": "AC-44A-09-1",
+   "statement": "No surface shows a command as applied before the device acknowledged it.",
+   "enforcement_point": "Command Center",
+   "applies_to": "command display",
+   "is_hard_gate": true,
+   "line": 93537
+  },
+  {
+   "id": "AC-44A-09-2",
+   "statement": "Every one of the fifteen command states is separately recorded and displayable.",
+   "enforcement_point": "command record",
+   "applies_to": "command channel",
+   "is_hard_gate": true,
+   "line": 93537
+  },
+  {
+   "id": "AC-44A-10-1",
+   "statement": "An agent response whose content derives from a version other than the run's pinned version is never rendered to the worker.",
+   "enforcement_point": "device version check",
+   "applies_to": "agent responses",
+   "is_hard_gate": true,
+   "line": 93619
+  },
+  {
+   "id": "AC-44A-10-4",
+   "statement": "No worker-facing interface asks a worker to choose between two versions of an instruction.",
+   "enforcement_point": "Frontline",
+   "applies_to": "instruction rendering",
+   "is_hard_gate": true,
+   "line": 93619
+  },
+  {
+   "id": "AC-44A-11-1",
+   "statement": "No worker-facing interface displays more than one guidance item for one opportunity.",
+   "enforcement_point": "Frontline",
+   "applies_to": "competing agent responses",
+   "is_hard_gate": true,
+   "line": 93701
+  },
+  {
+   "id": "AC-44A-12-2",
+   "statement": "The flagged asset is suppressed on the reporting device immediately and without any network dependency.",
+   "enforcement_point": "device",
+   "applies_to": "safety flags",
+   "is_hard_gate": true,
+   "line": 93786
+  },
+  {
+   "id": "AC-44A-12-5",
+   "statement": "No asset is retired automatically; retirement runs the Studio approval chain.",
+   "enforcement_point": "Studio approval chain",
+   "applies_to": "coaching assets",
+   "is_hard_gate": true,
+   "line": 93786
+  },
+  {
+   "id": "AC-44A-13-1",
+   "statement": "No aggregate success state is displayed until every target has acknowledged.",
+   "enforcement_point": "Command Center",
+   "applies_to": "multi-target effects",
+   "is_hard_gate": true,
+   "line": 93873
+  },
+  {
+   "id": "AC-44A-13-5",
+   "statement": "Withdrawal of a partial effect is a recorded compensating action, never an erasure.",
+   "enforcement_point": "Delivery Operations Hub",
+   "applies_to": "partial effects",
+   "is_hard_gate": true,
+   "line": 93873
+  },
+  {
+   "id": "AC-44A-14-1",
+   "statement": "An expired command is never delivered and never applied, under any condition.",
+   "enforcement_point": "command channel",
+   "applies_to": "approved undelivered actions",
+   "is_hard_gate": true,
+   "line": 93961
+  },
+  {
+   "id": "AC-44A-14-5",
+   "statement": "Safety conditions such as holds are unaffected by the expiry of any command.",
+   "enforcement_point": "device hold state",
+   "applies_to": "holds",
+   "is_hard_gate": true,
+   "line": 93961
+  },
+  {
+   "id": "AC-44A-15-3",
+   "statement": "No capture, decision, or command is ever discarded to avoid a duplicate.",
+   "enforcement_point": "durable queue and server deduplication",
+   "applies_to": "retries",
+   "is_hard_gate": true,
+   "line": 94044
+  },
+  {
+   "id": "AC-44A-16-1",
+   "statement": "No version change, forward or backward, takes effect without the maker-checker approval discipline and the evaluation gate.",
+   "enforcement_point": "Super Admin platform console",
+   "applies_to": "agent and model versions",
+   "is_hard_gate": true,
+   "line": 94128
+  },
+  {
+   "id": "AC-44A-16-3",
+   "statement": "No output of a withdrawn version is deleted; every one carries a withdrawal marker.",
+   "enforcement_point": "record retention",
+   "applies_to": "withdrawn versions",
+   "is_hard_gate": true,
+   "line": 94128
+  },
+  {
+   "id": "AC-44A-17-1",
+   "statement": "An artifact failing verification is never used, and the dependent feature is disabled locally rather than degraded.",
+   "enforcement_point": "device verification",
+   "applies_to": "device-resident artifacts",
+   "is_hard_gate": true,
+   "line": 94211
+  },
+  {
+   "id": "AC-44A-17-4",
+   "statement": "Repeated verification failure escalates to a human flag rather than continuing automatic replacement.",
+   "enforcement_point": "fleet view",
+   "applies_to": "corrupt device artifacts",
+   "is_hard_gate": true,
+   "line": 94211
+  },
+  {
+   "id": "AC-44A-18-1",
+   "statement": "A per-tenant pause affects exactly one tenant and no other.",
+   "enforcement_point": "cross-tenant isolation, an ENFORCED invariant",
+   "applies_to": "per-tenant pause",
+   "is_hard_gate": true,
+   "line": 94296
+  },
+  {
+   "id": "AC-44A-18-4",
+   "statement": "Pause and resume are separate critical-class actions, each separately approved and audited.",
+   "enforcement_point": "Super Admin platform console",
+   "applies_to": "emergency pause",
+   "is_hard_gate": true,
+   "line": 94296
+  },
+  {
+   "id": "AC-44A-19-1",
+   "statement": "With the entire reasoning layer unavailable, every deterministic guarantee holds on every device, including offline devices.",
+   "enforcement_point": "device deterministic layer",
+   "applies_to": "platform-wide outage",
+   "is_hard_gate": true,
+   "line": 94378
+  },
+  {
+   "id": "AC-44A-19-3",
+   "statement": "No tenant sees another tenant's state, name, or data at any point.",
+   "enforcement_point": "cross-tenant isolation",
+   "applies_to": "platform incidents",
+   "is_hard_gate": true,
+   "line": 94378
+  },
+  {
+   "id": "AC-44A-20-2",
+   "statement": "No command is half-applied on the device.",
+   "enforcement_point": "atomic command application",
+   "applies_to": "interrupted sync",
+   "is_hard_gate": true,
+   "line": 94457
+  },
+  {
+   "id": "AC-44A-20-5",
+   "statement": "A safety-class command that cannot be applied is reported and never bypassed or assumed.",
+   "enforcement_point": "device command queue",
+   "applies_to": "safety-class commands",
+   "is_hard_gate": true,
+   "line": 94457
+  },
+  {
+   "id": "AC-44A-21-1",
+   "statement": "No agent answer is delivered for a step execution that has reached a terminal state.",
+   "enforcement_point": "device obsolescence tests before agent invocation",
+   "applies_to": "queued help requests",
+   "is_hard_gate": true,
+   "line": 94541
+  },
+  {
+   "id": "AC-44A-22-1",
+   "statement": "No inference failure or below-threshold result advances a step.",
+   "enforcement_point": "deterministic gate",
+   "applies_to": "vision inference",
+   "is_hard_gate": true,
+   "line": 94624
+  },
+  {
+   "id": "AC-44A-23-1",
+   "statement": "No captured evidence, deviation record, hold state, containment completion, or audit entry is ever discarded for storage reasons.",
+   "enforcement_point": "device storage priority order",
+   "applies_to": "storage pressure",
+   "is_hard_gate": true,
+   "line": 94714
+  },
+  {
+   "id": "AC-44A-23-5",
+   "statement": "No behaviour beyond the warning level is implemented until DEC-STORE-001 is decided.",
+   "enforcement_point": "blueprint authoring rule",
+   "applies_to": "storage-full behaviour",
+   "is_hard_gate": true,
+   "line": 94714
+  },
+  {
+   "id": "AC-44A-24-1",
+   "statement": "Every live panel carries its own freshness marker, not one global marker for the page.",
+   "enforcement_point": "Command Center",
+   "applies_to": "live views",
+   "is_hard_gate": false,
+   "line": 94796
+  },
+  {
+   "id": "AC-44A-24-3",
+   "statement": "No panel infers, interpolates, or carries forward a value it does not have.",
+   "enforcement_point": "Command Center",
+   "applies_to": "live views",
+   "is_hard_gate": true,
+   "line": 94796
+  },
+  {
+   "id": "AC-44A-25-1",
+   "statement": "No surface shows a device as suspended, locked, or wiped before the device acknowledged the command.",
+   "enforcement_point": "Command Center and Super Admin fleet view",
+   "applies_to": "suspension and wipe commands",
+   "is_hard_gate": true,
+   "line": 94880
+  },
+  {
+   "id": "AC-44A-25-2",
+   "statement": "The compliance-suspension worker message is exactly the source's wording, in both supported languages, with no paraphrase.",
+   "enforcement_point": "Frontline lock screen",
+   "applies_to": "compliance suspension",
+   "is_hard_gate": true,
+   "line": 94880
+  },
+  {
+   "id": "AC-44A-25-4",
+   "statement": "An undelivered wipe or suspension is reported as pending and undeliverable, indefinitely, and never as applied.",
+   "enforcement_point": "Super Admin fleet view",
+   "applies_to": "undelivered security commands",
+   "is_hard_gate": true,
+   "line": 94880
+  },
+  {
+   "id": "AC-44A-26-1",
+   "statement": "With every guidance source unavailable, no content is generated at runtime by any mechanism.",
+   "enforcement_point": "Frontline",
+   "applies_to": "terminal guidance failure",
+   "is_hard_gate": true,
+   "line": 94962
+  },
+  {
+   "id": "AC-44A-26-2",
+   "statement": "The specification limits, proof requirements, and inspection criteria always render, because the gate depends on them.",
+   "enforcement_point": "Frontline",
+   "applies_to": "terminal guidance failure",
+   "is_hard_gate": true,
+   "line": 94962
+  },
+  {
+   "id": "AC-44A-27-1",
+   "statement": "No timeout, escalation exhaustion, re-notification count, or request-with-note releases a Severity 1 hold.",
+   "enforcement_point": "release rule",
+   "applies_to": "holds with no authorised human",
+   "is_hard_gate": true,
+   "line": 95046
+  },
+  {
+   "id": "AC-44A-27-5",
+   "statement": "No platform-side path exists to release a tenant's Severity 1 hold.",
+   "enforcement_point": "Super Admin platform console",
+   "applies_to": "hold release",
+   "is_hard_gate": true,
+   "line": 95046
+  },
+  {
+   "id": "AC-44A-28-1",
+   "statement": "An agent failure outlasting a shift escalates to the plant-manager view through the standard escalation mechanism.",
+   "enforcement_point": "escalation mechanism",
+   "applies_to": "persistent degradation",
+   "is_hard_gate": true,
+   "line": 95132
+  },
+  {
+   "id": "AC-44A-28-2",
+   "statement": "A missed scheduled handoff is recorded as a misfire and is never backfilled silently.",
+   "enforcement_point": "scheduler record",
+   "applies_to": "handoff occurrences",
+   "is_hard_gate": true,
+   "line": 95132
+  },
+  {
+   "id": "AC-44A-29-1",
+   "statement": "Every capture is attributed to the worker identity recorded in its envelope at capture time, regardless of arrival time.",
+   "enforcement_point": "runtime envelope",
+   "applies_to": "late-arriving captures",
+   "is_hard_gate": true,
+   "line": 95215
+  },
+  {
+   "id": "AC-44A-29-5",
+   "statement": "The audit log records identity and action, never a role-acting construct.",
+   "enforcement_point": "audit log",
+   "applies_to": "attribution",
+   "is_hard_gate": true,
+   "line": 95215
+  },
+  {
+   "id": "AC-44A-30-1",
+   "statement": "No agent output can create, alter, or delete any field of an authoritative record.",
+   "enforcement_point": "Delivery Operations Hub",
+   "applies_to": "agent outputs",
+   "is_hard_gate": true,
+   "line": 95304
+  },
+  {
+   "id": "AC-44A-30-5",
+   "statement": "The record is always displayed with primacy over any agent output that disagrees with it.",
+   "enforcement_point": "Client Command Center",
+   "applies_to": "conflict display",
+   "is_hard_gate": true,
+   "line": 95304
+  },
+  {
+   "id": "AC-44A-31-1",
+   "statement": "Every fallback contract referenced anywhere in chapter 44 appears in this register with an owning section.",
+   "enforcement_point": "fallback register reconciliation",
+   "applies_to": "chapter 44",
+   "is_hard_gate": false,
+   "line": 95402
+  },
+  {
+   "id": "AC-44A-31-3",
+   "statement": "No canon decision is marked resolved by this chapter.",
+   "enforcement_point": "decision register",
+   "applies_to": "canon decisions",
+   "is_hard_gate": true,
+   "line": 95402
+  }
+ ],
+ "decisions": [
+  {
+   "id": "DEC-AIFAILOVER-001",
+   "question": "When does provider and model failover fire, must the substitute pass its evaluation scenarios first, are tenants told, and can it be reversed?",
+   "options": [
+    "automatic failover with disclosure",
+    "require evaluation re-assertion before a substitute serves"
+   ],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Fallback router role is useless without a written, auditable policy",
+   "line": 91335
+  },
+  {
+   "id": "DEC-AIQUAR-001",
+   "question": "Is model quarantine adopted, at what scope, with what duration bounds, exit authority, and tenant visibility?",
+   "options": [
+    "model only",
+    "model plus atom plus agent",
+    "exit authority Admin or root",
+    "whether tenants are told"
+   ],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "New administered object with its own approval and audit class; beyond §8.7.1",
+   "line": 91343
+  },
+  {
+   "id": "DEC-AIREPLAY-001",
+   "question": "Is safe replay of failed agent work adopted, and under what bounds?",
+   "options": [
+    "replay only reasoning outputs, never action proposals",
+    "always revalidate",
+    "never replay across a version change, hold, substitution or finished record"
+   ],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Most dangerous capability in the chapter; re-runs stale requests against a changed world",
+   "line": 91347
+  },
+  {
+   "id": "DEC-AICB-001",
+   "question": "What circuit-breaker open threshold, open duration, half-open probing and per-role scoping apply?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Beyond §8.7.1; only failover thresholds are named in the source",
+   "line": 91338
+  },
+  {
+   "id": "DEC-AIPAUSE-001",
+   "question": "Is a site-scoped pause adopted beyond platform-wide and per-tenant pause?",
+   "options": [
+    "platform-wide",
+    "per tenant",
+    "site-scoped"
+   ],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Narrower pause scope than the source provides",
+   "line": 91341
+  },
+  {
+   "id": "DEC-AIRETRY-001",
+   "question": "What retry limits, windows, backoff and circuit-breaker values govern agent calls?",
+   "options": [
+    "(a) fixed small attempt count with exponential backoff and a circuit breaker per agent",
+    "(b) a time-boxed budget per trigger",
+    "(c) per-agent values set in the Super Admin console as approvable settings objects"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation option (c) with (a) as the seeded default",
+   "impact": "Unbounded retry is prohibited; a too-eager retry turns degradation into an outage",
+   "line": 91583
+  },
+  {
+   "id": "DEC-AIRTO-001",
+   "question": "What Recovery Time Objective and Recovery Point Objective apply per agent?",
+   "options": [
+    "(a) one platform-wide objective pair",
+    "(b) per-agent objectives",
+    "(c) no contractual objective, honest unavailability states only"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation option (b)",
+   "impact": "Tenant contract has no promise on agent availability or context loss",
+   "line": 91585
+  },
+  {
+   "id": "DEC-GATE-001",
+   "question": "Does the Prevention Agent operate under authoring-time policy or route every event through a runtime human gate?",
+   "options": [
+    "Option C: per-agent governance binding declared in the agent record"
+   ],
+   "adopted_working_position": "Prevention Agent binding is `authoring-time policy`; Deviation and Containment Agent is `runtime human gate` for any proposal beyond pre-authorised containment; Shift Handoff Agent is `none — reasoning agent`",
+   "status": "adopted working position, adopted 2026-08-14, open for client ratification",
+   "impact": "An unreachable gate queue never suppresses a coaching card",
+   "line": 91468
+  },
+  {
+   "id": "DEC-COACHREPLAY-001",
+   "question": "Are coaching opportunities missed offline replayed after reconnection?",
+   "options": [
+    "(a) never replay, convert to a learning signal only",
+    "(b) replay only where the step execution is still open",
+    "(c) replay as a Command Center review item"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (a) with (b) as an acceptable narrowing",
+   "impact": "Forfeits some prevention value in long-offline environments",
+   "line": 91819
+  },
+  {
+   "id": "DEC-AIDUP-001",
+   "question": "What is the authoritative idempotency key composition for agent actions and interventions?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Interface-contract question owned by the Functional Specification; defects cause duplicates or wrong merges",
+   "line": 91755
+  },
+  {
+   "id": "DEC-LIB-001",
+   "question": "How does immediate library-pointer propagation interact with a run's pinned, never-re-based work package?",
+   "options": [
+    "§5.7 pointer propagates immediately",
+    "§5.14 and Part II package pinned and never re-based"
+   ],
+   "adopted_working_position": null,
+   "status": "open, both readings preserved",
+   "impact": "Governs whether an in-flight run's coaching asset or checklist can change mid-run",
+   "line": 91753
+  },
+  {
+   "id": "DEC-WIDIFF-001",
+   "question": "Does the offline package carry all three work-instruction difficulty levels or only the assigned worker's level?",
+   "options": [
+    "all three levels",
+    "assigned level only"
+   ],
+   "adopted_working_position": "Until the decision lands, the package definition carries all levels, which is the safer reading for a fallback",
+   "status": "open",
+   "impact": "A worker whose profile level is missing would otherwise have no rendered instruction",
+   "line": 91640
+  },
+  {
+   "id": "DEC-DIVERGE-001",
+   "question": "What divergence rate threshold, and what consequence, applies to agent-versus-deterministic disagreement?",
+   "options": [
+    "(a) platform-wide rate threshold per agent version raising a platform incident",
+    "(b) per-tenant threshold in the agent activity panel",
+    "(c) no threshold, manual review at each version release"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (a) with (b) as tenant-visible reporting",
+   "impact": "Earliest visible symptom of model drift; cross-tenant rates must respect the anonymised-aggregate invariant",
+   "line": 92085
+  },
+  {
+   "id": "DEC-HANDOFF-001",
+   "question": "Is a deterministic handoff pack produced when the Shift Handoff Agent fails?",
+   "options": [
+    "(a) produce automatically on every assembly failure",
+    "(b) produce on request from the shift handoff panel",
+    "(c) do not produce, honest failure state only"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (a)",
+   "impact": "Without it the incoming supervisor of an incident shift receives nothing at all",
+   "line": 92360
+  },
+  {
+   "id": "DEC-HANDOFF-002",
+   "question": "May the outgoing Supervisor compose a manual handoff note, and in what form?",
+   "options": [
+    "(a) free-text note",
+    "(b) lightly structured note with named fields matching the brief's sections",
+    "(c) no manual note, rely on §2.5's authored handover step"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (b)",
+   "impact": "Only fallback carrying human judgement and surviving a total reasoning outage",
+   "line": 92362
+  },
+  {
+   "id": "DEC-HANDOFF-003",
+   "question": "What counts as material late data requiring a revised brief?",
+   "options": [
+    "(a) any new Severity 1 item, new hold, readiness change, or new critical item",
+    "(b) any change at all",
+    "(c) supervisor-requested refresh only"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (a)",
+   "impact": "Too broad causes revision churn; too narrow hides a Severity 1 hold from the incoming shift",
+   "line": 92364
+  },
+  {
+   "id": "DEC-HANDOFF-004",
+   "question": "What minimum source coverage is required before the readiness section is marked unverifiable?",
+   "options": [
+    "(a) a percentage of in-scope devices synced",
+    "(b) an absolute count of unsynced devices",
+    "(c) mark unverifiable whenever any device is unsynced"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (a) as a tenant setting with a platform floor",
+   "impact": "A readiness assertion built on half the floor's data is worse than none because it is believed",
+   "line": 92366
+  },
+  {
+   "id": "DEC-VISION-001",
+   "question": "What confidence threshold makes a vision result inconclusive?",
+   "options": [
+    "(a) one platform-wide threshold per model version",
+    "(b) a per-screen threshold authored in the Studio",
+    "(c) a per-tenant threshold within a platform floor"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (a) as the floor with (b) for high-cost screens",
+   "impact": "Decides how often a worker sees a suggestion versus nothing",
+   "line": 92592
+  },
+  {
+   "id": "DEC-VISION-002",
+   "question": "Is a second or fallback vision model maintained?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Without one there is no secondary fallback for a missing, corrupt or incompatible model",
+   "line": 92438
+  },
+  {
+   "id": "DEC-VISION-003",
+   "question": "Is vision output advisory only, or may it gate — noting that gating contradicts §3.2 and §8.3.2?",
+   "options": [
+    "Design A advisory only, human's capture is the record",
+    "Design B treated as a deterministic input above a threshold"
+   ],
+   "adopted_working_position": "Design A is specified; Design B is not available under the platform's current rules",
+   "status": "open",
+   "impact": "Design B would be a change to the platform's central safety boundary, not a configuration",
+   "line": 92446
+  },
+  {
+   "id": "DEC-VISION-004",
+   "question": "Does vision inference run on the device, at the server, or both?",
+   "options": [
+    "on device",
+    "at the server",
+    "both"
+   ],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "On-device inference brings model artifact, lifecycle, integrity check and per-device rollback onto an unknown fleet",
+   "line": 92448
+  },
+  {
+   "id": "DEC-VISION-005",
+   "question": "How does vision reprocessing interact with 24-month worker-personal-data anonymisation?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Reprocessing at scale reads worker-associated media",
+   "line": 92450
+  },
+  {
+   "id": "DEC-VISION-006",
+   "question": "What model expiry and revalidation cadence applies?",
+   "options": [
+    "(a) fixed validity period after which the version must re-pass its evaluation scenarios",
+    "(b) drift-triggered revalidation based on divergence against human outcomes",
+    "(c) revalidation only at each release"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (b) with (a) as a backstop",
+   "impact": "A model with no expiry keeps answering confidently after fixtures, lighting or parts change",
+   "line": 92594
+  },
+  {
+   "id": "DEC-CAP-001",
+   "question": "Which seven launch capture types are authoritative, given §1.7/§7.8.3 and §5.5.3 name different sets that both say seven?",
+   "options": [
+    "Option B: the §5.5.3 set with checklist and boolean merged into checkbox confirmation"
+   ],
+   "adopted_working_position": "measurement entry, photo capture, barcode or Quick Response code scan, checkbox confirmation, digital signature, free text and dropdown selection, plus none for instruction-only screens, with checklist and boolean merged into checkbox confirmation carrying a multiplicity setting",
+   "status": "adopted working position, adopted 2026-08-14, open for client ratification",
+   "impact": "A vision fallback result is captured through checkbox confirmation",
+   "line": 92442
+  },
+  {
+   "id": "DEC-ASK-001",
+   "question": "Does the Frontline Worker Application gain a worker-initiated question channel, and with what freshness window?",
+   "options": [
+    "(a) no question channel",
+    "(b) a bounded show-me-help request re-invoking the same metadata-filtered retrieval, no free text",
+    "(c) a full free-text question channel"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (b)",
+   "impact": "Under (a), storyboards 1, 3, 4 and 21 collapse into section 44.1's coaching-unavailable behaviour",
+   "line": 92732
+  },
+  {
+   "id": "DEC-LOCALAI-001",
+   "question": "Does any artificial-intelligence capability run on the device?",
+   "options": [
+    "(a) no local model, cached curated assets only",
+    "(b) a small local retrieval index over already-approved cached assets, no generative capability",
+    "(c) a full local model"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (b)",
+   "impact": "Storyboards 3, 11 and 17 presume a local capability the Statement of Work does not provide",
+   "line": 92770
+  },
+  {
+   "id": "DEC-SAFETY-001",
+   "question": "May a worker flag agent content as unsafe, and does one flag quarantine tenant-wide?",
+   "options": [
+    "(a) no flag, dismissal with a categorised reason only",
+    "(b) flag suppresses locally and creates a review item, no tenant-wide quarantine",
+    "(c) flag suppresses locally and quarantines the asset tenant-wide pending review"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (b) with (c) available per tenant",
+   "impact": "Also decides the committed review response time for a safety flag",
+   "line": 93792
+  },
+  {
+   "id": "DEC-AIEXPIRE-001",
+   "question": "What validity window applies to an approved but undelivered agent-originated action?",
+   "options": [
+    "(a) one platform-wide window",
+    "(b) a per-severity window mirroring the 10-minute and 30-minute gate-item defaults",
+    "(c) a window ending at the shift boundary"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (c) with a per-severity ceiling",
+   "impact": "Without a window an approval can land on a different shift, lot and situation",
+   "line": 93967
+  },
+  {
+   "id": "DEC-AIQUEUE-001",
+   "question": "What server-side agent queue depth, back-pressure, and dead-letter retention apply?",
+   "options": [
+    "(a) bounded queues with oldest-first shedding of non-safety agent work and a recorded shed event",
+    "(b) unbounded queues with per-item freshness checks at execution time",
+    "(c) hybrid"
+   ],
+   "adopted_working_position": null,
+   "status": "open — recommendation (c)",
+   "impact": "An unbounded queue turns a thirty-minute outage into hours of stale replay on recovery",
+   "line": 94720
+  },
+  {
+   "id": "DEC-SYNC-001",
+   "question": "Does a reconnecting device upload pending captures before or after pulling pending commands?",
+   "options": [
+    "commands first (safety)",
+    "captures first (data integrity)",
+    "Option C: three phases"
+   ],
+   "adopted_working_position": "Reconnection runs in three phases — phase 1 pulls and applies stop-class commands, phase 2 uploads all pending captures with nothing discarded, phase 3 applies enabling-class commands",
+   "status": "adopted working position, adopted 2026-08-14, open for client ratification",
+   "impact": "Governs whether a hold clears before or after the capture queue drains",
+   "line": 93289
+  },
+  {
+   "id": "DEC-SUSP-001",
+   "question": "Does soft suspension lift on an operator signal or automatically on a payment event?",
+   "options": [
+    "operator signal",
+    "automatic on payment"
+   ],
+   "adopted_working_position": "Option C: release is by an explicit operator signal in the Super Admin platform console, and no payment event is observed because no payment integration exists, with the integration path left open and unbuilt",
+   "status": "adopted working position, adopted 2026-08-14, open for client ratification",
+   "impact": "Determines how a soft-suspended tenant returns to normal",
+   "line": 94810
+  },
+  {
+   "id": "DEC-STORE-001",
+   "question": "What is the device behaviour when storage fills beyond the warning level?",
+   "options": [],
+   "adopted_working_position": "Explicitly deferred to the Frontline Functional Specification; this blueprint states only the prohibition that evidence is never discarded and that a controlled stop is preferable to silent loss",
+   "status": "open, explicitly deferred",
+   "impact": "No behaviour beyond the warning level may be implemented until it is decided",
+   "line": 94636
+  },
+  {
+   "id": "DEC-WIPE-001",
+   "question": "How long may a wipe command remain pending, and what happens if the device never returns, given that a final sync attempt before erasure is impossible offline?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open, contradiction preserved",
+   "impact": "Genuine conflict between security and data integrity that the source does not resolve",
+   "line": 94810
+  },
+  {
+   "id": "DEC-ROLE-001",
+   "question": "Is the plant manager a role or a persona, given §3.5 fixes five tenant roles while §6.1.3 and §5.18 list Plant Manager?",
+   "options": [
+    "backed by a role",
+    "backed by a scoped Supervisor"
+   ],
+   "adopted_working_position": null,
+   "status": "open, both readings preserved",
+   "impact": "Determines the recipient status of the shift handoff brief and escalation target",
+   "line": 92125
+  },
+  {
+   "id": "DEC-PLUS-001",
+   "question": "What ordering does \"Supervisor+\" and \"QM+\" imply across five additive, non-hierarchical roles?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "\"Escalate upward\" presumes an ordering the role model does not define",
+   "line": 93205
+  },
+  {
+   "id": "DEC-LANEB-001",
+   "question": "Does Workflow content require explicit human sign-off at Author, Reviewer and Release Authority, or may an approved Lane B proposal auto-publish a patch version with no second approval?",
+   "options": [
+    "§5.11.1 three-stage sign-off",
+    "§5.16.3 and §6.7.4 Lane B auto-publish"
+   ],
+   "adopted_working_position": null,
+   "status": "open, both readings preserved",
+   "impact": "Governs publication while a device is offline",
+   "line": 93378
+  },
+  {
+   "id": "DEC-ROLLOUT-001",
+   "question": "What staged-rollout, canary, health-based abort and automatic-rollback scope applies?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open, already reserved in this blueprint",
+   "impact": "Governs how a bad model version is withdrawn",
+   "line": 92452
+  },
+  {
+   "id": "DEC-DEVICE-001",
+   "question": "What standardised device profile applies to the fleet?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open, owed by the client",
+   "impact": "A per-device artifact strategy on an unknown fleet is an open risk",
+   "line": 92448
+  },
+  {
+   "id": "DEC-SCAN-001",
+   "question": "What scanner hardware list applies?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open, owed by the client",
+   "impact": "Referenced alongside DEC-DEVICE-001 for device-resident artifact strategy",
+   "line": 94142
+  },
+  {
+   "id": "DEC-NOSHIFT-001",
+   "question": "Is the nobody-on-shift default — escalate to the tenant's Quality Manager role irrespective of shift, marked as a fallback delivery — confirmed?",
+   "options": [],
+   "adopted_working_position": "Carried as the platform default but itself an open drafting item",
+   "status": "open, unconfirmed",
+   "impact": "Reduces but does not remove the risk of depending on one role in one shift",
+   "line": 93203
+  },
+  {
+   "id": "DEC-FEAT-003",
+   "question": "What precedence applies among a global disable, a tenant override, and a tier entitlement?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open, both readings preserved",
+   "impact": "Governs why a tenant's agents are unavailable",
+   "line": 94225
+  },
+  {
+   "id": "DEC-FEAT-004",
+   "question": "What precedence applies among feature-flag sources for a tenant?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Referenced alongside DEC-FEAT-003 in per-tenant disablement",
+   "line": 94225
+  },
+  {
+   "id": "DEC-FEAT-005",
+   "question": "What is the fate of in-flight and version-pinned work when a feature is disabled?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Governs parked agent runs and pinned packages at disablement",
+   "line": 94225
+  },
+  {
+   "id": "DEC-SCHED-001 through DEC-SCHED-010",
+   "question": "What scheduled-work semantics govern the handoff occurrence idempotency key composition?",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open",
+   "impact": "Key is shift identifier, site identifier, area scope and nominal date, subject to these decisions",
+   "line": 92230
+  },
+  {
+   "id": "DEC-PKGFIELD-001",
+   "question": "Referenced as a canon decision this chapter touches without resolving.",
+   "options": [],
+   "adopted_working_position": null,
+   "status": "open, referenced only",
+   "impact": "Preserved with both readings intact",
+   "line": 95398
+  }
+ ],
+ "objects": [
+  {
+   "id": "unstated",
+   "name": "Capture",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "committed locally",
+    "queued",
+    "uploading",
+    "upload interrupted",
+    "uploaded",
+    "server received",
+    "validated",
+    "accepted",
+    "quarantined or rejected",
+    "officially recorded",
+    "reflected in summaries",
+    "reconciled"
+   ],
+   "key_relationships": [
+    "step execution",
+    "runtime envelope",
+    "idempotency key",
+    "evidence"
+   ],
+   "line": 91540
+  },
+  {
+   "id": "unstated",
+   "name": "Command",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "created",
+    "authorized",
+    "queued",
+    "available for delivery",
+    "delivered",
+    "downloaded",
+    "validated",
+    "applied",
+    "acknowledged",
+    "rejected",
+    "failed",
+    "expired",
+    "cancelled",
+    "superseded",
+    "reconciled"
+   ],
+   "key_relationships": [
+    "five command classes",
+    "target device",
+    "fencing token",
+    "validity window"
+   ],
+   "line": 91540
+  },
+  {
+   "id": "unstated",
+   "name": "Deviation record",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "opened locally",
+    "mirrored server-side",
+    "officially recorded",
+    "dispositioned",
+    "resolved"
+   ],
+   "key_relationships": [
+    "severity band",
+    "hold",
+    "containment checklist",
+    "escalation",
+    "brief",
+    "classification-divergence flag",
+    "Anomaly Register entry"
+   ],
+   "line": 91875
+  },
+  {
+   "id": "unstated",
+   "name": "Lot hold",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "issued",
+    "propagating",
+    "in force",
+    "released"
+   ],
+   "key_relationships": [
+    "Lot, Unit or Run scope",
+    "per-device confirmation list",
+    "Quality Manager release authority"
+   ],
+   "line": 91944
+  },
+  {
+   "id": "unstated",
+   "name": "Pinned work package",
+   "authoritative_owner_surface": "SURF-STU",
+   "states": [
+    "published",
+    "distributed",
+    "pinned to a run",
+    "superseded"
+   ],
+   "key_relationships": [
+    "specification limits",
+    "severity mappings",
+    "gate rules",
+    "curated default assets per locale",
+    "Work Instructions at difficulty levels",
+    "version acts as a fencing token"
+   ],
+   "line": 91479
+  },
+  {
+   "id": "unstated",
+   "name": "Coaching asset",
+   "authoritative_owner_surface": "SURF-STU",
+   "states": [
+    "approved",
+    "flagged for review",
+    "retired",
+    "quarantined (proposed)",
+    "suppressed on device"
+   ],
+   "key_relationships": [
+    "screen",
+    "difficulty classification",
+    "locale",
+    "corpus",
+    "curated default"
+   ],
+   "line": 91634
+  },
+  {
+   "id": "unstated",
+   "name": "Shift handoff brief",
+   "authoritative_owner_surface": "SURF-CC",
+   "states": [
+    "Scheduled",
+    "Gathering",
+    "PartialSource",
+    "Assembling",
+    "Delivered",
+    "Acknowledged",
+    "GraceExpired",
+    "AssemblyFailed",
+    "Misfired",
+    "Superseded"
+   ],
+   "key_relationships": [
+    "provenance header",
+    "coverage block",
+    "revised brief",
+    "acknowledgement",
+    "shift"
+   ],
+   "line": 92148
+  },
+  {
+   "id": "unstated",
+   "name": "Deterministic handoff pack",
+   "authoritative_owner_surface": "SURF-CC",
+   "states": [
+    "produced",
+    "acknowledged as a pack",
+    "superseded"
+   ],
+   "key_relationships": [
+    "held lots",
+    "open deviations",
+    "gate items with ages",
+    "qualification expiries",
+    "submitted runs",
+    "sync conflicts"
+   ],
+   "line": 92184
+  },
+  {
+   "id": "unstated",
+   "name": "Supervisor manual handoff note",
+   "authoritative_owner_surface": "SURF-CC",
+   "states": [
+    "written",
+    "delivered",
+    "acknowledged"
+   ],
+   "key_relationships": [
+    "provenance header naming author and time",
+    "shift handoff panel"
+   ],
+   "line": 92186
+  },
+  {
+   "id": "unstated",
+   "name": "Inference record",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "attempted",
+    "confident",
+    "inconclusive",
+    "withdrawn-version marked",
+    "reprocessed"
+   ],
+   "key_relationships": [
+    "photograph (immutable evidence)",
+    "model identity",
+    "model version",
+    "confidence",
+    "inference time"
+   ],
+   "line": 92444
+  },
+  {
+   "id": "unstated",
+   "name": "Escalation record",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "created",
+    "eligible",
+    "queued",
+    "sent",
+    "acknowledged",
+    "resolved",
+    "fallback delivery"
+   ],
+   "key_relationships": [
+    "severity level",
+    "roles never individuals",
+    "in-app and email channels",
+    "acknowledgement timers",
+    "fallback tiers",
+    "de-duplication"
+   ],
+   "line": 93203
+  },
+  {
+   "id": "unstated",
+   "name": "Gate item",
+   "authoritative_owner_surface": "SURF-CC",
+   "states": [
+    "Raised",
+    "Decided",
+    "Rerouted",
+    "Declined",
+    "Queued",
+    "Delivered",
+    "Applied",
+    "Expired",
+    "ReRaised"
+   ],
+   "key_relationships": [
+    "agent proposal beyond policy",
+    "Quality Manager decision",
+    "per-target commands",
+    "validity window"
+   ],
+   "line": 93933
+  },
+  {
+   "id": "unstated",
+   "name": "Agent record",
+   "authoritative_owner_surface": "SURF-SA",
+   "states": [
+    "at the evaluation gate",
+    "enabled",
+    "disabled",
+    "paused",
+    "withdrawn"
+   ],
+   "key_relationships": [
+    "type",
+    "capability scope",
+    "memory-access grants",
+    "planning mode",
+    "governance binding",
+    "evaluation-scenario references",
+    "tenant availability",
+    "status",
+    "version"
+   ],
+   "line": 92415
+  },
+  {
+   "id": "unstated",
+   "name": "Classification-divergence flag",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "raised",
+    "annotated",
+    "regression candidate"
+   ],
+   "key_relationships": [
+    "deterministic band with limits and mapping version",
+    "agent interpretation",
+    "evidence used",
+    "time of divergence"
+   ],
+   "line": 91920
+  },
+  {
+   "id": "unstated",
+   "name": "Content-gap event",
+   "authoritative_owner_surface": "SURF-DOH",
+   "states": [
+    "recorded",
+    "surfaced as an instruction-review candidate",
+    "closed by republish"
+   ],
+   "key_relationships": [
+    "screen",
+    "locale",
+    "difficulty level",
+    "package version",
+    "workflow version"
+   ],
+   "line": 93036
+  },
+  {
+   "id": "unstated",
+   "name": "Worker safety flag",
+   "authoritative_owner_surface": "SURF-CC",
+   "states": [
+    "created",
+    "locally suppressed",
+    "delivered",
+    "quarantined",
+    "cleared with reason",
+    "referred to Studio"
+   ],
+   "key_relationships": [
+    "coaching asset",
+    "reporter identity",
+    "categorised reason",
+    "review decision"
+   ],
+   "line": 93739
+  }
+ ],
+ "workflows": [
+  {
+   "id": "unstated",
+   "name": "The chronological workflow of a Prevention Agent degradation",
+   "primary_actor": "Worker",
+   "trigger": "Progress falls outside the expected pattern on a coached screen",
+   "surfaces_touched": [
+    "SURF-FL",
+    "SURF-CC",
+    "SURF-DOH",
+    "SURF-STU",
+    "SURF-SA"
+   ],
+   "terminal_states": [
+    "step completed under authored guidance",
+    "actionable supervisor alert on repeat threshold",
+    "queued signals reconciled"
+   ],
+   "line": 91646
+  },
+  {
+   "id": "unstated",
+   "name": "The offline deviation, end to end",
+   "primary_actor": "Worker",
+   "trigger": "A capture classifying into a severity band on-device",
+   "surfaces_touched": [
+    "SURF-FL",
+    "SURF-DOH",
+    "SURF-CC"
+   ],
+   "terminal_states": [
+    "hold in force",
+    "Quality Manager disposition and release",
+    "classification-divergence flag where the agent disagrees"
+   ],
+   "line": 91871
+  },
+  {
+   "id": "unstated",
+   "name": "Shift handoff assembly and delivery",
+   "primary_actor": "Shift Handoff Agent",
+   "trigger": "Schedule fires at the configured offset before shift end, defaulting to about 30 minutes",
+   "surfaces_touched": [
+    "SURF-CC",
+    "SURF-DOH"
+   ],
+   "terminal_states": [
+    "Acknowledged",
+    "GraceExpired",
+    "AssemblyFailed",
+    "Superseded"
+   ],
+   "line": 92135
+  },
+  {
+   "id": "unstated",
+   "name": "Vision-assisted inspection step",
+   "primary_actor": "Worker",
+   "trigger": "A step requiring a photograph as authored proof",
+   "surfaces_touched": [
+    "SURF-FL",
+    "SURF-DOH",
+    "SURF-CC",
+    "SURF-SA"
+   ],
+   "terminal_states": [
+    "step advances only if the authored proof and gate are satisfied",
+    "step incomplete and gate unpassed"
+   ],
+   "line": 92455
+  },
+  {
+   "id": "unstated",
+   "name": "Command issue to an offline device",
+   "primary_actor": "Supervisor or Quality Manager",
+   "trigger": "Any of the five command-channel classes issued to an offline device",
+   "surfaces_touched": [
+    "SURF-CC",
+    "SURF-DOH",
+    "SURF-FL",
+    "SURF-SA"
+   ],
+   "terminal_states": [
+    "applied and acknowledged",
+    "rejected with reason",
+    "superseded",
+    "cancelled",
+    "expired"
+   ],
+   "line": 93461
+  },
+  {
+   "id": "unstated",
+   "name": "Quality Manager hold release after reconnection",
+   "primary_actor": "Quality Manager",
+   "trigger": "Elena releases the hold after disposition",
+   "surfaces_touched": [
+    "SURF-CC",
+    "SURF-DOH",
+    "SURF-FL",
+    "SURF-SA"
+   ],
+   "terminal_states": [
+    "hold released everywhere once every relevant device acknowledges",
+    "Anomaly Register entry Resolved with a closure note"
+   ],
+   "line": 93293
+  },
+  {
+   "id": "unstated",
+   "name": "Reconnection sync in three phases (DEC-SYNC-001 adopted)",
+   "primary_actor": "Frontline device",
+   "trigger": "Device regains connectivity",
+   "surfaces_touched": [
+    "SURF-FL",
+    "SURF-DOH",
+    "SURF-CC"
+   ],
+   "terminal_states": [
+    "every item accepted, rejected with a reason, parked for review, or resolved through the conflict panel"
+   ],
+   "line": 93289
+  },
+  {
+   "id": "unstated",
+   "name": "Model rollback under maker-checker",
+   "primary_actor": "Platform Engineer (maker) and Admin (checker)",
+   "trigger": "Health signals degrade on a deployed version",
+   "surfaces_touched": [
+    "SURF-SA",
+    "SURF-CC",
+    "SURF-DOH",
+    "SURF-FL"
+   ],
+   "terminal_states": [
+    "previous version in force with withdrawn-version outputs marked",
+    "affected decisions listed for optional human review"
+   ],
+   "line": 94060
+  },
+  {
+   "id": "unstated",
+   "name": "Per-tenant or platform-wide emergency pause and resume",
+   "primary_actor": "Platform Engineer, Admin, Root Super Admin",
+   "trigger": "A per-tenant pause, tier entitlement boundary, or tenant feature override",
+   "surfaces_touched": [
+    "SURF-SA",
+    "SURF-CC",
+    "SURF-STU",
+    "SURF-FL",
+    "SURF-DOH"
+   ],
+   "terminal_states": [
+    "Paused with deterministic operation",
+    "Normal after a separately approved resume"
+   ],
+   "line": 94229
+  },
+  {
+   "id": "unstated",
+   "name": "Storage pressure shedding cascade",
+   "primary_actor": "Frontline device",
+   "trigger": "Device storage crosses its warning level",
+   "surfaces_touched": [
+    "SURF-FL",
+    "SURF-CC",
+    "SURF-SA"
+   ],
+   "terminal_states": [
+    "queue drains and optional collection resumes",
+    "behaviour beyond the warning level deferred to DEC-STORE-001"
+   ],
+   "line": 94651
+  },
+  {
+   "id": "unstated",
+   "name": "Agent-versus-record conflict resolution",
+   "primary_actor": "Quality Manager",
+   "trigger": "Automatic field comparison or a human observation",
+   "surfaces_touched": [
+    "SURF-DOH",
+    "SURF-CC",
+    "SURF-SA"
+   ],
+   "terminal_states": [
+    "record unchanged and authoritative, agent output retained and marked, disagreement permanently visible"
+   ],
+   "line": 95239
+  }
+ ],
+ "screens": [
+  {
+   "id": "SCR-FL-COACH-01",
+   "name": "the normal card",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "line": 91689
+  },
+  {
+   "id": "SCR-FL-COACH-02",
+   "name": "the curated default",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "line": 91691
+  },
+  {
+   "id": "SCR-FL-COACH-03",
+   "name": "Work Instructions in place of a card",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "line": 91693
+  },
+  {
+   "id": "SCR-FL-COACH-04",
+   "name": "the offline state",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "line": 91695
+  },
+  {
+   "id": "SCR-FL-COACH-05",
+   "name": "dismissal acknowledgement",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "line": 91697
+  },
+  {
+   "id": "SCR-FL-COACH-06",
+   "name": "criteria and supervisor direction (no guidance content)",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "line": 93093
+  },
+  {
+   "id": "SCR-FL-COACH-07",
+   "name": "card with Dismiss and Report a problem controls",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "line": 93780
+  },
+  {
+   "id": "SCR-CC-AGENT-01",
+   "name": "the agent activity panel",
+   "surface": "SURF-CC",
+   "module_id": "agent activity panel",
+   "line": 91703
+  },
+  {
+   "id": "SCR-CC-AGENT-02",
+   "name": "the honest degradation flag",
+   "surface": "SURF-CC",
+   "module_id": "agent activity panel",
+   "line": 91705
+  },
+  {
+   "id": "SCR-CC-AGENT-03",
+   "name": "the platform pause state",
+   "surface": "SURF-CC",
+   "module_id": "agent activity panel",
+   "line": 91707
+  },
+  {
+   "id": "SCR-CC-AGENT-04",
+   "name": "agent activity panel showing recovery time and zero activation counts",
+   "surface": "SURF-CC",
+   "module_id": "agent activity panel",
+   "line": 94792
+  },
+  {
+   "id": "SCR-CC-ALERTS-01",
+   "name": "the repeated-coaching alert",
+   "surface": "SURF-CC",
+   "module_id": "alert feed",
+   "line": 91709
+  },
+  {
+   "id": "SCR-CC-ALERTS-02",
+   "name": "step-away escalation on the alert feed",
+   "surface": "SURF-CC",
+   "module_id": "alert feed",
+   "line": 93095
+  },
+  {
+   "id": "SCR-CC-ALERTS-03",
+   "name": "alert feed item with age, tier and fallback-delivery marking",
+   "surface": "SURF-CC",
+   "module_id": "alert feed",
+   "line": 93273
+  },
+  {
+   "id": "SCR-CC-ALERTS-04",
+   "name": "escalation state with tiers, fallback markings and re-notifications",
+   "surface": "SURF-CC",
+   "module_id": "alert feed",
+   "line": 95040
+  },
+  {
+   "id": "SCR-FL-DEV-01",
+   "name": "the deterministic verdict",
+   "surface": "SURF-FL",
+   "module_id": "On-Device Detection and Containment",
+   "line": 91954
+  },
+  {
+   "id": "SCR-FL-DEV-02",
+   "name": "the immediate hold",
+   "surface": "SURF-FL",
+   "module_id": "On-Device Detection and Containment",
+   "line": 91956
+  },
+  {
+   "id": "SCR-FL-DEV-03",
+   "name": "containment",
+   "surface": "SURF-FL",
+   "module_id": "On-Device Detection and Containment",
+   "line": 91958
+  },
+  {
+   "id": "SCR-FL-DEV-04",
+   "name": "evidence capture without artificial intelligence",
+   "surface": "SURF-FL",
+   "module_id": "Data Capture and Evidence",
+   "line": 91960
+  },
+  {
+   "id": "SCR-FL-DEV-05",
+   "name": "the honest queue state",
+   "surface": "SURF-FL",
+   "module_id": "On-Device Detection and Containment",
+   "line": 91962
+  },
+  {
+   "id": "SCR-FL-DEV-06",
+   "name": "hold band while release command is in flight, then release confirmation",
+   "surface": "SURF-FL",
+   "module_id": "On-Device Detection and Containment",
+   "line": 93360
+  },
+  {
+   "id": "SCR-FL-DEV-07",
+   "name": "containment extension announced at device time of application",
+   "surface": "SURF-FL",
+   "module_id": "On-Device Detection and Containment",
+   "line": 93869
+  },
+  {
+   "id": "SCR-CC-DEVWS-01",
+   "name": "the record without a brief",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 91968
+  },
+  {
+   "id": "SCR-CC-DEVWS-02",
+   "name": "the brief when it arrives late",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 91970
+  },
+  {
+   "id": "SCR-CC-DEVWS-03",
+   "name": "the divergence flag",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 91972
+  },
+  {
+   "id": "SCR-CC-DEVWS-04",
+   "name": "hold propagation",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 91974
+  },
+  {
+   "id": "SCR-CC-DEVWS-05",
+   "name": "release",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 91976
+  },
+  {
+   "id": "SCR-CC-DEVWS-06",
+   "name": "evidence review with inference records",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 92496
+  },
+  {
+   "id": "SCR-CC-DEVWS-07",
+   "name": "deviation with original actor, device timestamp and substitution boundary",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 95209
+  },
+  {
+   "id": "SCR-CC-DEVWS-08",
+   "name": "record value with subordinate agent value and annotation control",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "line": 95298
+  },
+  {
+   "id": "SCR-CC-HANDOFF-01",
+   "name": "the delivered brief",
+   "surface": "SURF-CC",
+   "module_id": "shift handoff panel",
+   "line": 92240
+  },
+  {
+   "id": "SCR-CC-HANDOFF-02",
+   "name": "the partial brief",
+   "surface": "SURF-CC",
+   "module_id": "shift handoff panel",
+   "line": 92242
+  },
+  {
+   "id": "SCR-CC-HANDOFF-03",
+   "name": "no brief",
+   "surface": "SURF-CC",
+   "module_id": "shift handoff panel",
+   "line": 92244
+  },
+  {
+   "id": "SCR-CC-HANDOFF-04",
+   "name": "the grace-period flag on the plant-manager view",
+   "surface": "SURF-CC",
+   "module_id": "shift handoff panel",
+   "line": 92246
+  },
+  {
+   "id": "SCR-CC-HANDOFF-05",
+   "name": "supersession",
+   "surface": "SURF-CC",
+   "module_id": "shift handoff panel",
+   "line": 92248
+  },
+  {
+   "id": "SCR-FL-VIS-01",
+   "name": "capture first",
+   "surface": "SURF-FL",
+   "module_id": "Data Capture and Evidence",
+   "line": 92482
+  },
+  {
+   "id": "SCR-FL-VIS-02",
+   "name": "advisory interpretation",
+   "surface": "SURF-FL",
+   "module_id": "Data Capture and Evidence",
+   "line": 92484
+  },
+  {
+   "id": "SCR-FL-VIS-03",
+   "name": "inconclusive",
+   "surface": "SURF-FL",
+   "module_id": "Data Capture and Evidence",
+   "line": 92486
+  },
+  {
+   "id": "SCR-FL-VIS-04",
+   "name": "vision unavailable",
+   "surface": "SURF-FL",
+   "module_id": "Data Capture and Evidence",
+   "line": 92488
+  },
+  {
+   "id": "SCR-FL-VIS-05",
+   "name": "offline",
+   "surface": "SURF-FL",
+   "module_id": "Data Capture and Evidence",
+   "line": 92490
+  },
+  {
+   "id": "SCR-SA-AGENT-01",
+   "name": "model health",
+   "surface": "SURF-SA",
+   "module_id": "agent health view",
+   "line": 92498
+  },
+  {
+   "id": "SCR-SA-AGENT-02",
+   "name": "per-agent detail, rollback submission, approval queue, restored state",
+   "surface": "SURF-SA",
+   "module_id": "agent health view",
+   "line": 94122
+  },
+  {
+   "id": "SCR-FL-RUNPLAYER-02",
+   "name": "run player with offline indicator and expanded Work Instructions",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "line": 92843
+  },
+  {
+   "id": "SCR-FL-RUNPLAYER-03",
+   "name": "parked run with reason, My Runs list, clearance confirmation",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "line": 93271
+  },
+  {
+   "id": "SCR-FL-RUNPLAYER-04",
+   "name": "mid-run unchanged, republish description at next execution",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "line": 93441
+  },
+  {
+   "id": "SCR-FL-RUNPLAYER-05",
+   "name": "applied reassignment announced at device time",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "line": 93533
+  },
+  {
+   "id": "SCR-FL-RUNPLAYER-06",
+   "name": "arriving worker My Runs across a shift boundary on pinned version",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "line": 95128
+  },
+  {
+   "id": "SCR-FL-RUNPLAYER-07",
+   "name": "substitute worker bench view and structured handover",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "line": 95211
+  },
+  {
+   "id": "SCR-CC-SYNC-01",
+   "name": "sync state and connectivity showing device last contact and freshness class",
+   "surface": "SURF-CC",
+   "module_id": "sync state and connectivity module",
+   "line": 92845
+  },
+  {
+   "id": "SCR-CC-SYNC-02",
+   "name": "per-device queue depth and parked counts; sync-conflict review panel",
+   "surface": "SURF-CC",
+   "module_id": "sync state and connectivity module",
+   "line": 94040
+  },
+  {
+   "id": "SCR-CC-SYNC-03",
+   "name": "device row with last successful sync and outstanding count",
+   "surface": "SURF-CC",
+   "module_id": "sync state and connectivity module",
+   "line": 94453
+  },
+  {
+   "id": "SCR-CC-SYNC-04",
+   "name": "device row with storage state, queue depth and last successful sync",
+   "surface": "SURF-CC",
+   "module_id": "sync state and connectivity module",
+   "line": 94710
+  },
+  {
+   "id": "SCR-SA-FLEET-01",
+   "name": "devices and fleet with integrity-failure flag",
+   "surface": "SURF-SA",
+   "module_id": "devices and fleet section",
+   "line": 93010
+  },
+  {
+   "id": "SCR-SA-FLEET-02",
+   "name": "fleet list with flagged device, artifact version and failure count",
+   "surface": "SURF-SA",
+   "module_id": "devices and fleet section",
+   "line": 94207
+  },
+  {
+   "id": "SCR-SA-FLEET-03",
+   "name": "wipe approval, pending device row, undeliverable report",
+   "surface": "SURF-SA",
+   "module_id": "devices and fleet section",
+   "line": 94874
+  },
+  {
+   "id": "SCR-STU-VERSION-01",
+   "name": "version history with republish description and Lane B attribution",
+   "surface": "SURF-STU",
+   "module_id": "version history",
+   "line": 93443
+  },
+  {
+   "id": "SCR-CC-ACTION-01",
+   "name": "action confirmation, command list with true states, rejection reason",
+   "surface": "SURF-CC",
+   "module_id": "command list",
+   "line": 93531
+  },
+  {
+   "id": "SCR-CC-LEARN-01",
+   "name": "learning read view listing divergences by screen with both versions",
+   "surface": "SURF-CC",
+   "module_id": "learning read view",
+   "line": 93615
+  },
+  {
+   "id": "SCR-CC-LEARN-02",
+   "name": "help requests by screen, answered versus obsolete on arrival",
+   "surface": "SURF-CC",
+   "module_id": "learning read view",
+   "line": 94537
+  },
+  {
+   "id": "SCR-SA-EVAL-01",
+   "name": "evaluation harness divergence pairs and regression-candidate queue",
+   "surface": "SURF-SA",
+   "module_id": "evaluation harness",
+   "line": 93697
+  },
+  {
+   "id": "SCR-CC-SAFETY-01",
+   "name": "safety-flag item with reporter, asset, context, clear-or-refer controls",
+   "surface": "SURF-CC",
+   "module_id": "safety flag queue",
+   "line": 93782
+  },
+  {
+   "id": "SCR-CC-GATEQ-01",
+   "name": "decision confirmation with per-target list and rejection reasons",
+   "surface": "SURF-CC",
+   "module_id": "gate queue",
+   "line": 93867
+  },
+  {
+   "id": "SCR-CC-GATEQ-02",
+   "name": "gate item history showing approved then expired, and the fresh item",
+   "surface": "SURF-CC",
+   "module_id": "gate queue",
+   "line": 93955
+  },
+  {
+   "id": "SCR-FL-SYNC-01",
+   "name": "sync state list with true item states and parked items",
+   "surface": "SURF-FL",
+   "module_id": "Offline and Sync Engine",
+   "line": 94038
+  },
+  {
+   "id": "SCR-FL-SYNC-02",
+   "name": "sync list mid-sync and honest interrupted indicator",
+   "surface": "SURF-FL",
+   "module_id": "Offline and Sync Engine",
+   "line": 94451
+  },
+  {
+   "id": "SCR-FL-SYNC-03",
+   "name": "storage banner, queue depth, honest disabled help control",
+   "surface": "SURF-FL",
+   "module_id": "Offline and Sync Engine",
+   "line": 94708
+  },
+  {
+   "id": "SCR-SA-PAUSE-01",
+   "name": "pause submission, critical-class approval, paused tenant list",
+   "surface": "SURF-SA",
+   "module_id": "emergency pause",
+   "line": 94292
+  },
+  {
+   "id": "SCR-SA-INCIDENT-01",
+   "name": "platform overview and health, incident record, broadcast composition",
+   "surface": "SURF-SA",
+   "module_id": "platform incident",
+   "line": 94374
+  },
+  {
+   "id": "SCR-CC-BOARD-01",
+   "name": "live shift board with per-tile freshness markers and drill-down",
+   "surface": "SURF-CC",
+   "module_id": "live shift board",
+   "line": 94790
+  },
+  {
+   "id": "SCR-FL-LOCK-01",
+   "name": "fixed compliance suspension message, verbatim, no other control",
+   "surface": "SURF-FL",
+   "module_id": "Identity, Authentication and Device Mode",
+   "line": 94876
+  },
+  {
+   "id": "SCR-DOH-AUDIT-01",
+   "name": "record with full annotation history and visible conflict marker",
+   "surface": "SURF-DOH",
+   "module_id": "audit record",
+   "line": 95300
+  },
+  {
+   "id": "SB-43-401",
+   "name": "the scope register",
+   "surface": "SURF-SA",
+   "module_id": "scope register",
+   "line": 91363
+  }
+ ],
+ "state_vocabularies": [
+  {
+   "vocabulary_name": "Capture state chain",
+   "ordered_states": [
+    "committed locally",
+    "queued",
+    "uploading",
+    "upload interrupted",
+    "uploaded",
+    "server received",
+    "validated",
+    "accepted",
+    "quarantined or rejected",
+    "officially recorded",
+    "reflected in summaries",
+    "reconciled"
+   ],
+   "owning_concept": "Capture",
+   "line": 91540
+  },
+  {
+   "vocabulary_name": "Command state chain",
+   "ordered_states": [
+    "created",
+    "authorized",
+    "queued",
+    "available for delivery",
+    "delivered",
+    "downloaded",
+    "validated",
+    "applied",
+    "acknowledged",
+    "rejected",
+    "failed",
+    "expired",
+    "cancelled",
+    "superseded",
+    "reconciled"
+   ],
+   "owning_concept": "Command",
+   "line": 91540
+  },
+  {
+   "vocabulary_name": "Command state machine (fifteen distinct states, none called sent or done)",
+   "ordered_states": [
+    "Created",
+    "Authorized",
+    "Queued",
+    "AvailableForDelivery",
+    "Delivered",
+    "Downloaded",
+    "Validated",
+    "Applied",
+    "Acknowledged",
+    "Reconciled",
+    "Superseded",
+    "Cancelled",
+    "Expired",
+    "Rejected"
+   ],
+   "owning_concept": "Command channel",
+   "line": 93505
+  },
+  {
+   "vocabulary_name": "Hold propagation display states",
+   "ordered_states": [
+    "issued",
+    "propagating",
+    "in force"
+   ],
+   "owning_concept": "Lot hold propagation",
+   "line": 91944
+  },
+  {
+   "vocabulary_name": "Universal agent-failure ladder (eight rungs, in order)",
+   "ordered_states": [
+    "Primary path",
+    "Safe retry or resume",
+    "Approved alternate dependency",
+    "Last-known-good approved mode",
+    "Deterministic or manual workflow",
+    "Authorized human escalation",
+    "Controlled hold or safe stop",
+    "Recovery and reconciliation"
+   ],
+   "owning_concept": "Agent failure",
+   "line": 91476
+  },
+  {
+   "vocabulary_name": "Prevention Agent guidance states",
+   "ordered_states": [
+    "Working",
+    "Selected",
+    "Curated",
+    "Authored",
+    "Pattern"
+   ],
+   "owning_concept": "Coaching guidance quality ladder",
+   "line": 91594
+  },
+  {
+   "vocabulary_name": "Guidance fallback cascade (rungs, in order)",
+   "ordered_states": [
+    "Agent selected card",
+    "Curated default asset for this screen and locale",
+    "Authored Work Instructions at the profile difficulty level",
+    "Authored Work Instructions at the standard level",
+    "Specification limits, proof requirements and inspection criteria plus direction to the Supervisor"
+   ],
+   "owning_concept": "Coaching fallback",
+   "line": 94939
+  },
+  {
+   "vocabulary_name": "Shift handoff brief state machine",
+   "ordered_states": [
+    "Scheduled",
+    "Gathering",
+    "PartialSource",
+    "Assembling",
+    "Delivered",
+    "Acknowledged",
+    "GraceExpired",
+    "AssemblyFailed",
+    "Misfired",
+    "Superseded"
+   ],
+   "owning_concept": "Shift handoff brief",
+   "line": 92148
+  },
+  {
+   "vocabulary_name": "Vision Reasoning Agent states",
+   "ordered_states": [
+    "NotBuilt",
+    "AtGate",
+    "Available",
+    "Unavailable",
+    "Paused",
+    "Withdrawn",
+    "Disabled",
+    "HumanPath"
+   ],
+   "owning_concept": "Vision Reasoning Agent lifecycle",
+   "line": 92375
+  },
+  {
+   "vocabulary_name": "Gate item and approved-action state machine",
+   "ordered_states": [
+    "Raised",
+    "Decided",
+    "Queued",
+    "Delivered",
+    "Applied",
+    "Expired",
+    "ReRaised",
+    "Rerouted",
+    "Declined"
+   ],
+   "owning_concept": "Agent-originated gate item",
+   "line": 93933
+  },
+  {
+   "vocabulary_name": "Per-tenant agent pause states",
+   "ordered_states": [
+    "Normal",
+    "PauseSubmitted",
+    "Pausing",
+    "Paused",
+    "ResumeSubmitted"
+   ],
+   "owning_concept": "Emergency pause",
+   "line": 94271
+  },
+  {
+   "vocabulary_name": "Hold escalation states when no authorized human is available",
+   "ordered_states": [
+    "Held",
+    "Escalating",
+    "Renotifying",
+    "Requested",
+    "Released"
+   ],
+   "owning_concept": "Severity 1 hold with no Quality Manager",
+   "line": 95022
+  },
+  {
+   "vocabulary_name": "Suspension states",
+   "ordered_states": [
+    "soft",
+    "hard",
+    "compliance"
+   ],
+   "owning_concept": "Tenant suspension",
+   "line": 94808
+  },
+  {
+   "vocabulary_name": "Fallback safety priority list",
+   "ordered_states": [
+    "Worker safety",
+    "tenant isolation",
+    "security",
+    "authorization",
+    "qualification",
+    "specification and evaluation controls",
+    "approval and release authority",
+    "data integrity",
+    "auditability",
+    "controlled continuity",
+    "clear user communication",
+    "recovery and reconciliation"
+   ],
+   "owning_concept": "Fallback prioritisation",
+   "line": 94638
+  },
+  {
+   "vocabulary_name": "Device storage shedding priority classes",
+   "ordered_states": [
+    "1 — never shed: Captured evidence, deviation records, hold state, containment completions, audit entries",
+    "2 — never shed: Applied and pending safety-class commands",
+    "3 — shed last: Operational events such as dismissals and step-away flags",
+    "4 — shed second: Queued agent requests including help requests and coaching opportunities",
+    "5 — shed first: Optional cached media not required for the pinned run"
+   ],
+   "owning_concept": "Device storage pressure",
+   "line": 94640
+  },
+  {
+   "vocabulary_name": "Storyboard field reading order",
+   "ordered_states": [
+    "Preconditions",
+    "Trigger",
+    "Actors and roles",
+    "Worker-visible experience",
+    "The five-surface reaction",
+    "Automatic fallback",
+    "Manual fallback",
+    "Fallback-of-fallback",
+    "Safe stop",
+    "Local data",
+    "central data",
+    "notifications",
+    "reconnection",
+    "conflict resolution",
+    "final official state",
+    "audit"
+   ],
+   "owning_concept": "Storyboard structure",
+   "line": 92660
+  },
+  {
+   "vocabulary_name": "Frontline Worker Application twelve modules",
+   "ordered_states": [
+    "Identity, Authentication and Device Mode",
+    "My Runs",
+    "Run Player",
+    "Data Capture and Evidence",
+    "On-Device Detection and Containment",
+    "Offline and Sync Engine",
+    "Security and Data Protection",
+    "Coaching Rendering",
+    "Gates and Sign-Off Authority",
+    "Notifications",
+    "Worker Lifecycle on Device",
+    "Training Library Viewer"
+   ],
+   "owning_concept": "Frontline Worker Application",
+   "line": 92728
+  },
+  {
+   "vocabulary_name": "Shift handoff brief structured sections",
+   "ordered_states": [
+    "critical items",
+    "open deviations with status",
+    "lot and material status",
+    "equipment flags",
+    "incoming-worker readiness",
+    "emerging-pattern watch items",
+    "closed items"
+   ],
+   "owning_concept": "Shift handoff brief content",
+   "line": 92240
+  },
+  {
+   "vocabulary_name": "Seven launch capture types (DEC-CAP-001 adopted Option B)",
+   "ordered_states": [
+    "measurement entry",
+    "photo capture",
+    "barcode or Quick Response code scan",
+    "checkbox confirmation",
+    "digital signature",
+    "free text",
+    "dropdown selection"
+   ],
+   "owning_concept": "Capture types, plus none for instruction-only screens",
+   "line": 92442
+  },
+  {
+   "vocabulary_name": "Command channel classes (exactly five)",
+   "ordered_states": [
+    "lot release",
+    "reassignment or substitution",
+    "qualification clearance",
+    "suspension",
+    "version change"
+   ],
+   "owning_concept": "Command channel",
+   "line": 93459
+  },
+  {
+   "vocabulary_name": "Deterministic detection mechanisms (three)",
+   "ordered_states": [
+    "time deviation against the Timing section's maximum and minimum",
+    "sequence deviation against the canvas order and branch targets",
+    "specification or evidence deviation against the Specification Limits and Gate-and-Proof sections"
+   ],
+   "owning_concept": "On-device deterministic detection",
+   "line": 91863
+  },
+  {
+   "vocabulary_name": "Handoff artifact provenance types",
+   "ordered_states": [
+    "Agent brief",
+    "Revised agent brief",
+    "Deterministic handoff pack",
+    "Supervisor manual summary"
+   ],
+   "owning_concept": "Shift handoff artifacts",
+   "line": 92215
+  },
+  {
+   "vocabulary_name": "Agent-versus-record conflict classes (four)",
+   "ordered_states": [
+    "Agent versus deterministic classification",
+    "Agent versus authored content",
+    "Agent versus recorded fact",
+    "Agent versus human decision"
+   ],
+   "owning_concept": "Conflict resolution",
+   "line": 95231
+  },
+  {
+   "vocabulary_name": "Storyboard families (seven)",
+   "ordered_states": [
+    "Availability of artificial intelligence — stories one to four, nineteen and twenty-two",
+    "Deterministic safety while artificial intelligence is absent — stories five, seven and twenty-six",
+    "Human authority and who decides — stories six, twenty-seven, twenty-eight and twenty-nine",
+    "Delivery to a device that is not listening — stories eight, nine, twenty and twenty-five",
+    "Action integrity, duplication and expiry — stories thirteen, fourteen, fifteen and twenty-one",
+    "Version and model integrity — stories ten, sixteen, seventeen and eighteen",
+    "Truth of the record after recovery — stories eleven, twelve, twenty-three, twenty-four and thirty"
+   ],
+   "owning_concept": "Thirty storyboards",
+   "line": 92610
+  },
+  {
+   "vocabulary_name": "Work instruction difficulty levels",
+   "ordered_states": [
+    "simple",
+    "standard",
+    "expanded"
+   ],
+   "owning_concept": "Worker profile difficulty level",
+   "line": 91640
+  }
+ ],
+ "numeric_facts": [
+  {
+   "fact": "Torque specification for the wheel bolt step",
+   "value": "44 to 47",
+   "unit": "Newton metres",
+   "applies_to": "Assembly — Wheel Bolt Torque Verification, drawing DWG-A441",
+   "line": 91418
+  },
+  {
+   "fact": "Severity 1 capture reading on RB-0011",
+   "value": "38.0",
+   "unit": "Newton metres",
+   "applies_to": "deviation example",
+   "line": 91418
+  },
+  {
+   "fact": "Departure below the lower limit for the 38.0 Newton metre reading",
+   "value": "13.6",
+   "unit": "per cent",
+   "applies_to": "Severity 1 banding",
+   "line": 91418
+  },
+  {
+   "fact": "Severity 2 capture reading on RB-0007 / Red Bicycle Seven",
+   "value": "41.0",
+   "unit": "Newton metres",
+   "applies_to": "deviation example",
+   "line": 91615
+  },
+  {
+   "fact": "Departure below the lower limit for the 41.0 Newton metre reading",
+   "value": "6.8",
+   "unit": "per cent",
+   "applies_to": "Severity 2 banding",
+   "line": 91847
+  },
+  {
+   "fact": "Authored maximum expected duration for the wheel bolt torque screen",
+   "value": "90",
+   "unit": "seconds",
+   "applies_to": "screen timing expectation",
+   "line": 91715
+  },
+  {
+   "fact": "Percentage of maximum expected screen time at which coaching appears",
+   "value": "80",
+   "unit": "per cent",
+   "applies_to": "coaching trigger",
+   "line": 91715
+  },
+  {
+   "fact": "Elapsed time at which the coaching-opportunity signal was raised in the example",
+   "value": "72",
+   "unit": "seconds",
+   "applies_to": "illustrative example",
+   "line": 91715
+  },
+  {
+   "fact": "Time at which Maya captured the photograph and advanced",
+   "value": "96",
+   "unit": "seconds",
+   "applies_to": "illustrative example",
+   "line": 91715
+  },
+  {
+   "fact": "Curated default clip duration in the example",
+   "value": "20",
+   "unit": "seconds",
+   "applies_to": "illustrative example",
+   "line": 91715
+  },
+  {
+   "fact": "Shift Handoff Agent runs before shift end, configurable, default",
+   "value": "about 30",
+   "unit": "minutes",
+   "applies_to": "handoff schedule",
+   "line": 92121
+  },
+  {
+   "fact": "Grace period after which an unacknowledged brief flags on the plant-manager view",
+   "value": "30",
+   "unit": "minutes",
+   "applies_to": "shift handoff brief acknowledgement",
+   "line": 92127
+  },
+  {
+   "fact": "Unacknowledged Critical notification re-notification interval, standard",
+   "value": "4",
+   "unit": "hours",
+   "applies_to": "Critical notifications",
+   "line": 91948
+  },
+  {
+   "fact": "Unacknowledged Critical notification re-notification interval, Regulated-Industry mode",
+   "value": "1",
+   "unit": "hour",
+   "applies_to": "Critical notifications",
+   "line": 91948
+  },
+  {
+   "fact": "Quality Manager review queue aging highlights",
+   "value": "24, 48 and 72",
+   "unit": "hours",
+   "applies_to": "open deviation review queue",
+   "line": 92022
+  },
+  {
+   "fact": "Command Center board refresh default",
+   "value": "60",
+   "unit": "seconds",
+   "applies_to": "live board",
+   "line": 93470
+  },
+  {
+   "fact": "Command Center board refresh per-tenant floor",
+   "value": "30",
+   "unit": "seconds",
+   "applies_to": "live board",
+   "line": 93470
+  },
+  {
+   "fact": "Connectivity-loss protocol steps: platform alert, Tenant Admin banner, on-call escalation",
+   "value": "30, 60 and 120",
+   "unit": "minutes",
+   "applies_to": "device connectivity loss",
+   "line": 94416
+  },
+  {
+   "fact": "Tenant-set clock skew threshold",
+   "value": "about 5",
+   "unit": "minutes",
+   "applies_to": "device versus server timestamps",
+   "line": 91452
+  },
+  {
+   "fact": "Clock skew ceiling",
+   "value": "60",
+   "unit": "minutes",
+   "applies_to": "device versus server timestamps",
+   "line": 91452
+  },
+  {
+   "fact": "Gate item unactioned timeout at Severity 1 before re-routing",
+   "value": "10",
+   "unit": "minutes",
+   "applies_to": "gate items",
+   "line": 93885
+  },
+  {
+   "fact": "Gate item unactioned timeout otherwise before re-routing",
+   "value": "30",
+   "unit": "minutes",
+   "applies_to": "gate items",
+   "line": 93885
+  },
+  {
+   "fact": "Qualification expiry notification schedule",
+   "value": "14, 7, 1, 0",
+   "unit": "days",
+   "applies_to": "qualification expiries",
+   "line": 92184
+  },
+  {
+   "fact": "Worker personal data anonymisation for standard commercial tenants",
+   "value": "24",
+   "unit": "months",
+   "applies_to": "worker-associated media and personal data",
+   "line": 92450
+  },
+  {
+   "fact": "Consecutive agent-brief assembly failures forced before asserting dead-letter parking",
+   "value": "3",
+   "unit": "failures",
+   "applies_to": "TEST-44-004; dead-letter parking",
+   "line": 91562
+  },
+  {
+   "fact": "Devices unsynced out of total in the partial-coverage example",
+   "value": "3 of 8",
+   "unit": "devices",
+   "applies_to": "handoff brief coverage block",
+   "line": 92194
+  },
+  {
+   "fact": "Targets to which a multi-target containment extension applied in the example",
+   "value": "2 of 4",
+   "unit": "stations",
+   "applies_to": "partial application",
+   "line": 93867
+  },
+  {
+   "fact": "Number of Frontline Worker Application modules",
+   "value": "12",
+   "unit": "modules",
+   "applies_to": "Frontline surface",
+   "line": 92728
+  },
+  {
+   "fact": "Number of artificial-intelligence and fallback storyboards",
+   "value": "30",
+   "unit": "storyboards",
+   "applies_to": "section 44A",
+   "line": 92600
+  },
+  {
+   "fact": "Number of platform settings categories named in the Statement of Work §8.7.1",
+   "value": "10",
+   "unit": "categories",
+   "applies_to": "platform settings",
+   "line": 91329
+  },
+  {
+   "fact": "Number of router roles, one of them named fallback",
+   "value": "4",
+   "unit": "router roles",
+   "applies_to": "Model and Inference settings",
+   "line": 91335
+  },
+  {
+   "fact": "Number of command channel classes",
+   "value": "5",
+   "unit": "classes",
+   "applies_to": "command channel",
+   "line": 93459
+  },
+  {
+   "fact": "Number of distinct command states in the honest state model",
+   "value": "15",
+   "unit": "states",
+   "applies_to": "command channel",
+   "line": 93529
+  },
+  {
+   "fact": "Number of launch capture types",
+   "value": "7",
+   "unit": "capture types",
+   "applies_to": "DEC-CAP-001; number is SoW Fact §1.7",
+   "line": 92442
+  },
+  {
+   "fact": "Number of human security role types referenced in storyboard actor descriptions",
+   "value": "9",
+   "unit": "role types",
+   "applies_to": "storyboard actors",
+   "line": 92662
+  },
+  {
+   "fact": "Number of fixed tenant roles per §3.5",
+   "value": "5",
+   "unit": "roles",
+   "applies_to": "tenant role model",
+   "line": 92125
+  },
+  {
+   "fact": "Number of rungs in the universal agent-failure ladder",
+   "value": "8",
+   "unit": "rungs",
+   "applies_to": "agent failures",
+   "line": 91474
+  },
+  {
+   "fact": "Pre-built agents committed at V1, plus one later",
+   "value": "3 at V1, 1 later",
+   "unit": "agents",
+   "applies_to": "agent roster",
+   "line": 91459
+  },
+  {
+   "fact": "Fallback contracts per V1 agent in the register",
+   "value": "3 each",
+   "unit": "contracts",
+   "applies_to": "chapter 44 fallback register",
+   "line": 95349
+  },
+  {
+   "fact": "Fleet size used in the corrupt-model illustration",
+   "value": "1 of 40",
+   "unit": "tablets",
+   "applies_to": "device artifact corruption",
+   "line": 94138
+  },
+  {
+   "fact": "Retention horizon over which a divergence must still be explainable",
+   "value": "15",
+   "unit": "years",
+   "applies_to": "derived decision record full-term retention",
+   "line": 91936
+  },
+  {
+   "fact": "Containment checklist items completed offline in the example",
+   "value": "4 of 4",
+   "unit": "items",
+   "applies_to": "illustrative example",
+   "line": 91982
+  },
+  {
+   "fact": "Delay between the deviation reaching the platform and the late brief attaching",
+   "value": "1 hour 5 minutes",
+   "unit": "time",
+   "applies_to": "late brief production timestamp",
+   "line": 91982
+  },
+  {
+   "fact": "Delay quoted on the late-brief marker in the Command Center panel",
+   "value": "1 hour 47 minutes",
+   "unit": "time",
+   "applies_to": "SCR-CC-DEVWS-02",
+   "line": 91970
+  },
+  {
+   "fact": "Reasoning layer pause window in the Bright Bikes thread",
+   "value": "09:14 to 11:05",
+   "unit": "clock time",
+   "applies_to": "platform emergency pause",
+   "line": 92738
+  },
+  {
+   "fact": "Day Shift hours at Riverside Plant with digest delivery at 06:00",
+   "value": "06:00 to 14:00",
+   "unit": "clock time",
+   "applies_to": "SHIFT-DAY canon fixture",
+   "line": 92254
+  },
+  {
+   "fact": "Gate item age listed in the deterministic handoff pack example",
+   "value": "41",
+   "unit": "minutes",
+   "applies_to": "illustrative example",
+   "line": 92254
+  },
+  {
+   "fact": "Unacknowledged-brief flag wording example duration",
+   "value": "34",
+   "unit": "minutes",
+   "applies_to": "SCR-CC-HANDOFF-04",
+   "line": 92246
+  },
+  {
+   "fact": "Brief unacknowledged duration asserted in the test",
+   "value": "31",
+   "unit": "minutes",
+   "applies_to": "TEST-44-306",
+   "line": 92334
+  },
+  {
+   "fact": "Late brief attachment delay asserted in the test",
+   "value": "90",
+   "unit": "minutes",
+   "applies_to": "TEST-44-205",
+   "line": 92062
+  },
+  {
+   "fact": "Canon decisions referenced by this chapter without resolution",
+   "value": "18",
+   "unit": "decisions",
+   "applies_to": "platform canon",
+   "line": 95406
+  }
+ ],
+ "contradictions": [
+  {
+   "description": "Prevention Agent gating: §3.7 and §6.6.1 say it operates entirely under pre-authorised Studio policy; §8.3.2 says every action agent routes through a human gate and §8.3.3 labels it \"action, gated\".",
+   "conflicting_values": [
+    "authoring-time policy, runtime gate only for proposals beyond policy",
+    "every action agent routes through a human gate before any effect"
+   ],
+   "governing_decision": "DEC-GATE-001",
+   "line": 91468
+  },
+  {
+   "description": "Library pointers versus pinned packages: §5.7 says a library edit propagates to every referencing screen immediately; §5.14 and Part II say a run's package is pinned and never re-based.",
+   "conflicting_values": [
+    "immediate propagation to every referencing screen",
+    "pinned at assignment and never re-based"
+   ],
+   "governing_decision": "DEC-LIB-001",
+   "line": 91753
+  },
+  {
+   "description": "Plant Manager status: §3.5 fixes five tenant roles and states there is no Quality Director; §6.1.3 lists \"Plant Manager / Quality Director\" as a Command Center user group and §5.18 lists Plant Manager under Fixed role.",
+   "conflicting_values": [
+    "five tenant roles, no Quality Director",
+    "Plant Manager / Quality Director as a user group and a fixed-role row"
+   ],
+   "governing_decision": "DEC-ROLE-001",
+   "line": 92125
+  },
+  {
+   "description": "Capture types: §1.7 and §7.8.3 name measurement, scan, photo, checklist, boolean, e-signature and free text; §5.5.3 names measurement entry, photo capture, barcode or QR scan, checkbox confirmation, digital signature, free text and dropdown selection. Both say seven and they differ.",
+   "conflicting_values": [
+    "measurement, scan, photo, checklist, boolean, e-signature, free text",
+    "measurement entry, photo capture, barcode or quick-response scan, checkbox confirmation, digital signature, free text, dropdown selection"
+   ],
+   "governing_decision": "DEC-CAP-001",
+   "line": 92442
+  },
+  {
+   "description": "Vision gating Design B would make an agent's output part of the gating path, which §3.2 and §7.9.1 forbid, and would make a reasoning agent change state, which §3.7 and §8.3.2 forbid.",
+   "conflicting_values": [
+    "advisory-only interpretation (Design A)",
+    "deterministic gating input above a threshold (Design B)"
+   ],
+   "governing_decision": "DEC-VISION-003",
+   "line": 92446
+  },
+  {
+   "description": "Publication approval: §5.11.1 requires explicit human sign-off at Author, Reviewer and Release Authority; §5.16.3 and §6.7.4 have an approved Lane B proposal auto-publish a patch version with no second approval.",
+   "conflicting_values": [
+    "three-stage explicit human sign-off",
+    "Lane B auto-publish with no second approval"
+   ],
+   "governing_decision": "DEC-LANEB-001",
+   "line": 93378
+  },
+  {
+   "description": "Role ordering: the authority matrices use \"Supervisor+\" and \"QM+\" without defining an ordering, while the source states multi-role is additive, non-hierarchical, and records identity rather than \"acting as role\".",
+   "conflicting_values": [
+    "Supervisor+ / QM+ implying an ordering",
+    "five additive, non-hierarchical roles"
+   ],
+   "governing_decision": "DEC-PLUS-001",
+   "line": 93205
+  },
+  {
+   "description": "Reconnection ordering: safety argues stop-class commands must land before more work; data integrity argues captures must upload first so no unsynced evidence is risked. The source fixes neither.",
+   "conflicting_values": [
+    "commands first",
+    "captures first"
+   ],
+   "governing_decision": "DEC-SYNC-001",
+   "line": 94390
+  },
+  {
+   "description": "Offline wipe: §7.11 and §8.13.3 require a final sync attempt before erasure, which an offline device cannot perform; the source does not state how long a wipe may remain pending or what happens if the device never returns.",
+   "conflicting_values": [
+    "final sync attempt required before erasure",
+    "device is offline and cannot sync"
+   ],
+   "governing_decision": "DEC-WIPE-001",
+   "line": 94810
+  },
+  {
+   "description": "Soft suspension release: the source says both that release comes from an operator signal and that it lifts automatically on payment; no payment integration exists.",
+   "conflicting_values": [
+    "explicit operator signal in the Super Admin platform console",
+    "automatic release on a payment event"
+   ],
+   "governing_decision": "DEC-SUSP-001",
+   "line": 94810
+  },
+  {
+   "description": "Precedence among a global disable, a tenant feature override, and a tier entitlement is not settled in the source.",
+   "conflicting_values": [
+    "global disable",
+    "tenant override",
+    "tier entitlement (Agent Author tier-gated to Growth and Enterprise)"
+   ],
+   "governing_decision": "DEC-FEAT-003",
+   "line": 94225
+  },
+  {
+   "description": "The blueprint commission's storyboards presume a worker can ask an agent a question; the Frontline module list contains no worker-initiated question channel at V1.",
+   "conflicting_values": [
+    "commission storyboards presume a question channel",
+    "twelve Frontline modules contain none; coaching is agent-initiated"
+   ],
+   "governing_decision": "DEC-ASK-001",
+   "line": 92730
+  },
+  {
+   "description": "Commission storyboards 3, 11 and 17 presume a device-resident artificial-intelligence capability; §7.9.1 layer (c) places the reasoning layer server-side and online-only with no local model at V1.",
+   "conflicting_values": [
+    "local artificial intelligence presumed",
+    "reasoning layer server-side and online-only"
+   ],
+   "governing_decision": "DEC-LOCALAI-001",
+   "line": 92770
+  }
+ ],
+ "controls": [
+  {
+   "label": "Replay",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "Re-plays the rendered coaching asset locally",
+   "line": 91689
+  },
+  {
+   "label": "Dismiss",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "Collapses the card; recorded as a learning and visibility signal",
+   "line": 91689
+  },
+  {
+   "label": "Show help",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "Restores a dismissed card from the status strip",
+   "line": 91697
+  },
+  {
+   "label": "Report a problem",
+   "surface": "SURF-FL",
+   "module_id": "Coaching Rendering",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "Safety flag; suppresses the asset locally and creates a review item",
+   "line": 93780
+  },
+  {
+   "label": "help control",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "Worker-initiated question channel; exists only under DEC-ASK-001",
+   "line": 92782
+  },
+  {
+   "label": "step-away flag",
+   "surface": "SURF-FL",
+   "module_id": "Run Player",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "Raises escalation and parks the step in one action",
+   "line": 93093
+  },
+  {
+   "label": "Next",
+   "surface": "SURF-FL",
+   "module_id": "Gates and Sign-Off Authority",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "Blocked by the proof gate until required evidence exists",
+   "line": 91615
+  },
+  {
+   "label": "Acknowledge",
+   "surface": "SURF-CC",
+   "module_id": "shift handoff panel",
+   "allowed_roles": [
+    "Supervisor",
+    "Quality Manager"
+   ],
+   "effect": "Command Center action 6; never blocks a shift from starting",
+   "line": 92240
+  },
+  {
+   "label": "Annotate",
+   "surface": "SURF-CC",
+   "module_id": "shift handoff panel",
+   "allowed_roles": [
+    "Supervisor",
+    "Quality Manager"
+   ],
+   "effect": "Adds an annotation to the brief; append-only",
+   "line": 92240
+  },
+  {
+   "label": "Request release with a note",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "allowed_roles": [
+    "Supervisor"
+   ],
+   "effect": "Creates an item for the Quality Manager; releases nothing",
+   "line": 91976
+  },
+  {
+   "label": "release control",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "allowed_roles": [
+    "Quality Manager"
+   ],
+   "effect": "Action 4; releases the lot hold after disposition",
+   "line": 93297
+  },
+  {
+   "label": "Mark evidence reviewed",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "allowed_roles": [
+    "Quality Manager"
+   ],
+   "effect": "Command Center action 7",
+   "line": 92496
+  },
+  {
+   "label": "acknowledgement control",
+   "surface": "SURF-CC",
+   "module_id": "alert feed",
+   "allowed_roles": [
+    "Supervisor",
+    "Quality Manager"
+   ],
+   "effect": "Action 1, Supervisor and above; distinct state from resolution",
+   "line": 93095
+  },
+  {
+   "label": "grant control",
+   "surface": "SURF-CC",
+   "module_id": "alert feed",
+   "allowed_roles": [
+    "Quality Manager",
+    "Supervisor"
+   ],
+   "effect": "Action 10; grants a qualification clearance",
+   "line": 93273
+  },
+  {
+   "label": "reassignment",
+   "surface": "SURF-CC",
+   "module_id": "command list",
+   "allowed_roles": [
+    "Supervisor"
+   ],
+   "effect": "Action 8; creates a reassignment command on the command channel",
+   "line": 93463
+  },
+  {
+   "label": "sync-conflict resolution",
+   "surface": "SURF-CC",
+   "module_id": "sync state and connectivity module",
+   "allowed_roles": [
+    "Quality Manager"
+   ],
+   "effect": "Action 5, Quality Manager and above, Supervisors viewing only",
+   "line": 94040
+  },
+  {
+   "label": "clear-with-reason",
+   "surface": "SURF-CC",
+   "module_id": "safety flag queue",
+   "allowed_roles": [
+    "Quality Manager"
+   ],
+   "effect": "Clears a flagged coaching asset with a recorded reason",
+   "line": 93782
+  },
+  {
+   "label": "refer-to-Studio",
+   "surface": "SURF-CC",
+   "module_id": "safety flag queue",
+   "allowed_roles": [
+    "Quality Manager"
+   ],
+   "effect": "Refers the asset for retirement or replacement through the approval chain",
+   "line": 93782
+  },
+  {
+   "label": "annotation control",
+   "surface": "SURF-CC",
+   "module_id": "deviation workspace",
+   "allowed_roles": [
+    "Quality Manager",
+    "Supervisor"
+   ],
+   "effect": "Adds append-only annotation; never edits the record",
+   "line": 95298
+  },
+  {
+   "label": "confirm control",
+   "surface": "SURF-FL",
+   "module_id": "Data Capture and Evidence",
+   "allowed_roles": [
+    "Worker"
+   ],
+   "effect": "The authored capture, not an accept of the model's output",
+   "line": 92484
+  },
+  {
+   "label": "decide again",
+   "surface": "SURF-CC",
+   "module_id": "gate queue",
+   "allowed_roles": [
+    "Quality Manager"
+   ],
+   "effect": "Presented on rejection instead of a retry control",
+   "line": 93867
+  }
+ ],
+ "failures_fallbacks": [
+  {
+   "id": "FB-AGT-PREV-01",
+   "trigger": "Coaching selection unavailable — network loss, platform pause, retrieval fault, corpus unavailable, locale variant absent, latency beyond the useful moment",
+   "first_fallback": "The screen's curated default asset for the worker's locale, from the pinned package",
+   "fallback_failure": "Where the profile's difficulty level is absent, render the authored standard level and record a package-completeness defect; where no instruction text exists, render the screen's proof and specification requirements and direct the worker to the Supervisor",
+   "terminal_safe_state": "The worker proceeds under authored instructions with all gates intact, or requests supervisor help; no gate relaxes",
+   "recovery": "The agent returns; the next coaching opportunity uses the primary path",
+   "line": 91721
+  },
+  {
+   "id": "FB-AGT-PREV-02",
+   "trigger": "The returned asset is stale, withdrawn, or mismatched",
+   "first_fallback": "Render the pinned asset and record a pointer-divergence event for the learning read view",
+   "fallback_failure": "Dependent on DEC-LIB-001; neither reading is chosen",
+   "terminal_safe_state": "Pinned asset rendered, divergence recorded",
+   "recovery": "Corpus and workflow alignment through authoring",
+   "line": 91753
+  },
+  {
+   "id": "FB-AGT-PREV-03",
+   "trigger": "Duplicate intervention — a retried request or a reconnecting device replaying a stale opportunity",
+   "first_fallback": "Discard at the device any delivery bearing an already-rendered idempotency key and record the discard once",
+   "fallback_failure": "An opportunity whose step execution is terminal is never rendered; it converts into a learning signal",
+   "terminal_safe_state": "Single render per idempotency key",
+   "recovery": "Fresh opportunity on the current step",
+   "line": 91755
+  },
+  {
+   "id": "FB-AGT-DEV-01",
+   "trigger": "The deviation brief cannot be assembled — pause, reasoning-layer fault, memory store unavailable, partial context, timeout, assembly failure after retries",
+   "first_fallback": "Render the deterministic record in full with checklist state, routing state, authored evidence gap list, plus an honest banner",
+   "fallback_failure": "Where the Command Center cannot render the deterministic record, the Delivery Operations Hub record remains authority and the Command Center shows an explicit unavailable state rather than a partial record",
+   "terminal_safe_state": "The lot stays held; the run stays blocked pending Quality Manager disposition",
+   "recovery": "Brief assembly retried on agent return, bounded per DEC-AIRETRY-001, then dead-lettered with a named owner",
+   "line": 91988
+  },
+  {
+   "id": "FB-AGT-DEV-02",
+   "trigger": "Classification divergence — the agent's stated band differs from the deterministic band at brief attachment",
+   "first_fallback": "None needed for safety; the divergence flag is raised and the brief attaches with its interpretation clearly subordinate",
+   "fallback_failure": "Where divergence rate crosses the monitored threshold for an agent version, that version is a platform incident candidate and the emergency pause is the containment action",
+   "terminal_safe_state": "Deterministic classification in force; brief withheld from display if it cannot be rendered subordinately",
+   "recovery": "Evaluation regression candidate and agent version review",
+   "line": 92020
+  },
+  {
+   "id": "FB-AGT-DEV-03",
+   "trigger": "Escalation delivery fails after the deviation is recorded",
+   "first_fallback": "The escalation record retries delivery on the configured channels — in-app and email only",
+   "fallback_failure": "The nobody-on-shift default routes to the tenant's Quality Manager role irrespective of shift, marked as a fallback delivery",
+   "terminal_safe_state": "The hold persists indefinitely with no automatic release; the deviation ages on the alert feed and review queue at 24, 48 and 72 hours",
+   "recovery": "A named human acknowledges and dispositions",
+   "line": 92022
+  },
+  {
+   "id": "FB-AGT-SHA-01",
+   "trigger": "No brief is produced — schedule misfire, reasoning-layer pause or fault, source-data unavailability, assembly failure, delivery failure",
+   "first_fallback": "The honest no-brief state, worded as in §6.9.3, on the shift handoff panel and the agent activity panel",
+   "fallback_failure": "Where even the deterministic pack cannot be assembled, the incoming supervisor works from the Delivery Operations Hub's own live queues",
+   "terminal_safe_state": "The shift starts on time with no brief, an honest state displayed, and platform operations notified. No run is blocked and no hold is released",
+   "recovery": "The next scheduled occurrence runs normally; no backfill of missed briefs is attempted",
+   "line": 92260
+  },
+  {
+   "id": "FB-AGT-SHA-02",
+   "trigger": "The brief is produced from incomplete data because some in-scope devices had not synced",
+   "first_fallback": "Produce the brief with a coverage block naming every unsynced device",
+   "fallback_failure": "Where coverage falls below the tenant's configured minimum, produce the brief but mark the readiness section explicitly as unverifiable",
+   "terminal_safe_state": "A partial brief that says it is partial",
+   "recovery": "Devices sync; a revised brief is produced where late data is material",
+   "line": 92292
+  },
+  {
+   "id": "FB-AGT-SHA-03",
+   "trigger": "Duplicate or conflicting briefs — repeat invocation of one occurrence, or overlapping area-scoped and site-scoped handoffs",
+   "first_fallback": "Idempotency-key suppression for repeat invocations of one scheduled occurrence",
+   "fallback_failure": "Where an automatic discrepancy check cannot run, both are displayed unmerged with a plain note that the panel holds more than one artifact for this shift",
+   "terminal_safe_state": "Multiple honest artifacts, none merged, the operational record authoritative over all of them",
+   "recovery": "Human reading against the record",
+   "line": 92294
+  },
+  {
+   "id": "FB-AGT-VIS-01",
+   "trigger": "Vision inference unavailable or inconclusive — camera failure, missing/corrupt/incompatible model, timeout, low confidence, queue overflow, tenant disablement, platform pause, rollback in progress",
+   "first_fallback": "Human inspection against the step's authored criteria",
+   "fallback_failure": "The step parks; the run continues on other steps where the authored sequence permits; a Supervisor is notified",
+   "terminal_safe_state": "The step is incomplete and the gate unpassed until a human completes the authored proof. A failed inference is never a pass",
+   "recovery": "A verified model of a compatible version returns a result at or above the decided confidence threshold; no backfill to closed outcomes",
+   "line": 92510
+  },
+  {
+   "id": "FB-AGT-VIS-02",
+   "trigger": "A model version must be withdrawn",
+   "first_fallback": "Revert to the previous verified version",
+   "fallback_failure": "Disable the agent for the affected scope, then the platform emergency pause per tenant or platform-wide",
+   "terminal_safe_state": "No vision, full human inspection, honest unavailability",
+   "recovery": "A replacement version re-enters the evaluation gate",
+   "line": 92542
+  },
+  {
+   "id": "FB-AGT-VIS-03",
+   "trigger": "One device carries a corrupt or mismatched model (conditional on DEC-VISION-004)",
+   "first_fallback": "That device disables vision locally and reverts to human inspection while the rest of the fleet is unaffected",
+   "fallback_failure": "The device requests a fresh artifact at its next sync; on repeated failure it is flagged in the fleet view for physical attention",
+   "terminal_safe_state": "One device without vision, every guarantee intact, no cross-device contamination",
+   "recovery": "A verified artifact applies and passes re-verification",
+   "line": 92544
+  },
+  {
+   "id": "FB-AI-01",
+   "trigger": "Worker asks artificial intelligence while offline",
+   "first_fallback": "Render the step's authored Work Instructions at the profile difficulty level; queue the request as an operational event",
+   "fallback_failure": "Where the profile difficulty level is absent from the package, render the standard level and record a package-completeness defect",
+   "terminal_safe_state": "The step remains incomplete with its gate unpassed; the worker moves to another assigned run",
+   "recovery": "The request uploads as a signal and is never converted into a live answer",
+   "line": 92793
+  },
+  {
+   "id": "FB-AI-02",
+   "trigger": "Worker online but cloud artificial intelligence is down",
+   "first_fallback": "Curated default asset, then authored Work Instructions; the circuit breaker opens after the configured consecutive failures",
+   "fallback_failure": "Where the Supervisor is also unreachable, the nobody-on-shift default applies",
+   "terminal_safe_state": "Work continues under authored instructions with every gate intact; no step advances without its proof",
+   "recovery": "A single probe after the cooling interval; success closes the breaker",
+   "line": 92876
+  },
+  {
+   "id": "FB-AI-03",
+   "trigger": "Local artificial-intelligence capability fails its integrity, version or execution check but cached guidance exists",
+   "first_fallback": "Curated default asset from the pinned package for the worker's exact locale",
+   "fallback_failure": "Where the curated default is absent for the locale, authored Work Instructions render and a locale-completeness defect is recorded",
+   "terminal_safe_state": "Work continues under approved guidance with all gates intact",
+   "recovery": "Failure record uploads; repeated failures aggregate into a fleet signal",
+   "line": 92960
+  },
+  {
+   "id": "FB-AI-04",
+   "trigger": "No artificial intelligence and no cached guidance",
+   "first_fallback": "Authored Work Instructions at the profile level, then the standard level",
+   "fallback_failure": "Where the Supervisor is unreachable, the nobody-on-shift default routes to the tenant's Quality Manager role, marked as a fallback delivery",
+   "terminal_safe_state": "The step parks; the worker continues other assigned runs; nothing advances without the authored proof",
+   "recovery": "A republished workflow version through the Studio approval chain closes the content gap",
+   "line": 93041
+  },
+  {
+   "id": "FB-AI-05",
+   "trigger": "Severity 1 deviation while artificial intelligence is unavailable",
+   "first_fallback": "Not applicable to the safety path — there is no dependency; the agent brief falls back to the deterministic record render",
+   "fallback_failure": "Where the Command Center is itself unavailable, the Delivery Operations Hub record remains authoritative and readable",
+   "terminal_safe_state": "The lot stays held; the run is blocked pending Quality Manager disposition",
+   "recovery": "Elena, as Quality Manager, dispositions and releases; no one else can",
+   "line": 93129
+  },
+  {
+   "id": "FB-AI-06",
+   "trigger": "Supervisor unavailable — an acknowledgement timer expires, or role resolution finds nobody on shift",
+   "first_fallback": "Next authored fallback tier, then the nobody-on-shift default to the Quality Manager role, each marked as a fallback delivery",
+   "fallback_failure": "Storyboard 27 applies; the work stays in its safe state and the notification re-notifies on the Critical schedule",
+   "terminal_safe_state": "The parked run, held lot, or blocked step persists. Nothing is approved, released, or advanced by timeout",
+   "recovery": "A named human decides; the clearance rides the command channel and applies at the device's next sync",
+   "line": 93221
+  },
+  {
+   "id": "FB-AI-07",
+   "trigger": "Quality Manager releases a hold after reconnection",
+   "first_fallback": "Where a device does not acknowledge, the command remains queued and the propagation panel keeps naming it",
+   "fallback_failure": "Where a device is lost or wiped, the hold is reconciled centrally and outstanding commands are recorded as undeliverable rather than as applied",
+   "terminal_safe_state": "The lot stays held on every device that has not acknowledged the release; a partial release is displayed as partial",
+   "recovery": "Each device downloads, validates, applies and acknowledges at its next sync",
+   "line": 93305
+  },
+  {
+   "id": "FB-AI-08",
+   "trigger": "Studio publishes while the tablet is offline",
+   "first_fallback": "Version pinning — the in-flight run continues on its own version with no degradation",
+   "fallback_failure": "Where package distribution fails at reconnection, the device continues on its current package, distribution is retried, and the device is flagged as behind in the fleet view",
+   "terminal_safe_state": "Not applicable — no unsafe condition arises; the run completes on approved, version-stamped content",
+   "recovery": "Adoption at the tenant's configured boundary: next sync, or next run boundary (the platform default)",
+   "line": 93393
+  },
+  {
+   "id": "FB-AI-09",
+   "trigger": "Command Center issues an action to an offline device",
+   "first_fallback": "The command waits in the queue in an honest state; no substitute action is invented",
+   "fallback_failure": "Where the device never returns, the command is recorded as undeliverable and the intended change is achieved through a different route with its own record",
+   "terminal_safe_state": "The pre-command arrangement remains in force and is displayed as in force",
+   "recovery": "The device downloads pending commands in order at its next sync",
+   "line": 93474
+  },
+  {
+   "id": "FB-AI-10",
+   "trigger": "Artificial intelligence uses an outdated Work Instruction — response content derives from a version other than the run's pinned version",
+   "first_fallback": "Suppress the mismatched asset; render pinned content; record the divergence",
+   "fallback_failure": "Where the pinned package's guidance is itself absent, storyboard 4 applies",
+   "terminal_safe_state": "Work continues on pinned, approved content with every gate intact",
+   "recovery": "Corpus and workflow alignment through authoring",
+   "line": 93566
+  },
+  {
+   "id": "FB-AI-11",
+   "trigger": "Local and cloud artificial intelligence disagree (conditional on DEC-LOCALAI-001)",
+   "first_fallback": "Deterministic precedence, then the configured primary for the connectivity state",
+   "fallback_failure": "Where both responses fail the pinned-version check, both are suppressed and storyboard 4's cascade applies",
+   "terminal_safe_state": "Work continues on pinned, approved content",
+   "recovery": "Divergence data reaches the evaluation harness as a regression candidate",
+   "line": 93645
+  },
+  {
+   "id": "FB-AI-12",
+   "trigger": "Worker flags an agent-delivered asset as unsafe",
+   "first_fallback": "Local suppression plus the ordinary guidance cascade of section 44.1",
+   "fallback_failure": "Where the flag cannot be delivered, it remains queued and the local suppression persists",
+   "terminal_safe_state": "The flagged asset is not shown on the reporting device; the worker proceeds on authored Work Instructions",
+   "recovery": "The asset is cleared with a recorded reason, or retired or replaced through the Studio approval chain",
+   "line": 93730
+  },
+  {
+   "id": "FB-AI-13",
+   "trigger": "An agent action partially succeeds across multiple targets",
+   "first_fallback": "Per-target commands persist in their honest states; no aggregate success is displayed",
+   "fallback_failure": "Where a target cannot be reached, the affected scope is held centrally and the run at that station is blocked at its next server-mediated checkpoint; where none exists, physical control is the only remedy and the record says so",
+   "terminal_safe_state": "The effect stands where applied; unaffected targets continue under their existing constraints, displayed as unchanged",
+   "recovery": "Offline targets apply on their next sync; withdrawal is a recorded compensating action per applied target",
+   "line": 93816
+  },
+  {
+   "id": "FB-AI-14",
+   "trigger": "An approved artificial-intelligence action expires before delivery",
+   "first_fallback": "Transition to expired; notify; re-evaluate the underlying condition",
+   "fallback_failure": "Where the underlying condition is a safety condition still in force, that condition persists independently, because holds do not expire",
+   "terminal_safe_state": "The pre-approval state remains in force; nothing partial is applied",
+   "recovery": "A fresh gate item with fresh context, decided by a person now, linked to the expired one",
+   "line": 93901
+  },
+  {
+   "id": "FB-AI-15",
+   "trigger": "A retry risks a duplicate action — a send attempt whose outcome is unknown to the sender",
+   "first_fallback": "Retry with the same key, bounded per DEC-AIRETRY-001, with backoff",
+   "fallback_failure": "Where retries are exhausted, the item parks in a dead-letter state with a named owner, visible on the device sync state and in the Command Center sync-state module; an unresolvable parked item escalates as a data-integrity item and is never discarded",
+   "terminal_safe_state": "The item remains in a named, visible state on both sides; nothing is duplicated and nothing is lost",
+   "recovery": "Server deduplication by key returns the existing record state",
+   "line": 93992
+  },
+  {
+   "id": "FB-AI-16",
+   "trigger": "A bad model is rolled back",
+   "first_fallback": "Checkpoint and park in-flight agent runs; restore the previous verified version",
+   "fallback_failure": "Disable the agent for the affected scope; then platform-wide or per-tenant emergency pause",
+   "terminal_safe_state": "Agents unavailable, deterministic layer untouched, every raised gate still decidable by a human",
+   "recovery": "Resume as a separate audited act; withdrawn-version outputs marked, never deleted",
+   "line": 94073
+  },
+  {
+   "id": "FB-AI-17",
+   "trigger": "One device has a corrupt model artifact",
+   "first_fallback": "Local feature disablement and reversion to the authored or deterministic path",
+   "fallback_failure": "The Supervisor swaps the tablet and runs are reassigned through action 8; where no spare exists the worker continues on the authored path indefinitely",
+   "terminal_safe_state": "One device without an optional capability. No run stops, no gate relaxes, no hold changes",
+   "recovery": "Replacement artifact applied at next sync and verified before use; repeated failure flags the device for physical attention",
+   "line": 94157
+  },
+  {
+   "id": "FB-AI-18",
+   "trigger": "Artificial intelligence is disabled for one tenant — per-tenant pause, tier entitlement boundary, or tenant feature override",
+   "first_fallback": "Every agent-dependent behaviour falls to its deterministic or authored path per sections 44.1 to 44.4",
+   "fallback_failure": "Where a tenant's operations cannot proceed acceptably without agents, that is a commercial and operational conversation, not a technical fallback; the platform does not degrade safety to compensate",
+   "terminal_safe_state": "Full deterministic operation, honest unavailability, parked agent runs, decidable gates",
+   "recovery": "A separately approved resume",
+   "line": 94240
+  },
+  {
+   "id": "FB-AI-19",
+   "trigger": "Platform-wide artificial-intelligence outage across more than one tenant",
+   "first_fallback": "Every agent-dependent behaviour falls to its deterministic or authored path",
+   "fallback_failure": "The platform-wide emergency pause as a deliberate containment action, with its fixed semantics",
+   "terminal_safe_state": "Full deterministic operation platform-wide, honest unavailability everywhere, parked agent runs, decidable gates",
+   "recovery": "Staged and audited recovery; resume from a pause is a separate act",
+   "line": 94325
+  },
+  {
+   "id": "FB-AI-20",
+   "trigger": "Reconnection fails midway",
+   "first_fallback": "Resume from the last completed item on the next connectivity window, with the same keys and order",
+   "fallback_failure": "Persistently failing items park in a dead-letter state with a named owner and appear in the sync-conflict review panel where a human decision is needed",
+   "terminal_safe_state": "The device holds its data durably and continues working offline; nothing is lost, duplicated, or presented as synced",
+   "recovery": "Connectivity-loss protocol at 30, 60 and 120 minutes; queue resumes in order",
+   "line": 94405
+  },
+  {
+   "id": "FB-AI-21",
+   "trigger": "A queued question is obsolete on reconnection",
+   "first_fallback": "Conversion to a learning signal; the request is never answered late",
+   "fallback_failure": "Not applicable — there is nothing further to fall back to; the request has no operational consequence",
+   "terminal_safe_state": "Not applicable — no unsafe condition arises; the step was completed under authored guidance",
+   "recovery": "The worker asks again on the current step, which is a fresh request in a fresh context",
+   "line": 94486
+  },
+  {
+   "id": "FB-AI-22",
+   "trigger": "Vision inference fails or returns a below-threshold result",
+   "first_fallback": "Revert to human inspection against the authored criteria",
+   "fallback_failure": "The step's alternative authored proof where one exists; then the step parks and a Supervisor is notified",
+   "terminal_safe_state": "The gate is unpassed until a human completes the authored proof. The part does not move on",
+   "recovery": "A verified model of a compatible version returns; no inference is applied retroactively to a closed step",
+   "line": 94568
+  },
+  {
+   "id": "FB-AI-23",
+   "trigger": "Storage fills with queued artificial-intelligence work — storage crosses the warning level",
+   "first_fallback": "Evict reconstructible cached media; stop collecting optional agent requests; apply back-pressure",
+   "fallback_failure": "Client Decision Required — DEC-STORE-001. This blueprint states only the prohibition: evidence is never discarded",
+   "terminal_safe_state": "A controlled stop on new work rather than any loss of recorded work",
+   "recovery": "The queue drains in order with idempotency keys; storage recovers; optional collection resumes",
+   "line": 94663
+  },
+  {
+   "id": "FB-AI-24",
+   "trigger": "Artificial intelligence recovers but dashboards remain stale",
+   "first_fallback": "Per-panel freshness markers and freshness classes on every view",
+   "fallback_failure": "Where a panel cannot establish its own freshness, it displays an explicit unknown-freshness state rather than a number",
+   "terminal_safe_state": "Not applicable — no unsafe condition arises, provided freshness is displayed",
+   "recovery": "Reconciliation completes when every panel's freshness marker postdates the recovery",
+   "line": 94743
+  },
+  {
+   "id": "FB-AI-25",
+   "trigger": "An offline tablet is suspended or wiped",
+   "first_fallback": "The command waits in an honest pending state; the device continues to operate under its existing authorisation until it receives the command",
+   "fallback_failure": "Where the device never returns, data is protected by device encryption and the application's encrypted store; the command is reported as undeliverable. What more should happen is DEC-WIPE-001",
+   "terminal_safe_state": "The device is either locked or wiped after contact, or the command remains honestly pending. There is no third, ambiguous state",
+   "recovery": "Final sync attempt before erasure where connectivity permits, then erasure, then acknowledgement",
+   "line": 94825
+  },
+  {
+   "id": "FB-AI-26",
+   "trigger": "The primary artificial-intelligence fallback also fails — the second fallback also returns nothing",
+   "first_fallback": "Exhausted. The device stops attempting and states its position",
+   "fallback_failure": "The nobody-on-shift default to the Quality Manager role, marked as a fallback delivery",
+   "terminal_safe_state": "The step parks. The run is not advanced. Other assigned runs remain available. Nothing is generated to fill the gap",
+   "recovery": "A republished version closes the content gap through the Studio approval chain",
+   "line": 94907
+  },
+  {
+   "id": "FB-AI-27",
+   "trigger": "No authorized human is available — role resolution finds no holder of the required authority",
+   "first_fallback": "Authored fallback tiers, then the nobody-on-shift default, then Critical re-notification",
+   "fallback_failure": "None exists, by design. There is no mechanism by which a hold releases without a Quality Manager, and the absence of one is the safety property",
+   "terminal_safe_state": "The hold persists indefinitely. This is the correct outcome, not a failure of the design",
+   "recovery": "A Quality Manager eventually dispositions and releases; the first recorded release stands",
+   "line": 94991
+  },
+  {
+   "id": "FB-AI-28",
+   "trigger": "An outage crosses a shift boundary",
+   "first_fallback": "The honest no-brief state plus the deterministic handoff pack where implemented; escalation to the plant-manager view",
+   "fallback_failure": "The incoming Supervisor works directly from the Delivery Operations Hub's live queues",
+   "terminal_safe_state": "The shift starts on time with degraded awareness, honestly stated. No run is blocked and no hold is released",
+   "recovery": "The next scheduled handoff runs normally; missed occurrences are recorded as misfires and are not backfilled",
+   "line": 95076
+  },
+  {
+   "id": "FB-AI-29",
+   "trigger": "Recovery occurs after a personnel change",
+   "first_fallback": "Attribution by the identity recorded in the envelope at capture time; role resolution to current holders for outstanding decisions",
+   "fallback_failure": "Where an outstanding decision has no current holder, storyboards 6 and 27 apply",
+   "terminal_safe_state": "Outstanding decisions remain open and visibly aging; nothing auto-resolves because the original person left",
+   "recovery": "Ordinary queue drain with idempotency keys; attribution unaffected by arrival order",
+   "line": 95161
+  },
+  {
+   "id": "FB-AI-30",
+   "trigger": "Artificial intelligence conflicts with the official record",
+   "first_fallback": "The authoritative source stands; the agent output is marked",
+   "fallback_failure": "Where the authoritative source is itself suspect, the record's own correction discipline applies — append-only, never overwrite",
+   "terminal_safe_state": "Not applicable — no unsafe operational condition arises from a marked, subordinated agent output",
+   "recovery": "The conflict feeds the evaluation harness as a regression candidate",
+   "line": 95251
+  },
+  {
+   "id": "FB-AI-31",
+   "trigger": "Illustrative future row: a coaching request issued while a run is being cancelled, producing an agent call against a run that no longer exists",
+   "first_fallback": "The obsolescence tests of storyboard 21 applied at the run level",
+   "fallback_failure": "unstated — the register points at section 44.1, which would be updated with the treatment and its tests",
+   "terminal_safe_state": "unstated",
+   "recovery": "unstated",
+   "line": 95353
+  }
+ ],
+ "fixtures_cast": [
+  {
+   "name": "Maya",
+   "kind": "person",
+   "role_or_type": "Worker (ROLE-TEN-WKR) at Wheel Station 2",
+   "line": 91418
+  },
+  {
+   "name": "Sam Okonkwo",
+   "kind": "person",
+   "role_or_type": "Supervisor, outgoing/incoming on shift",
+   "line": 92220
+  },
+  {
+   "name": "Elena",
+   "kind": "person",
+   "role_or_type": "Quality Manager; sole release authority; Release Authority by tenant default",
+   "line": 91418
+  },
+  {
+   "name": "Ahmed",
+   "kind": "person",
+   "role_or_type": "substitute Worker; second device on LOT-WB-2291",
+   "line": 91982
+  },
+  {
+   "name": "Priya",
+   "kind": "person",
+   "role_or_type": "Tenant Admin who set the adoption timing",
+   "line": 93396
+  },
+  {
+   "name": "Daniel",
+   "kind": "person",
+   "role_or_type": "Platform Engineer; maker for rollback and pause",
+   "line": 91524
+  },
+  {
+   "name": "Noah",
+   "kind": "person",
+   "role_or_type": "Admin; approver under maker-checker",
+   "line": 91524
+  },
+  {
+   "name": "Aisha",
+   "kind": "person",
+   "role_or_type": "Root Super Admin; critical-class approval",
+   "line": 94076
+  },
+  {
+   "name": "Omar",
+   "kind": "person",
+   "role_or_type": "Read-only Auditor; works from the Delivery Operations Hub record",
+   "line": 95254
+  },
+  {
+   "name": "Bright Bikes",
+   "kind": "tenant",
+   "role_or_type": "recurring illustrative tenant; TEN-BRIGHTBIKES",
+   "line": 91418
+  },
+  {
+   "name": "TEN-BRIGHTBIKES",
+   "kind": "tenant identifier",
+   "role_or_type": "tenant record identifier",
+   "line": 94241
+  },
+  {
+   "name": "Riverside Plant",
+   "kind": "site",
+   "role_or_type": "plant where Day Shift runs 06:00 to 14:00",
+   "line": 92254
+  },
+  {
+   "name": "Assembly Line A",
+   "kind": "area",
+   "role_or_type": "line containing the far bay with no signal",
+   "line": 91847
+  },
+  {
+   "name": "Wheel Station 2",
+   "kind": "workstation",
+   "role_or_type": "Maya's station",
+   "line": 91418
+  },
+  {
+   "name": "TAB-014",
+   "kind": "device",
+   "role_or_type": "Maya's Frontline tablet",
+   "line": 91418
+  },
+  {
+   "name": "TAB-021",
+   "kind": "device",
+   "role_or_type": "tablet named as unsynced / reassignment target",
+   "line": 92194
+  },
+  {
+   "name": "TAB-033",
+   "kind": "device",
+   "role_or_type": "tablet offline overnight in the paint bay",
+   "line": 92194
+  },
+  {
+   "name": "LOT-WB-2291",
+   "kind": "lot",
+   "role_or_type": "wheel bolt lot held by Severity 1 classification",
+   "line": 91418
+  },
+  {
+   "name": "RB-0011",
+   "kind": "unit",
+   "role_or_type": "serialized unit with 38.0 Newton metre capture",
+   "line": 91418
+  },
+  {
+   "name": "RB-0007",
+   "kind": "unit",
+   "role_or_type": "Red Bicycle Seven; 41.0 Newton metres, Severity 2",
+   "line": 91615
+  },
+  {
+   "name": "RB-0019",
+   "kind": "unit",
+   "role_or_type": "unit used in the later-release vision example",
+   "line": 92504
+  },
+  {
+   "name": "RUN-2026-08-14-A",
+   "kind": "run",
+   "role_or_type": "run in progress on Assembly Line A",
+   "line": 91524
+  },
+  {
+   "name": "DWG-A441",
+   "kind": "drawing",
+   "role_or_type": "source of the 44 to 47 Newton metre specification",
+   "line": 91418
+  },
+  {
+   "name": "Assembly — Wheel Bolt Torque Verification",
+   "kind": "workflow",
+   "role_or_type": "workflow executed at v2.1.0 and, in the later release, v2.2.0",
+   "line": 91524
+  },
+  {
+   "name": "SHIFT-DAY",
+   "kind": "canon fixture",
+   "role_or_type": "Day Shift 06:00 to 14:00 with digest delivery at 06:00",
+   "line": 92254
+  },
+  {
+   "name": "AUD-BB-000441",
+   "kind": "audit identifier",
+   "role_or_type": "start of this chapter's illustrative audit range",
+   "line": 91715
+  },
+  {
+   "name": "AUD-BB-000462",
+   "kind": "audit identifier",
+   "role_or_type": "end of the vision-example audit entries",
+   "line": 92504
+  },
+  {
+   "name": "es-MX",
+   "kind": "locale",
+   "role_or_type": "Maya's profile locale for curated default assets",
+   "line": 91715
+  }
+ ]
+}

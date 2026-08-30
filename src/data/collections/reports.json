@@ -1,0 +1,170 @@
+[
+  {
+    "id": "RPT-GEN-BB-1",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "areaId": "AREA-BB-ASSEMBLY",
+        "utilisationPercent": 54
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-NF-1",
+    "tenantId": "TEN-NORTHFORGE",
+    "dataSet": "run-completion-rate-by-job",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "jobId": "JOB-GEN-NF-1",
+        "completionRate": 0.78
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-CW-1",
+    "tenantId": "TEN-CEDARWORKS",
+    "dataSet": "workflow-version-usage",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "workflowDefinitionId": "WFD-CW-GEN-03",
+        "runCount": 25
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-HD-1",
+    "tenantId": "TEN-HALLIDAY",
+    "dataSet": "qualification-override-frequency-by-role",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "role": "SUPERVISOR",
+        "overrideCount": 4
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-SG-1",
+    "tenantId": "TEN-SUMMITGEAR",
+    "dataSet": "tier-allocation-consumption-trend",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "month": "2026-08",
+        "percentOfAllocation": 133
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-MR-1",
+    "tenantId": "TEN-MERIDIAN",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "areaId": "AREA-MR-CLEAN",
+        "utilisationPercent": 93
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-DW-1",
+    "tenantId": "TEN-DELTAWORKS",
+    "dataSet": "tier-allocation-consumption-trend",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "month": "2026-08",
+        "percentOfAllocation": 70
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-PW-1",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "dataSet": "workflow-version-usage",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "workflowDefinitionId": "WFD-PW-GEN-10",
+        "runCount": 4
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-SM-1",
+    "tenantId": "TEN-SOLMETAL",
+    "dataSet": "workflow-version-usage",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "workflowDefinitionId": "WFD-SM-GEN-25",
+        "runCount": 14
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-HW-1",
+    "tenantId": "TEN-HARBORWORKS",
+    "dataSet": "run-completion-rate-by-job",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "jobId": "JOB-GEN-HW-1",
+        "completionRate": 0.98
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-AC-1",
+    "tenantId": "TEN-AZURACOMP",
+    "dataSet": "run-completion-rate-by-job",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "jobId": "JOB-GEN-AC-1",
+        "completionRate": 0.86
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-KD-1",
+    "tenantId": "TEN-KESTRELDYN",
+    "dataSet": "qualification-override-frequency-by-role",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "role": "SUPERVISOR",
+        "overrideCount": 4
+      }
+    ]
+  }
+]

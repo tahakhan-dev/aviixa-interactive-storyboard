@@ -1,0 +1,86 @@
+[
+  {
+    "id": "ENT-0001",
+    "tier": "starter",
+    "featureKey": "agent-builder",
+    "included": false,
+    "cap": null
+  },
+  {
+    "id": "ENT-0002",
+    "tier": "growth",
+    "featureKey": "agent-builder",
+    "included": true,
+    "cap": null
+  },
+  {
+    "id": "ENT-0003",
+    "tier": "enterprise",
+    "featureKey": "agent-builder",
+    "included": true,
+    "cap": null
+  },
+  {
+    "id": "ENT-0004",
+    "tier": "starter",
+    "featureKey": "custom-report-builder",
+    "included": false,
+    "cap": null
+  },
+  {
+    "id": "ENT-0005",
+    "tier": "growth",
+    "featureKey": "custom-report-builder",
+    "included": true,
+    "cap": null
+  },
+  {
+    "id": "ENT-0006",
+    "tier": "enterprise",
+    "featureKey": "custom-report-builder",
+    "included": true,
+    "cap": null
+  },
+  {
+    "id": "ENT-0007",
+    "tier": "starter",
+    "featureKey": "training-library",
+    "included": true,
+    "cap": null
+  },
+  {
+    "id": "ENT-0008",
+    "tier": "growth",
+    "featureKey": "training-library",
+    "included": true,
+    "cap": null
+  },
+  {
+    "id": "ENT-0009",
+    "tier": "enterprise",
+    "featureKey": "training-library",
+    "included": true,
+    "cap": null
+  },
+  {
+    "id": "ENT-0010",
+    "tier": "starter",
+    "featureKey": "worker-shift-allocation",
+    "included": true,
+    "cap": 99
+  },
+  {
+    "id": "ENT-0011",
+    "tier": "growth",
+    "featureKey": "worker-shift-allocation",
+    "included": true,
+    "cap": 199
+  },
+  {
+    "id": "ENT-0012",
+    "tier": "enterprise",
+    "featureKey": "worker-shift-allocation",
+    "included": true,
+    "cap": null
+  }
+]

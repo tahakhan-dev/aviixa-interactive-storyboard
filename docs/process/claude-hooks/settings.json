@@ -1,0 +1,47 @@
+{
+  "$comment": [
+    "Every command runs from AVIIXA_Interactive_Storyboard, not from this directory.",
+    "graphify resolves graphify-out/ relative to the working directory, and the graph",
+    "lives inside the repo while sessions run from its parent. Without the cd the",
+    "guards emit nothing at all and the Stop hook finds no graph -- both fail silently,",
+    "which is the worst way for a guard to be wrong.",
+    "PreToolUse guards are graphify's own: they push a search through the graph before",
+    "it becomes a grep over 122,241 lines. Stop keeps the graph in step with the code.",
+    "graph-update.mjs is used instead of `graphify update .` because that command",
+    "rebuilds from the CODE corpus alone and writes it as the whole graph -- run once,",
+    "it replaced 29,498 nodes with 6,849 and discarded every blueprint node."
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Interactive_Storyboard && /Users/tahakhan/.local/bin/graphify hook-guard search"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Interactive_Storyboard && /Users/tahakhan/.local/bin/graphify hook-guard read"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Interactive_Storyboard && node scripts/graph-update.mjs",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  }
+}

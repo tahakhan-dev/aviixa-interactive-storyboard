@@ -1,0 +1,184 @@
+[
+  {
+    "id": "CB-BB-FRAME-TORQUE-ZERO",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "title": "Torque Wrench Zero and Calibration Check",
+    "text": "Zero the torque wrench on the calibration stand before your first reading of the shift. If the needle does not return to zero within one graduation, tag the wrench out of service and swap it at the tool crib — do not adjust it yourself.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WI-BB-FRAME-02",
+      "WI-BB-FRAME-05"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-BB-FRAME-HANDLING",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "title": "Frame Handling and PPE Reminder",
+    "text": "Wear cut-resistant gloves whenever you handle an unpainted frame — the tube edges at the head tube and bottom bracket shell stay sharp until deburred. Support the frame at the bottom bracket shell, never by the derailleur hanger; the hanger bends under a fraction of the frame’s weight.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WI-BB-FRAME-01",
+      "WI-BB-FRAME-03",
+      "WI-BB-FRAME-04",
+      "WI-BB-FRAME-06",
+      "WI-BB-FRAME-07",
+      "WI-BB-FRAME-08"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-BB-GEN-1",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "title": "Material Handling Advisory",
+    "text": "Return tools to their marked shadow-board position at the end of each cycle so the next operator finds a clean station.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-BB-GEN-15-WI-1"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-NF-GEN-2",
+    "tenantId": "TEN-NORTHFORGE",
+    "title": "Material Handling Advisory",
+    "text": "Confirm the tool or gauge at this station carries a current calibration sticker before you rely on its reading.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-NF-GEN-02-WI-3"
+    ],
+    "status": "draft"
+  },
+  {
+    "id": "CB-CW-GEN-3",
+    "tenantId": "TEN-CEDARWORKS",
+    "title": "Material Handling Advisory",
+    "text": "Return tools to their marked shadow-board position at the end of each cycle so the next operator finds a clean station.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-CW-GEN-03-WI-1"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-HD-GEN-4",
+    "tenantId": "TEN-HALLIDAY",
+    "title": "Safety and PPE Reminder",
+    "text": "Confirm the tool or gauge at this station carries a current calibration sticker before you rely on its reading.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-HD-GEN-18-WI-1"
+    ],
+    "status": "draft"
+  },
+  {
+    "id": "CB-VG-GEN-5",
+    "tenantId": "TEN-VANTAGE",
+    "title": "Tool Calibration Note",
+    "text": "Stage parts on the marked tray only; mixed or unmarked parts get pulled and quarantined rather than guessed at.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-VG-GEN-05-WI-1"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-IC-GEN-6",
+    "tenantId": "TEN-IRONCLAD",
+    "title": "Tool Calibration Note",
+    "text": "Complete the pre-operation walk-around before the first cycle of the shift and note anything unusual on the shift log.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-IC-GEN-06-WI-1"
+    ],
+    "status": "draft"
+  },
+  {
+    "id": "CB-SG-GEN-7",
+    "tenantId": "TEN-SUMMITGEAR",
+    "title": "Pre-Op Checklist Reminder",
+    "text": "Confirm the tool or gauge at this station carries a current calibration sticker before you rely on its reading.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-SG-GEN-07-WI-3"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-MR-GEN-8",
+    "tenantId": "TEN-MERIDIAN",
+    "title": "Safety and PPE Reminder",
+    "text": "Return tools to their marked shadow-board position at the end of each cycle so the next operator finds a clean station.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-MR-GEN-08-WI-1"
+    ],
+    "status": "draft"
+  },
+  {
+    "id": "CB-DW-GEN-9",
+    "tenantId": "TEN-DELTAWORKS",
+    "title": "Safety and PPE Reminder",
+    "text": "Return tools to their marked shadow-board position at the end of each cycle so the next operator finds a clean station.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-DW-GEN-09-WI-2"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-PW-GEN-10",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "title": "Housekeeping Standard",
+    "text": "Confirm the tool or gauge at this station carries a current calibration sticker before you rely on its reading.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-PW-GEN-10-WI-3"
+    ],
+    "status": "draft"
+  },
+  {
+    "id": "CB-SM-GEN-11",
+    "tenantId": "TEN-SOLMETAL",
+    "title": "Material Handling Advisory",
+    "text": "Confirm the tool or gauge at this station carries a current calibration sticker before you rely on its reading.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-SM-GEN-11-WI-1"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-HW-GEN-12",
+    "tenantId": "TEN-HARBORWORKS",
+    "title": "Tool Calibration Note",
+    "text": "Return tools to their marked shadow-board position at the end of each cycle so the next operator finds a clean station.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-HW-GEN-26-WI-2"
+    ],
+    "status": "draft"
+  },
+  {
+    "id": "CB-AC-GEN-13",
+    "tenantId": "TEN-AZURACOMP",
+    "title": "Pre-Op Checklist Reminder",
+    "text": "Wear the required personal protective equipment for this station before you begin, and flag your supervisor if any guard or interlock looks disabled.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-AC-GEN-13-WI-3"
+    ],
+    "status": "published"
+  },
+  {
+    "id": "CB-KD-GEN-14",
+    "tenantId": "TEN-KESTRELDYN",
+    "title": "Safety and PPE Reminder",
+    "text": "Complete the pre-operation walk-around before the first cycle of the shift and note anything unusual on the shift log.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WFD-KD-GEN-14-WI-1"
+    ],
+    "status": "draft"
+  }
+]

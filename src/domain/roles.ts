@@ -1,0 +1,190 @@
+import type { SurfaceId } from './surfaces'
+
+export type SecurityDomain = 'PLATFORM' | 'TENANT'
+
+export type RoleId =
+  // Platform security domain — four fixed console roles (MOD-SA-08).
+  | 'ROOT_SUPER_ADMIN'
+  | 'ADMIN'
+  | 'PLATFORM_ENGINEER'
+  | 'SUPPORT'
+  // Tenant security domain — exactly five fixed tenant roles (MOD-DOH-09).
+  | 'TENANT_ADMIN'
+  | 'SUPERVISOR'
+  | 'QUALITY_MANAGER'
+  | 'READONLY_AUDITOR'
+  | 'WORKER'
+
+export interface RoleDefinition {
+  readonly id: RoleId
+  /** Full human-readable name shown in the interface. */
+  readonly name: string
+  readonly domain: SecurityDomain
+  /** One plain-language sentence: who this is and what they are here to do. */
+  readonly purpose: string
+  /** The surface this role lands on after signing in. */
+  readonly homeSurface: SurfaceId
+  /** Surfaces this role may reach at all. */
+  readonly reachableSurfaces: readonly SurfaceId[]
+  /** True only for the one backend-created root account. */
+  readonly backendCreatedOnly: boolean
+  /** null means unlimited. */
+  readonly maxInstances: number | null
+  /** Source locator for this role's definition. */
+  readonly sourceRef: string
+}
+
+// Task 13 gate: same widening hazard and same fix as `SURFACES` in
+// `@/domain/surfaces` -- `as const satisfies` keeps every `id` literal
+// narrowed to `RoleId`, so the exhaustiveness check below is real.
+export const ROLES = [
+  {
+    id: 'ROOT_SUPER_ADMIN',
+    name: 'Root Super Admin',
+    domain: 'PLATFORM',
+    purpose:
+      'The one account created behind the scenes when the platform is first stood up, held in the client’s custody.',
+    homeSurface: 'SURF-SA',
+    reachableSurfaces: ['SURF-SA'],
+    backendCreatedOnly: true,
+    maxInstances: 1,
+    sourceRef: 'MOD-SA-08 / §8.8',
+  },
+  {
+    id: 'ADMIN',
+    name: 'Admin',
+    domain: 'PLATFORM',
+    purpose:
+      'Runs the platform console day to day, under maker-checker so no single person changes something critical alone.',
+    homeSurface: 'SURF-SA',
+    reachableSurfaces: ['SURF-SA'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-SA-08 / §8.8',
+  },
+  {
+    id: 'PLATFORM_ENGINEER',
+    name: 'Platform Engineer',
+    domain: 'PLATFORM',
+    purpose:
+      'Looks after the platform’s technical health and configuration, and is held to the same maker-checker boundaries.',
+    homeSurface: 'SURF-SA',
+    reachableSurfaces: ['SURF-SA'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-SA-08 / §8.8',
+  },
+  {
+    id: 'SUPPORT',
+    name: 'Support',
+    domain: 'PLATFORM',
+    purpose:
+      'Helps tenants who raise a problem. Read-only except for the small set of support actions the source names.',
+    homeSurface: 'SURF-SA',
+    reachableSurfaces: ['SURF-SA'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-SA-08, MOD-SA-15 / §8.8, §8.15',
+  },
+  {
+    id: 'TENANT_ADMIN',
+    name: 'Tenant Admin',
+    domain: 'TENANT',
+    purpose:
+      'Sets up and runs their own factory’s workspace: sites, shifts, people, roles and settings.',
+    homeSurface: 'SURF-DOH',
+    reachableSurfaces: ['SURF-DOH', 'SURF-STU', 'SURF-CC'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-DOH-09 / §3.5',
+  },
+  {
+    id: 'SUPERVISOR',
+    name: 'Supervisor',
+    domain: 'TENANT',
+    purpose:
+      'Runs the shift. Schedules Runs, assigns qualified workers, and watches the floor while it works.',
+    homeSurface: 'SURF-DOH',
+    reachableSurfaces: ['SURF-DOH', 'SURF-STU', 'SURF-CC'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-DOH-09 / §3.5',
+  },
+  {
+    id: 'QUALITY_MANAGER',
+    name: 'Quality Manager',
+    domain: 'TENANT',
+    purpose:
+      'Owns quality decisions. The only role that can release a lot hold, including an automatic Severity 1 hold.',
+    homeSurface: 'SURF-DOH',
+    reachableSurfaces: ['SURF-DOH', 'SURF-STU', 'SURF-CC'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-DOH-09, MOD-CC-13 / §3.5, §6.14.2',
+  },
+  {
+    id: 'READONLY_AUDITOR',
+    name: 'Read-only Auditor',
+    domain: 'TENANT',
+    purpose:
+      'Checks what happened without changing anything. Reads tenant-wide records and takes no action at all.',
+    homeSurface: 'SURF-DOH',
+    reachableSurfaces: ['SURF-DOH'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-DOH-09 / §3.5',
+  },
+  {
+    id: 'WORKER',
+    name: 'Worker',
+    domain: 'TENANT',
+    purpose:
+      'Does the work on the floor, on a tablet, and records the evidence that the work was done correctly.',
+    homeSurface: 'SURF-FL',
+    reachableSurfaces: ['SURF-FL'],
+    backendCreatedOnly: false,
+    maxInstances: null,
+    sourceRef: 'MOD-DOH-09, MOD-FL-A2 / §3.5, §7.4',
+  },
+] as const satisfies readonly RoleDefinition[]
+
+// Compile-time exhaustiveness check, same shape as `PERMISSION_OUTCOMES` in
+// `@/policy/decision.ts`: fails to compile if `RoleId` gains or loses a
+// member that `ROLES` does not list exactly once.
+type MissingFromRoles = Exclude<RoleId, (typeof ROLES)[number]['id']>
+const _rolesExhaustive: MissingFromRoles extends never ? true : never = true
+void _rolesExhaustive
+
+const BY_ID = new Map(ROLES.map((r) => [r.id, r]))
+
+export function roleById(id: RoleId): RoleDefinition {
+  const found = BY_ID.get(id)
+  if (!found) throw new Error(`Unknown role: ${id}`)
+  return found
+}
+
+export function rolesInDomain(
+  domain: SecurityDomain,
+): readonly RoleDefinition[] {
+  return ROLES.filter((r) => r.domain === domain)
+}
+
+/**
+ * DEC-PLUS-001. While the decision remains open this blueprint reads "and
+ * above" as an enumerated grant, never an inference from a rank ordering.
+ * "Supervisor and above" is the Supervisor grant and the Quality Manager
+ * grant. It does NOT include Tenant Admin, who is explicitly not an in-shift
+ * actor and is prohibited on all ten Command Center rows.
+ */
+export const SUPERVISOR_AND_ABOVE: readonly RoleId[] = [
+  'SUPERVISOR',
+  'QUALITY_MANAGER',
+] as const
+
+/**
+ * DEC-PLUS-001. No operational tenant role sits above Quality Manager, so
+ * "Quality Manager and above" is the Quality Manager grant alone.
+ */
+export const QUALITY_MANAGER_AND_ABOVE: readonly RoleId[] = [
+  'QUALITY_MANAGER',
+] as const

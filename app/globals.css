@@ -1,0 +1,298 @@
+@import "tailwindcss";
+
+/* Clean enterprise SaaS. Light neutral base, blue primary, conventional density.
+   Status colour is rationed: it never carries meaning alone. Every state also
+   carries an icon and a text label. See spec section 15.7. */
+@theme {
+  --color-canvas: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-ink: #0f172a;
+  --color-ink-muted: #475569;
+  /* 5.830:1 against --color-canvas (#f8fafc); was #64748b at 4.548:1, too
+     close to the 4.5:1 AA floor for a foundation token. Still subordinate
+     to --color-ink-muted (7.243:1). See research-ledger.json / task-1
+     fix-round-1 report. */
+  --color-ink-subtle: #54637a;
+
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #1e40af;
+  --color-primary-ink: #ffffff;
+
+  /* StatusPill paints the tone over a 10% tint of ITSELF, so the achieved
+     ratio depends on the surface BEHIND the pill, not on --color-surface.
+     The darkest of those is --color-surface-sunken (#f1f5f9), which hosts 28
+     of the 51 token-backed panels. Measured there:
+       ok    #047857 -> 4.383:1  FAILED SC 1.4.3 on /hub/ (axe, 12px normal)
+       info  #0369a1 -> 4.701:1  passed AA but under this file's 4.75 rule
+     Both darkened along their own hue/saturation axis (emerald 163deg/94%,
+     sky 201deg/96%) to the lightest value clearing 4.75:1 on the sunken
+     tint -- 5.008:1 and 4.984:1. Hue is unchanged, so the six tones stay
+     distinguishable by hue, not by lightness. See a11y-contrast-report.md. */
+  --color-status-ok: #036d4f;
+  --color-status-info: #03659b;
+  --color-status-attention: #a04a08;
+  --color-status-blocked: #b91c1c;
+  --color-status-stale: #6d28d9;
+  --color-status-neutral: #475569;
+
+  --spacing-gutter: 1rem;
+  --radius-control: 0.375rem;
+  --radius-surface: 0.5rem;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+:root { color-scheme: light; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Visible, unobscured focus everywhere. WCAG 2.2 AA.
+   Task 9: was `var(--color-primary)`, a legacy token with no dark-mode
+   redefinition — #1d4ed8 measures only 2.65:1 against the new dark
+   `--surface` (#111827), under the 3:1 SC 1.4.11 floor for a non-text UI
+   indicator. Caught live in Chrome driving the product shell in dark mode,
+   not by reading the rule. `--accent` is dark-mode aware and its light value
+   is the identical #1d4ed8, so this is a no-op in light mode and a real fix
+   in dark: #3b82f6 measures 4.82:1 against the same dark surface. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+ * PRODUCT SHELL TOKENS (Task 9) — the vocabulary `src/ui/product/tokens.ts`
+ * types, and the only vocabulary `src/ui/product/**` may reference.
+ *
+ * A SECOND, ADDITIVE LAYER, NOT A REPLACEMENT. The `--color-*` set above
+ * (task 1, 24 properties) is already consumed by every existing screen
+ * under app/super-admin, app/hub, app/studio, app/command-center and
+ * app/frontline through their own per-surface Shell components — none of
+ * those files are touched by this task, so none of those properties move or
+ * change value. This block adds the fuller semantic set the brief asks for
+ * (surface/raised/sunken, ink/ink-muted/ink-subtle, border/border-strong,
+ * accent/accent-ink, a ten-member status family with a background pair
+ * each, and spacing/radius/elevation/density/z-index scales) under new,
+ * unprefixed names so the two layers cannot collide, and defines the
+ * complete light palette on bare `:root` — nothing below has its only
+ * definition inside a media query.
+ *
+ * CONTRAST WAS COMPUTED, NOT EYEBALLED — every body-text pair below clears
+ * 4.5:1 and every border pair clears 3:1 against the surface it is drawn
+ * on, checked with the standard WCAG relative-luminance formula before this
+ * was written and re-verified against the rendered page in Chrome (Task 9
+ * report, ledger). `status-*` foregrounds are checked against their OWN
+ * `-bg` pair (the shape a status pill actually renders) and against
+ * `--surface` (the shape a status-coloured label on a plain panel renders).
+ */
+:root {
+  --surface: #ffffff;
+  --raised: #ffffff;
+  --sunken: #f1f5f9;
+  --ink: #0f172a;
+  --ink-muted: #475569;
+  --ink-subtle: #54637a;
+  --border: #7c8ba1;
+  --border-strong: #64748b;
+  --accent: #1d4ed8;
+  --accent-ink: #ffffff;
+
+  --status-ok: #036d4f;
+  --status-ok-bg: #d1fae5;
+  --status-info: #03659b;
+  --status-info-bg: #dbeafe;
+  --status-warn: #a04a08;
+  --status-warn-bg: #fef3c7;
+  --status-danger: #b91c1c;
+  --status-danger-bg: #fee2e2;
+  --status-stale: #6d28d9;
+  --status-stale-bg: #ede9fe;
+  --status-offline: #475569;
+  --status-offline-bg: #e2e8f0;
+  --status-queued: #4338ca;
+  --status-queued-bg: #e0e7ff;
+  --status-pending: #0e7490;
+  --status-pending-bg: #cffafe;
+  --status-conflict: #c2410c;
+  --status-conflict-bg: #ffedd5;
+  --status-blocked: #991b1b;
+  --status-blocked-bg: #fecaca;
+
+  /* Spacing scale, in rem so it follows the user's root font size. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-pill: 999px;
+
+  /* Elevation: box-shadow tokens. Light-mode shadows read against a light
+     surface; the dark-mode redefinition below swaps to an opacity that
+     reads against a dark one rather than reusing the same rgba values. */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --elevation-2: 0 4px 8px rgba(15, 23, 42, 0.1);
+  --elevation-3: 0 16px 32px rgba(15, 23, 42, 0.18);
+
+  /* Density: paired gap and minimum interactive-target size per surface
+     character. `compact` and `comfortable` stay above the 24px WCAG 2.5.8 AA
+     floor throughout.
+
+     `spacious` IS THE FRONTLINE DENSITY, EXCLUSIVELY — `AppShell.tsx`'s
+     `chromeFor` gives `density: 'spacious'` only to `SURF-FL`, and nothing
+     else in the codebase names this token (checked: `grep -rn "'spacious'"
+     src app`, task 13 fix round 1). So the value below is a Frontline-only
+     dial, not a global one, even though it lives beside the other three
+     surfaces' densities.
+
+     44px (the WCAG 2.5.5 AAA bare-fingertip figure) was the value here
+     through task 13's first pass, and a review correctly called it "exactly
+     on the floor, zero slack" for a surface whose own requirement (frozen
+     source `AVIIXA_Production_Product_Blueprint.md` L106276, `DEC-NFR-007`,
+     "Required") is stricter than bare-fingertip: "Minimum 11 millimetres
+     square for any control a gloved worker uses in the run player."
+
+     11mm DOES NOT MAP TO A FIXED CSS-PIXEL COUNT — that is the actual
+     defect the first pass missed, not merely the old value. The CSS spec's
+     96px-per-inch reference pixel governs `mm`/`in` UNIT ARITHMETIC, not
+     how many real millimetres a device's browser renders one CSS pixel as;
+     that is set by the OS's own devicePixelRatio calibration, and a real
+     "roughly twelve-inch tablet" (the source's own device class, `§7.19`)
+     runs meaningfully denser than 96dpi — a 12.9" tablet-class device
+     (2732x2048 physical px at 2x, 1366x1024 CSS px, ~262.9mm wide) computes
+     to ~132 CSS px per inch, not 96. 11mm at that density needs
+     11 * 132 / 25.4 ≈ 57.2px, not the ~41.6px the 96dpi convention would
+     suggest — the 96dpi math would have UNDER-sized the target a second
+     time in the same file. `3.75rem` (60px) clears 57.2px with real margin
+     (≈11.5mm at 132px/in) and clears the lenient 96dpi reading by a wide
+     margin too (≈19mm), so it holds under either device-density
+     assumption. Kept off a round `4rem` deliberately: the source's own
+     trade-off column for this row is real ("larger targets reduce
+     information density"), so the value is the smallest one this build
+     could show was safe under the stricter of the two readings, not the
+     roundest available number. */
+  --density-compact-gap: 0.5rem;
+  --density-compact-control-min: 2rem;
+  --density-comfortable-gap: 0.75rem;
+  --density-comfortable-control-min: 2.25rem;
+  --density-spacious-gap: 1.25rem;
+  --density-spacious-control-min: 3.75rem;
+
+  --z-nav: 10;
+  --z-header: 20;
+  --z-dropdown: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+}
+
+/* System preference. Guarded so an explicit `data-theme="light"` toggle
+   (below the media query in source order, but the guard is what actually
+   makes it win — see the `:root[data-theme="dark"]` block) overrides it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: #111827;
+    --raised: #1f2937;
+    --sunken: #0b1220;
+    --ink: #f1f5f9;
+    --ink-muted: #cbd5e1;
+    --ink-subtle: #94a3b8;
+    --border: #64748b;
+    --border-strong: #94a3b8;
+    --accent: #3b82f6;
+    --accent-ink: #0b1220;
+
+    --status-ok: #34d399;
+    --status-ok-bg: #064e3b;
+    --status-info: #38bdf8;
+    --status-info-bg: #082f49;
+    --status-warn: #fbbf24;
+    --status-warn-bg: #78350f;
+    --status-danger: #f87171;
+    --status-danger-bg: #450a0a;
+    --status-stale: #c4b5fd;
+    --status-stale-bg: #4c1d95;
+    --status-offline: #94a3b8;
+    --status-offline-bg: #1e293b;
+    --status-queued: #a5b4fc;
+    --status-queued-bg: #312e81;
+    --status-pending: #22d3ee;
+    --status-pending-bg: #164e63;
+    --status-conflict: #fdba74;
+    --status-conflict-bg: #7c2d12;
+    --status-blocked: #fca5a5;
+    --status-blocked-bg: #7f1d1d;
+
+    --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --elevation-2: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --elevation-3: 0 16px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Explicit toggle. Higher specificity than the media-guarded rule above
+   (an attribute selector on :root beats a bare :root, media query aside),
+   so this wins over a light system preference; the media query's own
+   `:not([data-theme="light"])` guard is what lets an explicit LIGHT choice
+   win over a dark system preference in the other direction. Both win. */
+:root[data-theme="dark"] {
+  --surface: #111827;
+  --raised: #1f2937;
+  --sunken: #0b1220;
+  --ink: #f1f5f9;
+  --ink-muted: #cbd5e1;
+  --ink-subtle: #94a3b8;
+  --border: #64748b;
+  --border-strong: #94a3b8;
+  --accent: #3b82f6;
+  --accent-ink: #0b1220;
+
+  --status-ok: #34d399;
+  --status-ok-bg: #064e3b;
+  --status-info: #38bdf8;
+  --status-info-bg: #082f49;
+  --status-warn: #fbbf24;
+  --status-warn-bg: #78350f;
+  --status-danger: #f87171;
+  --status-danger-bg: #450a0a;
+  --status-stale: #c4b5fd;
+  --status-stale-bg: #4c1d95;
+  --status-offline: #94a3b8;
+  --status-offline-bg: #1e293b;
+  --status-queued: #a5b4fc;
+  --status-queued-bg: #312e81;
+  --status-pending: #22d3ee;
+  --status-pending-bg: #164e63;
+  --status-conflict: #fdba74;
+  --status-conflict-bg: #7c2d12;
+  --status-blocked: #fca5a5;
+  --status-blocked-bg: #7f1d1d;
+
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --elevation-2: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --elevation-3: 0 16px 32px rgba(0, 0, 0, 0.6);
+}
